@@ -111,8 +111,16 @@ export function TeamMark({
     <span
       role="img"
       aria-label={`${team.name} logo`}
-      className={`num inline-flex shrink-0 items-center justify-center font-extrabold tracking-wide ${className}`}
-      style={{ width: size, height: size, background: team.primaryColor, color: readableOn(team.primaryColor), fontSize: Math.max(10, size * 0.3) }}
+      className={`num inline-flex shrink-0 items-center justify-center overflow-hidden whitespace-nowrap font-extrabold ${size >= 32 ? "tracking-wide" : ""} ${className}`}
+      style={{
+        width: size,
+        height: size,
+        background: team.primaryColor,
+        color: readableOn(team.primaryColor),
+        // Short names up to six characters must fit on one line at every size.
+        fontSize: Math.max(7, size * (team.shortName.length > 4 ? 0.2 : team.shortName.length > 3 ? 0.24 : 0.3)),
+        letterSpacing: size < 32 ? 0 : undefined,
+      }}
     >
       {team.shortName}
     </span>

@@ -103,7 +103,7 @@ export function QueueBuilder({ players, ctx }: { players: AdminPlayer[]; ctx: { 
             {s.items.length === 0 ? (
               <p className="p-3 text-sm text-muted">Empty set. Move players here, or it is dropped when you save.</p>
             ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd(si)} accessibility={{ announcements: {
+              <DndContext id={`queue-${s.key}`} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd(si)} accessibility={{ announcements: {
                 onDragStart: ({ active }) => `Picked up ${s.items.find((x) => x.auctionPlayerId === active.id)?.fullName}.`,
                 onDragOver: ({ over }) => (over ? `Over position ${s.items.findIndex((x) => x.auctionPlayerId === over.id) + 1}.` : ""),
                 onDragEnd: ({ over }) => (over ? `Dropped at position ${s.items.findIndex((x) => x.auctionPlayerId === over.id) + 1}.` : "Dropped."),
