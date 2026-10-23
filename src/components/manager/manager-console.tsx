@@ -359,6 +359,7 @@ export function ManagerConsole({ initial }: { initial: ManagerSnapshot }) {
         consequences={[t("manager.leaveConfirmBody", { team: me.name })]}
         confirmLabel={t("common.leaveAuction")}
         cancelLabel={t("common.cancel")}
+        closeLabel={t("common.close")}
         danger
       />
       <span className="sr-only" lang={locale} />

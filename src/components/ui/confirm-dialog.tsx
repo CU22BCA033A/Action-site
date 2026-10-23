@@ -17,6 +17,7 @@ export function ConfirmDialog({
   consequences,
   confirmLabel,
   cancelLabel = "Cancel",
+  closeLabel = "Close",
   danger = false,
   busy = false,
   requireReason = false,
@@ -32,6 +33,7 @@ export function ConfirmDialog({
   consequences: ReactNode[];
   confirmLabel: string;
   cancelLabel?: string;
+  closeLabel?: string;
   danger?: boolean;
   busy?: boolean;
   requireReason?: boolean;
@@ -45,7 +47,7 @@ export function ConfirmDialog({
   const missingReason = requireReason && reason.trim().length === 0;
 
   return (
-    <Dialog open={open} onClose={busy ? () => {} : onClose} title={title} closeLabel={cancelLabel}>
+    <Dialog open={open} onClose={busy ? () => {} : onClose} title={title} closeLabel={closeLabel}>
       <ul className="flex flex-col gap-2 border-l-2 border-line-strong pl-4 text-sm text-muted">
         {consequences.map((c, i) => (
           <li key={i}>{c}</li>
