@@ -1,0 +1,17 @@
+# Project rules
+- Server is the source of truth for bids, purse, timers. Never trust the client.
+- All bid and floor changes go through the Postgres RPC functions in /supabase. Never update floor_state or bids directly.
+- Money is integer points. No floats.
+- Zero cost: no paid services, no email or SMS, no third-party auth, analytics or CAPTCHA. Free tiers only.
+- Admin credentials come only from env vars (ADMIN_USERNAME, ADMIN_PASSWORD_HASH). Never write them in code, tests, docs or commits.
+- Team owners have no accounts. They enter a team access code at /join. Store only the HMAC hash of codes.
+- Each team has its own purse, set by the admin.
+- No rule value is hardcoded. Slabs, squad sizes, role minimums and maximums, timers and base prices are editable by the admin in the UI. The bid engine reads them fresh from the database on every bid.
+- Live rule edits apply forward only, run a conflict check first, and are audited.
+- Sports are data in `sports.config`. Never hardcode a sport's roles in components.
+- All business details come from site.config.ts. Never type them inline.
+- Hard design bans: gradients, emoji icons, em dashes, fill-shift hovers, cursor effects, scroll animations, stock or AI images, fake reviews, fake metrics, fake counters.
+- Accessibility: WCAG 2.2 AA. Every drag action needs a keyboard path.
+- No horizontal overflow at 320px and up.
+- Before saying a task is done: run typecheck, lint, vitest, playwright, and npm run launch-check.
+- Record non-obvious decisions in docs/decisions.md.

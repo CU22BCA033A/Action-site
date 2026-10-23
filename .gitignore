@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# testing and reports
+/coverage
+/test-results/
+/playwright-report/
+/reports/
+
+# local data written in development only
+/.data/
+
+# env files: secrets live only here, never in git
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
