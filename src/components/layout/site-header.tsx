@@ -42,11 +42,14 @@ export function SiteHeader({ brand }: { brand: string }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] shadow-[var(--card-shadow)] backdrop-blur-xl">
+      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
-          <LogoMark className="size-8 shrink-0" />
-          {brand ? <span className="truncate display text-lg font-extrabold text-accent-text">{brand}</span> : null}
+          <span className="relative shrink-0">
+            <span aria-hidden="true" className="absolute inset-0 rounded-full bg-royal opacity-30 blur-md" />
+            <LogoMark className="relative size-10" />
+          </span>
+          {brand ? <span className="truncate display text-xl font-black text-gold md:text-2xl">{brand}</span> : null}
         </Link>
 
         <nav aria-label={t("nav.primary")} className="ml-6 hidden lg:block">
@@ -56,7 +59,7 @@ export function SiteHeader({ brand }: { brand: string }) {
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-[0.95rem] font-semibold text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
+                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-[0.95rem] font-semibold uppercase tracking-wider text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
                 >
                   {t(`nav.${item.key}`)}
                 </Link>

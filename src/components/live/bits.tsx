@@ -73,12 +73,12 @@ export function roleInfo(snapshot: Snapshot, key: string) {
 }
 
 /** Solid progress bar with a text value elsewhere; never colour alone. */
-export function Meter({ value, max, tone = "accent", label }: { value: number; max: number; tone?: "accent" | "spent" | "sold" | "info"; label: string }) {
+export function Meter({ value, max, tone = "accent", label }: { value: number; max: number; tone?: "accent" | "spent" | "sold" | "info" | "warning"; label: string }) {
   const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
-  const bg = tone === "spent" ? "bg-spent" : tone === "sold" ? "bg-sold" : tone === "info" ? "bg-info" : "bg-accent";
+  const bg = tone === "spent" ? "bg-spent" : tone === "sold" ? "bg-sold" : tone === "info" ? "bg-info" : tone === "warning" ? "bg-warning" : "bg-accent";
   return (
-    <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
-      <div className={`h-full ${bg} transition-[width] duration-300`} style={{ width: `${pct}%` }} />
+    <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className="h-1.5 w-full overflow-hidden rounded-full bg-surface-3">
+      <div className={`h-full rounded-full ${bg} transition-[width] duration-500`} style={{ width: `${pct}%` }} />
     </div>
   );
 }

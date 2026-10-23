@@ -215,6 +215,7 @@ const en = {
     rank: "Rank {n}",
     squadLine: "{n} of {max} players, {o} overseas",
     unitLeft: "{unit} left",
+    purseLeftPct: "{team} has {pct}% of its purse left",
     purseUsed: "{team} has used {pct}% of its purse",
     bidHistory: "Bids for this player",
     upNext: "Up next",

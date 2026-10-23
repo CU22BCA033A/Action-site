@@ -8,12 +8,16 @@ import { formatPoints, formatStat, formatTime } from "@/lib/format";
 import type { Snapshot } from "@/lib/live/types";
 import { Meter, PhaseBadge, Price, roleInfo, teamById } from "./bits";
 import { useLive } from "./live-provider";
+import { SoldMoment, useSoldMoment } from "./sold-moment";
 import { useCountdown } from "./use-live-auction";
 
 export function LiveView() {
   const { snapshot } = useLive();
+  const sold = useSoldMoment(snapshot, 2300);
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)_minmax(0,21rem)]">
+    <>
+    {sold.active ? <SoldMoment snapshot={snapshot} onDismiss={sold.dismiss} /> : null}
+    <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)_minmax(0,21rem)]">
       <div className="order-2 lg:order-1">
         <RecentSales snapshot={snapshot} />
       </div>
@@ -26,14 +30,15 @@ export function LiveView() {
         <TeamStandings snapshot={snapshot} />
       </div>
     </div>
+    </>
   );
 }
 
 function Panel({ title, icon, children, action }: { title: string; icon?: React.ReactNode; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <section className="rounded-[var(--radius-md)] border border-line bg-surface" aria-label={title}>
+    <section className="card" aria-label={title}>
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <h2 className="flex items-center gap-2 text-base">
+        <h2 className="flex items-center gap-2 text-base font-bold">
           {icon}
           {title}
         </h2>
@@ -55,8 +60,8 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
 
   if (!p) {
     return (
-      <section aria-live="polite" className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[var(--radius-md)] border border-line bg-surface px-6 py-12 text-center">
-        <span className="inline-flex size-24 items-center justify-center rounded-full bg-surface-2 text-muted">
+      <section aria-live="polite" className="card-gold flex min-h-80 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+        <span className="inline-flex size-24 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--surface-3)_60%,transparent)] text-muted">
           <Radio className="size-11" aria-hidden="true" />
         </span>
         <h2 className="text-2xl sm:text-3xl">{t("live.waitingTitle")}</h2>
@@ -77,14 +82,14 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
     leader ? t("live.announceBid", { price: formatPoints(f.currentPrice), unit, team: leader.name }) : "";
 
   return (
-    <section className={`rounded-[var(--radius-md)] border bg-surface ${sold ? "border-sold" : unsold ? "border-unsold" : f.phase === "live" ? "border-accent-edge" : "border-line"}`} aria-labelledby="floor-player-name">
+    <section className={`overflow-hidden ${f.phase === "live" ? "card-gold pulse-gold" : "card"} ${sold ? "!border-sold" : unsold ? "!border-unsold" : ""}`} aria-labelledby="floor-player-name">
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
         <div className="flex items-center gap-2">
           <PhaseBadge phase={f.phase} hasPlayer />
-          <span className="num rounded-[var(--radius-xs)] bg-info-surface px-2 py-1 text-xs font-bold text-info">{t("live.lot", { n: p.lotNo })}</span>
+          <span className="num rounded-[var(--radius-xs)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] px-2 py-1 text-xs font-bold text-text">{t("live.lot", { n: p.lotNo })}</span>
           <span className="text-sm text-muted">{p.setName}</span>
         </div>
         {f.phase === "live" && left !== null ? (
@@ -96,7 +101,7 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
       </div>
 
       <div className="grid gap-5 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:p-6">
-        <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={big ? 220 : 168} priority className="rounded-[var(--radius-md)] border border-line" />
+        <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={big ? 220 : 168} priority className="rounded-[var(--radius-sm)] border border-line bg-surface-2" />
         <div className="flex min-w-0 flex-col gap-3">
           <div>
             <h2 id="floor-player-name" className={big ? "text-4xl" : "text-2xl sm:text-3xl"}>
@@ -112,9 +117,9 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
           {statFields.length ? (
             <dl className="grid grid-cols-3 gap-2 2xl:grid-cols-5">
               {statFields.map((s) => (
-                <div key={s.key} className="rounded-[var(--radius-sm)] bg-surface-2 px-2 py-1.5">
+                <div key={s.key} className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--surface-3)_45%,transparent)] px-2 py-1.5 text-center">
                   <dt className="truncate text-xs text-muted">{s.label}</dt>
-                  <dd className="num whitespace-nowrap text-base font-bold">{formatStat(p.stats[s.key]) || "0"}</dd>
+                  <dd className="num whitespace-nowrap text-lg font-bold">{formatStat(p.stats[s.key]) || "0"}</dd>
                 </div>
               ))}
             </dl>
@@ -125,9 +130,9 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
 
       <div className="grid gap-px border-t border-line bg-line sm:grid-cols-2">
         <div className="bg-surface px-4 py-4 sm:px-6">
-          <p className="text-sm font-semibold text-muted">{sold ? t("live.soldFor") : leader ? t("live.currentBid") : t("live.basePrice")}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted">{sold ? t("live.soldFor") : leader ? t("live.currentBid") : t("live.basePrice")}</p>
           <p className="mt-1 flex items-baseline gap-2">
-            <Price value={sold ? f.lastResultPrice : f.currentPrice} className={`${big ? "text-7xl" : "text-5xl sm:text-6xl"} font-extrabold ${sold ? "text-sold" : "text-accent-text"}`} />
+            <Price value={sold ? f.lastResultPrice : f.currentPrice} className={`${big ? "text-7xl" : "text-5xl sm:text-6xl"} font-bold ${sold ? "text-remaining" : "text-gold"}`} />
             <span className="text-muted">{unit}</span>
           </p>
           {!sold && leader && f.nextBidAmount !== null && f.phase === "live" ? (
@@ -135,10 +140,10 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
           ) : null}
         </div>
         <div className="bg-surface px-4 py-4 sm:px-6">
-          <p className="text-sm font-semibold text-muted">{sold ? t("live.boughtBy") : t("live.leadingTeam")}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted">{sold ? t("live.boughtBy") : t("live.leadingTeam")}</p>
           {(sold ? buyer : leader) ? (
             <div className="mt-2 flex items-center gap-3">
-              <TeamMark team={(sold ? buyer : leader)!} size={52} className="rounded-[var(--radius-sm)]" />
+              <TeamMark team={(sold ? buyer : leader)!} size={52} className="rounded-[var(--radius-md)] border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)]" />
               <span className="display text-xl font-bold uppercase">{(sold ? buyer : leader)!.name}</span>
             </div>
           ) : (
@@ -167,7 +172,7 @@ function RecentSales({ snapshot }: { snapshot: Snapshot }) {
           {snapshot.recentSales.map((s) => {
             const team = teamById(snapshot, s.teamId);
             return (
-              <li key={s.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] bg-surface-2 px-3 py-2.5">
+              <li key={s.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] px-3 py-2.5">
                 {team ? <TeamMark team={team} size={34} className="rounded-full" /> : null}
                 <div className="min-w-0 flex-1">
                   <Link href={`/players/${s.playerId}`} className="block truncate font-bold hover:underline">
@@ -197,9 +202,9 @@ export function TeamStandings({ snapshot, limit }: { snapshot: Snapshot; limit?:
         <ol className="flex flex-col gap-2 p-3">
           {ranked.map((team, i) => (
             <li key={team.id}>
-              <Link href={`/teams/${team.id}`} className="block rounded-[var(--radius-sm)] border border-line bg-surface-2 p-3 hover:border-line-strong">
+              <Link href={`/teams/${team.id}`} className={`block rounded-[var(--radius-md)] border bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] p-3 transition-shadow duration-300 hover:border-line-strong ${snapshot.floor.leadingTeamId === team.id && snapshot.floor.phase === "live" ? "glow-gold border-[color-mix(in_srgb,var(--accent)_50%,transparent)]" : "border-line"}`}>
                 <div className="flex items-center gap-3">
-                  <span className={`num inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-accent text-accent-ink" : "bg-surface-3 text-text"}`} aria-label={t("live.rank", { n: i + 1 })}>
+                  <span className={`num inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${rankClass(i)}`} aria-label={t("live.rank", { n: i + 1 })}>
                     {i + 1}
                   </span>
                   <TeamMark team={team} size={40} className="rounded-[var(--radius-sm)]" />
@@ -217,7 +222,7 @@ export function TeamStandings({ snapshot, limit }: { snapshot: Snapshot; limit?:
                   </div>
                 </div>
                 <div className="mt-2.5">
-                  <Meter value={team.purseSpent} max={team.purseTotal} tone="spent" label={t("live.purseUsed", { team: team.name, pct: team.purseTotal ? Math.round((team.purseSpent / team.purseTotal) * 100) : 0 })} />
+                  <Meter value={team.purseLeft} max={team.purseTotal} tone={purseTone(team.purseLeft, team.purseTotal)} label={t("live.purseLeftPct", { team: team.name, pct: team.purseTotal ? Math.round((team.purseLeft / team.purseTotal) * 100) : 0 })} />
                 </div>
               </Link>
             </li>
@@ -226,6 +231,20 @@ export function TeamStandings({ snapshot, limit }: { snapshot: Snapshot; limit?:
       )}
     </Panel>
   );
+}
+
+/** Gold, silver and bronze for the top three, as on the original standings. */
+function rankClass(i: number) {
+  if (i === 0) return "bg-accent text-accent-ink";
+  if (i === 1) return "bg-[#9ca3af] text-[#0b1220]";
+  if (i === 2) return "bg-[#c2410c] text-white";
+  return "bg-surface-3 text-muted";
+}
+
+/** Remaining purse bar: green above 60%, amber above 30%, red below. */
+function purseTone(left: number, total: number): "sold" | "warning" | "spent" {
+  const pct = total > 0 ? (left / total) * 100 : 0;
+  return pct > 60 ? "sold" : pct > 30 ? "warning" : "spent";
 }
 
 function BidTicker({ snapshot }: { snapshot: Snapshot }) {
@@ -242,7 +261,7 @@ function BidTicker({ snapshot }: { snapshot: Snapshot }) {
           {bids.map((b, i) => {
             const team = teamById(snapshot, b.teamId);
             return (
-              <li key={b.id} className={`flex items-center gap-3 px-4 py-2.5 ${i === 0 ? "bg-surface-2" : ""}`}>
+              <li key={b.id} className={`flex items-center gap-3 px-4 py-2.5 ${i === 0 ? "bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]" : ""}`}>
                 {team ? <TeamMark team={team} size={28} className="rounded-[var(--radius-xs)]" /> : null}
                 <span className="min-w-0 flex-1 truncate font-semibold uppercase tracking-wide">{team?.name}</span>
                 <span className="hidden text-xs text-faint sm:inline">{formatTime(b.createdAt, locale)}</span>
@@ -266,7 +285,7 @@ function UpNext({ snapshot }: { snapshot: Snapshot }) {
         {items.map((q) => {
           const role = roleInfo(snapshot, q.roleKey);
           return (
-            <li key={q.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] bg-surface-2 p-2.5">
+            <li key={q.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] p-2.5">
               <PlayerAvatar name={q.fullName} photoPath={q.photoPath} size={40} className="rounded-[var(--radius-sm)]" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-bold">{q.fullName}</p>

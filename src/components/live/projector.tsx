@@ -4,9 +4,10 @@ import { Gavel, Maximize, Minimize, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { PlayerAvatar, RoleChip, TeamMark } from "@/components/auction/identity";
-import { formatPoints, formatStat } from "@/lib/format";
+import { formatStat } from "@/lib/format";
 import { ConnectionIndicator, PhaseBadge, Price, roleInfo, teamById } from "./bits";
 import { useLive } from "./live-provider";
+import { SoldMoment, useSoldMoment } from "./sold-moment";
 import { useCountdown } from "./use-live-auction";
 
 const SOLD_MOMENT_MS = 7000;
@@ -67,21 +68,9 @@ export function ProjectorScreen() {
   const left = useCountdown(f.phase === "live" ? f.timerEndsAt : null, serverNow);
   const sound = useSyncExternalStore(subscribeSound, readSound, () => false);
   const [full, setFull] = useState(false);
-  // A sale already on screen when the page opened does not replay.
-  const [initialKey] = useState(`${f.currentAuctionPlayerId}:${f.phase}`);
-  const [finished, setFinished] = useState<string | null>(null);
-  const saleKey = f.phase === "sold" && f.currentAuctionPlayerId ? `${f.currentAuctionPlayerId}:sold` : null;
-  const moment = saleKey && saleKey !== initialKey && saleKey !== finished ? f.currentAuctionPlayerId : null;
-
-  // The sold moment plays once per sale, then settles into the sold card.
-  useEffect(() => {
-    if (!moment || !saleKey) return;
-    if (sound) knock();
-    const id = setTimeout(() => setFinished(saleKey), SOLD_MOMENT_MS);
-    return () => clearTimeout(id);
-    // Sound is read when the sale lands; toggling it later must not replay.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moment, saleKey]);
+  const { active: moment } = useSoldMoment(snapshot, SOLD_MOMENT_MS, () => {
+    if (readSound()) knock();
+  });
 
   useEffect(() => {
     const onChange = () => setFull(Boolean(document.fullscreenElement));
@@ -104,22 +93,22 @@ export function ProjectorScreen() {
   const standings = [...snapshot.teams].sort((x, y) => y.purseLeft - x.purseLeft);
 
   return (
-    <div className="relative flex min-h-dvh flex-col bg-bg text-text">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface px-6 py-4 xl:px-10">
+    <div className="relative flex min-h-dvh flex-col text-text">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-[color-mix(in_srgb,var(--surface)_70%,transparent)] px-6 py-4 shadow-[var(--card-shadow)] xl:px-10">
         <div className="min-w-0">
-          <p className="text-lg font-semibold text-muted">{a.sportName}</p>
-          <h1 className="truncate text-3xl text-accent-text xl:text-4xl">{a.name}</h1>
+          <p className="text-sm font-semibold uppercase tracking-widest text-muted">{a.sportName}</p>
+          <h1 className="truncate pb-1 text-3xl font-black uppercase text-gold xl:text-4xl">{a.name}</h1>
         </div>
-        <dl className="flex divide-x divide-line rounded-[var(--radius-md)] border border-line bg-bg-sunken">
+        <dl className="card flex divide-x divide-line">
           <div className="px-6 py-2 text-center">
-            <dt className="text-sm font-semibold text-muted">{t("live.totalSpent")}</dt>
-            <dd className="text-4xl font-bold text-spent">
+            <dt className="text-sm font-semibold uppercase tracking-wider text-muted">{t("live.totalSpent")}</dt>
+            <dd className="display text-3xl font-bold text-spent">
               <Price value={snapshot.totals.spent} />
             </dd>
           </div>
           <div className="px-6 py-2 text-center">
-            <dt className="text-sm font-semibold text-muted">{t("live.remaining")}</dt>
-            <dd className="text-4xl font-bold text-remaining">
+            <dt className="text-sm font-semibold uppercase tracking-wider text-muted">{t("live.remaining")}</dt>
+            <dd className="display text-3xl font-bold text-remaining">
               <Price value={snapshot.totals.remaining} />
             </dd>
           </div>
@@ -143,11 +132,11 @@ export function ProjectorScreen() {
 
       <main className="grid flex-1 gap-6 p-6 xl:grid-cols-[minmax(0,1fr)_26rem] xl:p-10">
         {p ? (
-          <section className={`flex flex-col rounded-[var(--radius-md)] border-2 bg-surface ${f.phase === "sold" ? "border-sold" : f.phase === "live" ? "border-accent-edge" : "border-line"}`} aria-live="polite">
+          <section className={`flex flex-col overflow-hidden ${f.phase === "live" ? "card-gold pulse-gold" : "card"} ${f.phase === "sold" ? "!border-sold" : ""}`} aria-live="polite">
             <div className="flex items-center justify-between border-b border-line px-8 py-4">
               <div className="flex items-center gap-3">
                 <PhaseBadge phase={f.phase} hasPlayer />
-                <span className="num text-xl font-bold text-info">{t("live.lot", { n: p.lotNo })}</span>
+                <span className="num text-xl font-bold text-text">{t("live.lot", { n: p.lotNo })}</span>
                 <span className="text-lg text-muted">{p.setName}</span>
               </div>
               {f.phase === "live" && left !== null ? (
@@ -167,7 +156,7 @@ export function ProjectorScreen() {
                   {a.sportConfig.statFields
                     .filter((s) => s.showOnCard)
                     .map((s) => (
-                      <div key={s.key} className="min-w-28 rounded-[var(--radius-sm)] bg-surface-2 px-4 py-2">
+                      <div key={s.key} className="min-w-28 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--surface-3)_45%,transparent)] px-4 py-2 text-center">
                         <dt className="text-sm text-muted">{s.label}</dt>
                         <dd className="num text-3xl font-bold">{formatStat(p.stats[s.key]) || "0"}</dd>
                       </div>
@@ -177,17 +166,17 @@ export function ProjectorScreen() {
             </div>
             <div className="grid gap-px border-t border-line bg-line lg:grid-cols-2">
               <div className="bg-surface px-8 py-6">
-                <p className="text-xl font-semibold text-muted">{f.phase === "sold" ? t("live.soldFor") : leader ? t("live.currentBid") : t("live.basePrice")}</p>
+                <p className="text-lg font-semibold uppercase tracking-wider text-muted">{f.phase === "sold" ? t("live.soldFor") : leader ? t("live.currentBid") : t("live.basePrice")}</p>
                 <p className="flex items-baseline gap-3">
-                  <Price value={f.phase === "sold" ? f.lastResultPrice : f.currentPrice} className={`text-[clamp(5rem,9vw,9rem)] font-extrabold leading-none ${f.phase === "sold" ? "text-sold" : "text-accent-text"}`} />
+                  <Price value={f.phase === "sold" ? f.lastResultPrice : f.currentPrice} className={`text-[clamp(5rem,9vw,9rem)] font-bold leading-none ${f.phase === "sold" ? "text-remaining" : "text-gold"}`} />
                   <span className="text-2xl text-muted">{unit}</span>
                 </p>
               </div>
               <div className="flex flex-col justify-center bg-surface px-8 py-6">
-                <p className="text-xl font-semibold text-muted">{f.phase === "sold" ? t("live.boughtBy") : t("live.leadingTeam")}</p>
+                <p className="text-lg font-semibold uppercase tracking-wider text-muted">{f.phase === "sold" ? t("live.boughtBy") : t("live.leadingTeam")}</p>
                 {(f.phase === "sold" ? buyer : leader) ? (
                   <div className="mt-3 flex items-center gap-4">
-                    <TeamMark team={(f.phase === "sold" ? buyer : leader)!} size={88} className="rounded-[var(--radius-md)]" />
+                    <TeamMark team={(f.phase === "sold" ? buyer : leader)!} size={88} className="rounded-[var(--radius-md)] border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)]" />
                     <span className="display text-4xl font-bold uppercase">{(f.phase === "sold" ? buyer : leader)!.name}</span>
                   </div>
                 ) : (
@@ -197,19 +186,19 @@ export function ProjectorScreen() {
             </div>
           </section>
         ) : (
-          <section className="flex flex-col items-center justify-center gap-6 rounded-[var(--radius-md)] border border-line bg-surface p-10 text-center">
+          <section className="card-gold flex flex-col items-center justify-center gap-6 p-10 text-center">
             <Gavel className="size-24 text-accent-text" aria-hidden="true" />
             <h2 className="text-5xl">{t("live.waitingTitle")}</h2>
             <p className="text-2xl text-muted">{t("live.waitingBody")}</p>
           </section>
         )}
 
-        <aside aria-label={t("live.standings")} className="rounded-[var(--radius-md)] border border-line bg-surface">
+        <aside aria-label={t("live.standings")} className="card">
           <h2 className="border-b border-line px-5 py-4 text-2xl">{t("live.standings")}</h2>
           <ol className="divide-y divide-line">
             {standings.map((team, i) => (
               <li key={team.id} className="flex items-center gap-3 px-5 py-3">
-                <span className="num w-7 text-xl font-bold text-muted">{i + 1}</span>
+                <span className={`num inline-flex size-9 shrink-0 items-center justify-center rounded-full text-lg font-bold ${i === 0 ? "bg-accent text-accent-ink" : i === 1 ? "bg-[#9ca3af] text-[#0b1220]" : i === 2 ? "bg-[#c2410c] text-white" : "bg-surface-3 text-muted"}`}>{i + 1}</span>
                 <TeamMark team={team} size={44} className="rounded-[var(--radius-sm)]" />
                 <div className="min-w-0 flex-1">
                   <p className="display truncate text-base font-bold uppercase">{team.name}</p>
@@ -222,30 +211,7 @@ export function ProjectorScreen() {
         </aside>
       </main>
 
-      {moment && p && buyer ? (
-        <div role="alert" className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg px-6 text-center">
-          <Gavel className="stamp-land size-28 text-accent-text" aria-hidden="true" />
-          <p className="stamp-land floor-shake display text-[clamp(6rem,16vw,14rem)] font-extrabold leading-none text-accent-text">{t("screen.sold")}</p>
-          <p className="display text-5xl font-bold">{p.fullName}</p>
-          <p className="text-2xl text-muted">{roleInfo(snapshot, p.roleKey).label}</p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-8">
-            <div className="flex items-center gap-4">
-              <TeamMark team={buyer} size={104} className="rounded-[var(--radius-md)] border-2 border-accent-edge" />
-              <div className="text-left">
-                <p className="text-lg font-semibold text-muted">{t("live.boughtBy")}</p>
-                <p className="display text-4xl font-bold uppercase">{buyer.name}</p>
-              </div>
-            </div>
-            <div className="h-24 w-px bg-line-strong" aria-hidden="true" />
-            <div>
-              <p className="text-lg font-semibold text-muted">{t("screen.for")}</p>
-              <p className="num text-7xl font-extrabold text-accent-text">{formatPoints(f.lastResultPrice)}</p>
-              <p className="text-lg text-muted">{unit}</p>
-            </div>
-          </div>
-          <div className="bar-sweep mt-6 h-1.5 w-64 bg-accent" aria-hidden="true" />
-        </div>
-      ) : null}
+      {moment ? <SoldMoment snapshot={snapshot} size="screen" /> : null}
     </div>
   );
 }

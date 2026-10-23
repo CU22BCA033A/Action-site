@@ -213,6 +213,7 @@ const hi: Dictionary = {
     rank: "स्थान {n}",
     squadLine: "{max} में से {n} खिलाड़ी, {o} विदेशी",
     unitLeft: "{unit} बाकी",
+    purseLeftPct: "{team} के पर्स का {pct}% बाकी है",
     purseUsed: "{team} ने अपने पर्स का {pct}% इस्तेमाल किया",
     bidHistory: "इस खिलाड़ी की बोलियाँ",
     upNext: "अगले खिलाड़ी",

@@ -10,7 +10,8 @@
 - Live rule edits apply forward only, run a conflict check first, and are audited.
 - Sports are data in `sports.config`. Never hardcode a sport's roles in components.
 - All business details come from site.config.ts. Never type them inline.
-- Hard design bans: gradients, emoji icons, em dashes, fill-shift hovers, cursor effects, scroll animations, stock or AI images, fake reviews, fake metrics, fake counters.
+- Visual style follows the owner's original CPL site (deep navy, gold, royal blue, warm off-white, Orbitron and Rajdhani, 12px corners, soft card shadows, gold glows). Gradients only where that site used them: the page background fade, gold wordmark text (`.text-gold`) and the gold, royal and sold buttons. Use the `.card` and `.card-gold` utilities for panels.
+- Hard design bans: emoji icons, em dashes, cursor effects, scroll animations, autoplay carousels, stock or AI images, fake reviews, fake metrics, fake counters.
 - Accessibility: WCAG 2.2 AA. Every drag action needs a keyboard path.
 - No horizontal overflow at 320px and up.
 - Before saying a task is done: run typecheck, lint, vitest, playwright, and npm run launch-check.

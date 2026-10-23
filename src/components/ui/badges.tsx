@@ -7,13 +7,13 @@ import type { ReactNode } from "react";
 type Tone = "live" | "sold" | "paused" | "unsold" | "accent" | "neutral" | "danger";
 
 const toneClass: Record<Tone, string> = {
-  live: "border-live text-live",
-  sold: "border-sold text-sold",
-  paused: "border-paused text-paused",
-  unsold: "border-unsold text-unsold",
-  accent: "border-accent-edge text-accent-text",
+  live: "border-[color-mix(in_srgb,var(--live)_50%,transparent)] bg-[color-mix(in_srgb,var(--live)_20%,transparent)] text-live",
+  sold: "border-[color-mix(in_srgb,var(--sold)_50%,transparent)] bg-[color-mix(in_srgb,var(--sold)_18%,transparent)] text-remaining",
+  paused: "border-[color-mix(in_srgb,var(--paused)_50%,transparent)] bg-[color-mix(in_srgb,var(--paused)_16%,transparent)] text-paused",
+  unsold: "border-line-strong bg-surface-3 text-unsold",
+  accent: "border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-accent-text",
   neutral: "border-line-strong text-muted",
-  danger: "border-danger text-danger",
+  danger: "border-[color-mix(in_srgb,var(--danger)_50%,transparent)] bg-[color-mix(in_srgb,var(--danger)_16%,transparent)] text-danger",
 };
 
 function Glyph({ tone }: { tone: Tone }) {
@@ -51,7 +51,7 @@ function Glyph({ tone }: { tone: Tone }) {
 export function Badge({ tone = "neutral", children, className = "" }: { tone?: Tone; children: ReactNode; className?: string }) {
   return (
     <span
-      className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-[var(--radius-xs)] border px-2 text-xs font-semibold leading-none ${toneClass[tone]} ${className}`}
+      className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-bold uppercase tracking-wider leading-none ${toneClass[tone]} ${className}`}
     >
       <Glyph tone={tone} />
       <span>{children}</span>

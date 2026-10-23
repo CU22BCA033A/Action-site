@@ -10,8 +10,10 @@ export const displayFace = localFont({
   variable: "--font-display-face",
   display: "swap",
   src: [
+    { path: "../fonts/orbitron-latin-500-normal.woff2", weight: "500", style: "normal" },
     { path: "../fonts/orbitron-latin-700-normal.woff2", weight: "700", style: "normal" },
     { path: "../fonts/orbitron-latin-800-normal.woff2", weight: "800", style: "normal" },
+    { path: "../fonts/orbitron-latin-900-normal.woff2", weight: "900", style: "normal" },
   ],
   fallback: ["system-ui", "sans-serif"],
 });

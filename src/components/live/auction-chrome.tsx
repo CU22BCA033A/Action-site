@@ -20,31 +20,31 @@ export function AuctionTopBar() {
       {a.rehearsal ? (
         <p className="border-b border-paused bg-info-surface px-4 py-2 text-center text-sm font-semibold text-text">{t("common.rehearsalNote")}</p>
       ) : null}
-      <div className="border-b border-line bg-surface">
+      <div className="border-b border-line bg-[color-mix(in_srgb,var(--surface)_70%,transparent)] shadow-[var(--card-shadow)]">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:px-6 lg:grid-cols-[1fr_auto_auto] lg:items-center">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-muted">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted">
               {a.sportName}
               {a.startsAt ? <span className="text-faint">{` / ${formatDate(a.startsAt, locale)}`}</span> : null}
             </p>
-            <h1 className="mt-1 text-2xl text-accent-text sm:text-3xl">{a.name}</h1>
+            <h1 className="mt-1 pb-0.5 text-2xl font-black uppercase tracking-wide text-gold sm:text-3xl">{a.name}</h1>
           </div>
-          <dl className="grid grid-cols-2 divide-x divide-line rounded-[var(--radius-md)] border border-line bg-bg-sunken">
+          <dl className="card grid grid-cols-2 divide-x divide-line">
             <div className="px-4 py-2.5 text-center sm:px-6">
-              <dt className="text-xs font-semibold text-muted">{t("live.totalSpent")}</dt>
-              <dd className="mt-0.5 text-2xl font-bold text-spent sm:text-3xl">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.totalSpent")}</dt>
+              <dd className="display mt-0.5 text-xl font-bold text-spent sm:text-2xl">
                 <Price value={snapshot.totals.spent} />
               </dd>
             </div>
             <div className="px-4 py-2.5 text-center sm:px-6">
-              <dt className="text-xs font-semibold text-muted">{t("live.remaining")}</dt>
-              <dd className="mt-0.5 text-2xl font-bold text-remaining sm:text-3xl">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.remaining")}</dt>
+              <dd className="display mt-0.5 text-xl font-bold text-remaining sm:text-2xl">
                 <Price value={snapshot.totals.remaining} />
               </dd>
             </div>
           </dl>
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <Badge tone={statusTone(a.status)} className="h-8 px-3 text-sm">
+            <Badge tone={statusTone(a.status)} className="h-9 px-4 text-sm">
               {t(`status.${a.status}`)}
             </Badge>
             <ConnectionIndicator state={connection} compact />
@@ -74,7 +74,7 @@ export function AuctionTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
   const base = `/auctions/${slug}`;
   return (
-    <div className="border-b border-line bg-bg">
+    <div className="border-b border-line bg-[color-mix(in_srgb,var(--bg)_80%,transparent)]">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 sm:px-6">
         <nav aria-label={t("live.tabsLabel")} className="scrollbar-thin -mb-px min-w-0 flex-1 overflow-x-auto">
           <ul className="flex">
@@ -86,7 +86,7 @@ export function AuctionTabs({ slug }: { slug: string }) {
                   <Link
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className="inline-flex h-12 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-sm font-bold text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text sm:px-4"
+                    className="inline-flex h-12 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-sm font-bold uppercase tracking-wider text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text sm:px-4"
                   >
                     {t(`live.tab.${tab.key}`)}
                   </Link>

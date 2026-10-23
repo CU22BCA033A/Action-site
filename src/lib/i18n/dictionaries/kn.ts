@@ -213,6 +213,7 @@ const kn: Dictionary = {
     rank: "ಸ್ಥಾನ {n}",
     squadLine: "{max} ರಲ್ಲಿ {n} ಆಟಗಾರರು, {o} ವಿದೇಶಿ",
     unitLeft: "{unit} ಉಳಿದಿದೆ",
+    purseLeftPct: "{team} ಪರ್ಸ್‌ನ {pct}% ಉಳಿದಿದೆ",
     purseUsed: "{team} ತನ್ನ ಪರ್ಸ್‌ನ {pct}% ಬಳಸಿದೆ",
     bidHistory: "ಈ ಆಟಗಾರನ ಬಿಡ್‌ಗಳು",
     upNext: "ಮುಂದಿನವರು",

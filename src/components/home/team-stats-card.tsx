@@ -19,7 +19,7 @@ export function TeamStatsCard({ teams }: { teams: PublicTeam[] }) {
   const go = (d: number) => setI((v) => (v + d + teams.length) % teams.length);
 
   return (
-    <section aria-roledescription="carousel" aria-label={t("home.teamStats")} className="w-full rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
+    <section aria-roledescription="carousel" aria-label={t("home.teamStats")} className="card w-full p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm uppercase tracking-[0.18em] text-muted">{t("home.teamStats")}</h3>
         <div className="flex items-center gap-1">
@@ -36,7 +36,7 @@ export function TeamStatsCard({ teams }: { teams: PublicTeam[] }) {
                 aria-current={idx === i ? "true" : undefined}
                 className="flex h-6 items-center"
               >
-                <span className={`block h-1.5 rounded-full ${idx === i ? "w-5 bg-accent" : "w-1.5 bg-line-strong hover:bg-muted"}`} />
+                <span className={`block h-2 rounded-full transition-[width] duration-300 ${idx === i ? "w-4 bg-accent" : "w-2 bg-line-strong hover:bg-muted"}`} />
               </button>
             ))}
           </div>
@@ -48,18 +48,18 @@ export function TeamStatsCard({ teams }: { teams: PublicTeam[] }) {
       <div aria-live="polite" aria-atomic="true">
         <p className="sr-only">{t("home.teamOf", { a: i + 1, b: teams.length })}</p>
         <div className="mt-4 flex items-center gap-4">
-          <TeamMark team={team} size={64} className="rounded-[var(--radius-md)] border-2 border-line-strong" />
+          <TeamMark team={team} size={64} className="rounded-[var(--radius-md)] border-2 border-[color-mix(in_srgb,var(--accent)_30%,transparent)]" />
           <div className="min-w-0">
             <p className="display truncate text-xl font-bold uppercase sm:text-2xl">{team.name}</p>
             <p className="text-muted">{t("home.playersAcquired", { n: team.squadCount })}</p>
           </div>
         </div>
         <dl className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-[var(--radius-md)] border border-spent bg-danger-surface px-3 py-3 text-center">
+          <div className="rounded-[var(--radius-sm)] border border-[color-mix(in_srgb,var(--spent)_30%,transparent)] bg-[color-mix(in_srgb,var(--spent)_20%,transparent)] px-3 py-3 text-center">
             <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.totalSpent")}</dt>
             <dd className="num mt-1 text-2xl font-extrabold text-spent sm:text-3xl">{formatPoints(team.purseSpent)}</dd>
           </div>
-          <div className="rounded-[var(--radius-md)] border border-remaining bg-success-surface px-3 py-3 text-center">
+          <div className="rounded-[var(--radius-sm)] border border-[color-mix(in_srgb,var(--sold)_30%,transparent)] bg-[color-mix(in_srgb,var(--sold)_20%,transparent)] px-3 py-3 text-center">
             <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.remaining")}</dt>
             <dd className="num mt-1 text-2xl font-extrabold text-remaining sm:text-3xl">{formatPoints(team.purseLeft)}</dd>
           </div>

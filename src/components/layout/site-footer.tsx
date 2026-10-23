@@ -31,18 +31,18 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="mt-auto border-t border-line bg-bg-sunken">
+    <footer className="mt-auto border-t border-line bg-[color-mix(in_srgb,var(--surface-2)_50%,transparent)]">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr_1.4fr]">
         <div className="flex flex-col gap-4">
           <Link href="/" className="inline-flex w-fit items-center gap-2.5" aria-label={siteConfig.brandName ? `${siteConfig.brandName}, ${t("nav.home")}` : t("nav.home")}>
             <LogoMark className="size-9" />
-            {siteConfig.brandName ? <span className="display text-xl font-extrabold">{siteConfig.brandName}</span> : null}
+            {siteConfig.brandName ? <span className="display pb-0.5 text-xl font-black text-gold">{siteConfig.brandName}</span> : null}
           </Link>
           <p className="max-w-xs text-sm text-muted">{t("footer.virtualPoints")}</p>
         </div>
 
         <nav aria-label={t("footer.product")}>
-          <h2 className="mb-3 font-sans text-sm font-bold text-text">{t("footer.product")}</h2>
+          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.product")}</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {product.map((l) => (
               <li key={l.href}>
@@ -55,7 +55,7 @@ export async function SiteFooter() {
         </nav>
 
         <nav aria-label={t("footer.legal")}>
-          <h2 className="mb-3 font-sans text-sm font-bold text-text">{t("footer.legal")}</h2>
+          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.legal")}</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {legal.map((l) => (
               <li key={l.href}>
@@ -71,7 +71,7 @@ export async function SiteFooter() {
         </nav>
 
         <div>
-          <h2 className="mb-3 font-sans text-sm font-bold text-text">{t("footer.company")}</h2>
+          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.company")}</h2>
           <dl className="flex flex-col gap-3 text-sm">
             {siteConfig.legalEntityName ? (
               <div>

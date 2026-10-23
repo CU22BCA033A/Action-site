@@ -1,46 +1,62 @@
 @import "tailwindcss";
 
 /*
-  Design tokens. Night stadium by default, daylight as the alternative.
-  One accent (floodlight amber), semantic colours for live, sold, paused
-  and unsold. Solid fills only. No gradients anywhere.
+  Design tokens, matched to the original CPL auction site: deep navy
+  background with a vertical fade, gold as the main accent, royal blue as
+  the second, warm off-white text, 12px corners, soft card shadows and gold
+  glows. Gradients are limited to the page background, the gold wordmark
+  text and the gold/royal call-to-action buttons.
 */
 
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #070b14;
-  --bg-sunken: #04070e;
-  --surface: #0c1322;
-  --surface-2: #111a2d;
-  --surface-3: #172238;
-  --line: #1d2840;
-  --line-strong: #34425f;
-  --text: #eef2f8;
-  --text-muted: #a6b1c4;
-  --text-faint: #8090a8;
-  --accent: #ffc21a;
-  --accent-hover: #ffd24f;
-  --accent-press: #f0b000;
-  --accent-ink: #140e00;
-  --accent-text: #ffc94a;
-  --accent-edge: #ffc21a;
-  --spent: #ff6b6b;
-  --remaining: #2bd576;
-  --live: #ff5a5f;
-  --live-ink: #1a0405;
-  --sold: #2bd576;
-  --sold-ink: #03140a;
-  --paused: #6aa8ff;
-  --paused-ink: #031024;
-  --unsold: #94a0b5;
-  --info: #6aa8ff;
-  --danger: #ff6b6b;
+  /* CPL palette: deep navy, gold, royal blue, warm off-white text. */
+  --bg: #080c16;
+  --bg-sunken: #060911;
+  --bg-top: #0b111e;
+  --bg-bottom: #05080f;
+  --surface: #0b111e;
+  --surface-2: #10192d;
+  --surface-3: #1b2232;
+  --line: #242d42;
+  --line-strong: #3a4560;
+  --text: #fff9e6;
+  --text-muted: #8f9bb6;
+  --text-faint: #8591ad;
+  --accent: #ffbf00;
+  --accent-hover: #ffd966;
+  --accent-press: #e6ac00;
+  --accent-ink: #0b1220;
+  --accent-text: #ffbf00;
+  --accent-edge: #ffbf00;
+  --gold-from: #ffcc33;
+  --gold-to: #ff9500;
+  --gold-dark: #b38600;
+  --royal: #4169e1;
+  --royal-light: #7b97ea;
+  --royal-dark: #2c4fb8;
+  --royal-ink: #ffffff;
+  --glow-gold: rgb(255 191 0 / 0.18);
+  --glow-royal: rgb(65 105 225 / 0.22);
+  --card-shadow: 0 4px 30px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --spent: #ef4343;
+  --remaining: #22c55e;
+  --live: #ef4343;
+  --live-ink: #ffffff;
+  --sold: #16a349;
+  --sold-ink: #ffffff;
+  --paused: #7b97ea;
+  --paused-ink: #050a1a;
+  --unsold: #8f9bb6;
+  --info: #7b97ea;
+  --warning: #f59e0b;
+  --danger: #f05252;
   --danger-surface: #2a1218;
   --success-surface: #0c2a1b;
-  --info-surface: #0e1d38;
-  --focus: #ffd24f;
-  --overlay: rgb(2 4 9 / 0.78);
+  --info-surface: #121c3a;
+  --focus: #ffd966;
+  --overlay: rgb(5 8 15 / 0.9);
 }
 
 :root[data-theme="light"] {
@@ -55,10 +71,10 @@
   --text: #0b1222;
   --text-muted: #3d4a62;
   --text-faint: #55627a;
-  --accent: #ffc21a;
+  --accent: #ffbf00;
   --accent-hover: #ffd24f;
   --accent-press: #f0b000;
-  --accent-ink: #140e00;
+  --accent-ink: #0b1220;
   --accent-text: #7a5600;
   --accent-edge: #7a5600;
   --spent: #c0262d;
@@ -77,6 +93,19 @@
   --info-surface: #e6efff;
   --focus: #1d5fb8;
   --overlay: rgb(11 18 34 / 0.6);
+  --bg-top: #f3f5fa;
+  --bg-bottom: #e6eaf2;
+  --gold-from: #ffcc33;
+  --gold-to: #ff9500;
+  --gold-dark: #7a5600;
+  --royal: #2c4fb8;
+  --royal-light: #2c4fb8;
+  --royal-dark: #233f94;
+  --royal-ink: #ffffff;
+  --glow-gold: rgb(255 191 0 / 0.16);
+  --glow-royal: rgb(44 79 184 / 0.14);
+  --card-shadow: 0 2px 14px rgb(11 18 34 / 0.08);
+  --warning: #9a5b00;
 }
 
 @theme inline {
@@ -111,14 +140,20 @@
   --color-remaining: var(--remaining);
   --color-info: var(--info);
   --color-info-surface: var(--info-surface);
+  --color-royal: var(--royal);
+  --color-royal-light: var(--royal-light);
+  --color-royal-dark: var(--royal-dark);
+  --color-royal-ink: var(--royal-ink);
+  --color-gold-dark: var(--gold-dark);
+  --color-warning: var(--warning);
 
   --font-display: var(--font-display-face), var(--font-body-face), var(--font-kannada-face), var(--font-devanagari-face), system-ui, sans-serif;
   --font-sans: var(--font-body-face), var(--font-kannada-face), var(--font-devanagari-face), system-ui, sans-serif;
   --font-num: var(--font-num-face), var(--font-body-face), var(--font-kannada-face), var(--font-devanagari-face), system-ui, sans-serif;
 
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
 
   --text-2xs: 0.75rem;
   --text-2xs--line-height: 1rem;
@@ -131,7 +166,10 @@
     scroll-padding-top: 5rem;
   }
   body {
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    background-attachment: fixed;
+    min-height: 100dvh;
     color: var(--text);
     font-family: var(--font-sans);
     font-size: 1.0625rem;
@@ -146,7 +184,7 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.12;
     letter-spacing: 0.01em;
     overflow-wrap: normal;
@@ -182,6 +220,47 @@
 }
 
 @layer utilities {
+  /* CPL cards: a translucent navy panel with a soft drop and a top highlight. */
+  .card {
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+  }
+  .card-gold {
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow), 0 0 40px var(--glow-gold);
+  }
+  .glow-gold {
+    box-shadow: 0 0 20px var(--glow-gold), 0 0 40px var(--glow-gold);
+  }
+  .glow-royal {
+    box-shadow: 0 0 20px var(--glow-royal), 0 0 40px var(--glow-royal);
+  }
+  .text-gold {
+    background-image: linear-gradient(135deg, var(--gold-from), var(--gold-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  :root[data-theme="light"] .text-gold {
+    background-image: none;
+    color: var(--accent-text);
+  }
+  .text-royal-gradient {
+    background-image: linear-gradient(135deg, var(--royal-light), var(--royal));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @media (forced-colors: active) {
+    .text-gold, .text-royal-gradient {
+      background-image: none;
+      color: CanvasText;
+    }
+  }
   .num {
     font-family: var(--font-num);
     font-variant-numeric: tabular-nums lining-nums;
@@ -306,6 +385,53 @@
   animation: live-dot 1.6s ease-in-out infinite;
 }
 
+/* From the original CPL site: gold pulse, gavel strike, sold reveal, float. */
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 20px var(--glow-gold), 0 0 40px var(--glow-gold); }
+  50% { box-shadow: 0 0 30px rgb(255 191 0 / 0.32), 0 0 60px rgb(255 191 0 / 0.22); }
+}
+.pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+@keyframes gavel-strike {
+  0% { transform: rotate(-30deg); }
+  50% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+.gavel-strike {
+  transform-origin: bottom right;
+  animation: gavel-strike 500ms ease-out both;
+}
+@keyframes sold-reveal {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.sold-reveal {
+  animation: sold-reveal 500ms ease-out both;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes counter-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.counter-pop {
+  animation: counter-pop 300ms ease-out;
+}
+
+/* Scrollbar from the original site. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -319,6 +445,8 @@
 @media print {
   :root, :root[data-theme="dark"], :root[data-theme="light"] {
     --bg: #ffffff;
+    --bg-top: #ffffff;
+    --bg-bottom: #ffffff;
     --surface: #ffffff;
     --surface-2: #f4f4f4;
     --text: #000000;
