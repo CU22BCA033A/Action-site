@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { LiveEvent, Snapshot } from "@/lib/live/types";
+import type { FloorState, LiveEvent, Snapshot } from "@/lib/live/types";
 
 export type ConnectionState = "connected" | "reconnecting" | "offline";
 
@@ -14,7 +14,11 @@ const SAFETY_POLL_MS = 30000;
  * a sequence number; a gap triggers a full snapshot refetch, so no update is
  * ever missed or applied twice.
  */
-export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: string) {
+export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: string, opts: { onUnauthorized?: () => void } = {}) {
+  const onUnauthorized = useRef(opts.onUnauthorized);
+  useEffect(() => {
+    onUnauthorized.current = opts.onUnauthorized;
+  });
   const [snapshot, setSnapshot] = useState<T>(initial);
   const [connection, setConnection] = useState<ConnectionState>("connected");
   const [clockOffset, setClockOffset] = useState(() => offsetFrom(initial.serverTime));
@@ -40,6 +44,10 @@ export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: stri
     const run = (async () => {
       try {
         const res = await fetch(snapshotUrl, { cache: "no-store", headers: { accept: "application/json" } });
+        if (res.status === 401 && onUnauthorized.current) {
+          onUnauthorized.current();
+          return;
+        }
         if (!res.ok) throw new Error(String(res.status));
         apply((await res.json()) as T);
         setConnection("connected");
@@ -138,10 +146,18 @@ export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: stri
     };
   }, [refetch]);
 
+  /** Apply a floor returned by one of our own actions, ahead of the broadcast. */
+  const applyFloor = useCallback((floor: FloorState) => {
+    if (floor.eventSeq <= seqRef.current) return;
+    seqRef.current = floor.eventSeq;
+    setClockOffset(offsetFrom(floor.serverTime));
+    setSnapshot((prev) => ({ ...prev, floor }));
+  }, []);
+
   /** Server-corrected "now" in milliseconds. */
   const serverNow = useCallback(() => Date.now() + clockOffset, [clockOffset]);
 
-  return { snapshot, setSnapshot: apply, connection, refetch, serverNow };
+  return { snapshot, setSnapshot: apply, applyFloor, connection, refetch, serverNow };
 }
 
 function offsetFrom(serverTime: string): number {

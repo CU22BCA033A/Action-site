@@ -29,19 +29,20 @@ export const GENERIC_JOIN_ERROR = "That code did not work. Check it with the adm
 export const JOIN_FAILURE_LIMIT = 10;
 export const JOIN_WINDOW_MINUTES = 15;
 
-export type JoinResult = { ok: true; auctionSlug: string } | { ok: false; error: string };
+export type JoinFailure = "INVALID" | "TOO_MANY" | "IN_USE";
+export type JoinResult = { ok: true; auctionSlug: string } | { ok: false; code: JoinFailure; error: string; inUse?: number };
 
 export async function joinWithCode(input: string): Promise<JoinResult> {
   const ipHash = hashIp(await clientIp());
   const { fails } = await recentFailures("join", ipHash, JOIN_WINDOW_MINUTES);
   if (fails >= JOIN_FAILURE_LIMIT) {
-    return { ok: false, error: `Too many attempts. Wait ${JOIN_WINDOW_MINUTES} minutes and try again.` };
+    return { ok: false, code: "TOO_MANY", error: `Too many attempts. Wait ${JOIN_WINDOW_MINUTES} minutes and try again.` };
   }
 
   const code = normaliseAccessCode(input);
   if (!code) {
     await recordAttempt("join", ipHash, false);
-    return { ok: false, error: GENERIC_JOIN_ERROR };
+    return { ok: false, code: "INVALID", error: GENERIC_JOIN_ERROR };
   }
 
   const sql = db();
@@ -58,11 +59,13 @@ export async function joinWithCode(input: string): Promise<JoinResult> {
   const row = rows[0];
   if (!row) {
     await recordAttempt("join", ipHash, false);
-    return { ok: false, error: GENERIC_JOIN_ERROR };
+    return { ok: false, code: "INVALID", error: GENERIC_JOIN_ERROR };
   }
   if (row.active_sessions >= row.max_sessions) {
     return {
       ok: false,
+      code: "IN_USE",
+      inUse: row.active_sessions,
       error: `This code is already in use on ${row.active_sessions} device${row.active_sessions === 1 ? "" : "s"}. Ask the admin to end a session, then try again.`,
     };
   }
