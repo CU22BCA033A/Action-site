@@ -49,7 +49,7 @@ export async function floor(sql: Sql, auctionId: string) {
 export async function call<T = Record<string, unknown>>(sql: Sql, fn: string, args: unknown[]): Promise<T & { ok: boolean; code: string; message: string; floor: { version: number; currentPrice: number; nextBidAmount: number | null; leadingTeamId: string | null; phase: string } }> {
   const placeholders = args.map((_, i) => `$${i + 1}`).join(", ");
   const rows = await sql.unsafe(`select app.${fn}(${placeholders}) as r`, args as never[]);
-  return (rows[0] as { r: never }).r;
+  return (rows[0] as unknown as { r: never }).r;
 }
 
 /** Put a player on the floor and open bidding. */

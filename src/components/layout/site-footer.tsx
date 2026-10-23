@@ -36,7 +36,7 @@ export async function SiteFooter() {
         <div className="flex flex-col gap-4">
           <Link href="/" className="inline-flex w-fit items-center gap-2.5" aria-label={siteConfig.brandName ? `${siteConfig.brandName}, ${t("nav.home")}` : t("nav.home")}>
             <LogoMark className="size-9" />
-            {siteConfig.brandName ? <span className="font-[family-name:var(--font-display)] text-2xl font-extrabold">{siteConfig.brandName}</span> : null}
+            {siteConfig.brandName ? <span className="display text-xl font-extrabold">{siteConfig.brandName}</span> : null}
           </Link>
           <p className="max-w-xs text-sm text-muted">{t("footer.virtualPoints")}</p>
         </div>

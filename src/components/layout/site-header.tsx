@@ -47,7 +47,7 @@ export function SiteHeader({ brand }: { brand: string }) {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
           <LogoMark className="size-8 shrink-0" />
-          {brand ? <span className="truncate font-[family-name:var(--font-display)] text-xl font-extrabold tracking-wide">{brand}</span> : null}
+          {brand ? <span className="truncate display text-lg font-extrabold text-accent-text">{brand}</span> : null}
         </Link>
 
         <nav aria-label={t("nav.primary")} className="ml-6 hidden lg:block">
@@ -111,7 +111,7 @@ export function SiteHeader({ brand }: { brand: string }) {
       >
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center justify-between border-b border-line px-4">
-            <span className="font-[family-name:var(--font-display)] text-2xl font-extrabold">{t("common.menu")}</span>
+            <span className="display text-xl font-extrabold">{t("common.menu")}</span>
             <button
               type="button"
               className="inline-flex size-11 items-center justify-center rounded-[var(--radius-sm)] border border-line-strong"
