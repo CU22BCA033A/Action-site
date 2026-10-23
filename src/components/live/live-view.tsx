@@ -1,6 +1,6 @@
 "use client";
 
-import { Gavel, Radio, Timer, Users } from "lucide-react";
+import { Gavel, Globe2, Radio, Timer, Users } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { PlayerAvatar, RoleChip, TeamMark } from "@/components/auction/identity";
@@ -139,7 +139,7 @@ export function FloorPanel({ big = false }: { big?: boolean }) {
           {(sold ? buyer : leader) ? (
             <div className="mt-2 flex items-center gap-3">
               <TeamMark team={(sold ? buyer : leader)!} size={52} className="rounded-[var(--radius-sm)]" />
-              <span className="display text-xl font-bold">{(sold ? buyer : leader)!.name}</span>
+              <span className="display text-xl font-bold uppercase">{(sold ? buyer : leader)!.name}</span>
             </div>
           ) : (
             <p className="mt-2 text-muted">{unsold ? t("live.noBuyer") : t("live.noBidsYet")}</p>
@@ -173,7 +173,7 @@ function RecentSales({ snapshot }: { snapshot: Snapshot }) {
                   <Link href={`/players/${s.playerId}`} className="block truncate font-bold hover:underline">
                     {s.fullName}
                   </Link>
-                  <p className="truncate text-xs font-semibold text-muted">{team?.name}</p>
+                  <p className="truncate text-xs font-semibold uppercase tracking-wide text-muted">{team?.name}</p>
                 </div>
                 <Price value={s.price} tick={false} className="text-lg font-bold text-accent-text" />
               </li>
@@ -204,9 +204,11 @@ export function TeamStandings({ snapshot, limit }: { snapshot: Snapshot; limit?:
                   </span>
                   <TeamMark team={team} size={40} className="rounded-[var(--radius-sm)]" />
                   <div className="min-w-0 flex-1">
-                    <p className="display text-sm font-bold leading-tight">{team.name}</p>
-                    <p className="text-xs font-semibold text-muted">
-                      {t("live.squadLine", { n: team.squadCount, max: snapshot.auction.squadMax, o: team.overseasCount })}
+                    <p className="display truncate text-sm font-bold uppercase leading-tight tracking-wide" title={team.name}>{team.name}</p>
+                    <p className="sr-only">{t("live.squadLine", { n: team.squadCount, max: snapshot.auction.squadMax, o: team.overseasCount })}</p>
+                    <p aria-hidden="true" className="num mt-1 flex items-center gap-2.5 text-xs font-semibold text-muted">
+                      <span className="inline-flex items-center gap-1"><Users className="size-3.5" />{team.squadCount}/{snapshot.auction.squadMax}</span>
+                      {snapshot.auction.maxOverseas > 0 ? <span className="inline-flex items-center gap-1"><Globe2 className="size-3.5" />{team.overseasCount}/{snapshot.auction.maxOverseas}</span> : null}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
@@ -242,7 +244,7 @@ function BidTicker({ snapshot }: { snapshot: Snapshot }) {
             return (
               <li key={b.id} className={`flex items-center gap-3 px-4 py-2.5 ${i === 0 ? "bg-surface-2" : ""}`}>
                 {team ? <TeamMark team={team} size={28} className="rounded-[var(--radius-xs)]" /> : null}
-                <span className="min-w-0 flex-1 truncate font-semibold">{team?.name}</span>
+                <span className="min-w-0 flex-1 truncate font-semibold uppercase tracking-wide">{team?.name}</span>
                 <span className="hidden text-xs text-faint sm:inline">{formatTime(b.createdAt, locale)}</span>
                 <Price value={b.amount} tick={false} className={`text-base font-bold ${i === 0 ? "text-accent-text" : "text-muted"}`} />
               </li>

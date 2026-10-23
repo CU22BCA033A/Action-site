@@ -51,7 +51,7 @@ export default async function TeamPage({ params }: Props) {
           </Link>
           <TeamMark team={team} size={80} className="rounded-[var(--radius-md)] border-2 border-accent-edge" />
           <div className="min-w-0">
-            <h1 className="text-3xl sm:text-4xl">{team.name}</h1>
+            <h1 className="text-3xl uppercase sm:text-4xl">{team.name}</h1>
             <p className="mt-1 text-lg text-info">
               {t("auction.squadSummary", { n: team.squadCount, left: formatPoints(team.purseLeft), unit: a.pointsUnitLabel })}
             </p>

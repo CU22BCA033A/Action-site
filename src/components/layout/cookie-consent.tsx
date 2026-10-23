@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -9,10 +9,17 @@ import { CONSENT_COOKIE, parseConsent, serializeConsent, UTM_STORAGE_KEY, utmFro
 import { formatDate } from "@/lib/format";
 
 const OPEN_EVENT = "open-cookie-settings";
+const CHANGE_EVENT = "consent-change";
 
-function readConsent(): Consent | null {
+/** Raw cookie value; "" when absent. The server snapshot is null (unknown). */
+function readConsentRaw(): string {
   const match = document.cookie.split("; ").find((c) => c.startsWith(`${CONSENT_COOKIE}=`));
-  return parseConsent(match?.slice(CONSENT_COOKIE.length + 1));
+  return match?.slice(CONSENT_COOKIE.length + 1) ?? "";
+}
+
+function subscribeConsent(onChange: () => void) {
+  window.addEventListener(CHANGE_EVENT, onChange);
+  return () => window.removeEventListener(CHANGE_EVENT, onChange);
 }
 
 function writeConsent(measurement: boolean): Consent {
@@ -29,21 +36,27 @@ function writeConsent(measurement: boolean): Consent {
   } catch {
     /* storage blocked */
   }
+  window.dispatchEvent(new Event(CHANGE_EVENT));
   return consent;
 }
 
 export function CookieConsent() {
   const { t, locale } = useI18n();
-  const [consent, setConsent] = useState<Consent | null | undefined>(undefined);
+  const raw = useSyncExternalStore<string | null>(subscribeConsent, readConsentRaw, () => null);
+  // undefined while rendering on the server, null when no choice was made yet.
+  const consent: Consent | null | undefined = raw === null ? undefined : parseConsent(raw || undefined);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [measurement, setMeasurement] = useState(false);
 
+  const openSettings = useCallback(() => {
+    setMeasurement(parseConsent(readConsentRaw() || undefined)?.measurement ?? false);
+    setSettingsOpen(true);
+  }, []);
+
+  // Capture campaign parameters on landing, only when allowed.
+  const measurementAllowed = consent?.measurement === true;
   useEffect(() => {
-    const c = readConsent();
-    setConsent(c);
-    setMeasurement(c?.measurement ?? false);
-    // Capture campaign parameters on landing, only when allowed.
-    if (c?.measurement) {
+    if (measurementAllowed) {
       const utm = utmFromSearch(location.search);
       if (Object.keys(utm).length) {
         try {
@@ -53,13 +66,15 @@ export function CookieConsent() {
         }
       }
     }
-    const open = () => setSettingsOpen(true);
-    window.addEventListener(OPEN_EVENT, open);
-    return () => window.removeEventListener(OPEN_EVENT, open);
-  }, []);
+  }, [measurementAllowed]);
+
+  useEffect(() => {
+    window.addEventListener(OPEN_EVENT, openSettings);
+    return () => window.removeEventListener(OPEN_EVENT, openSettings);
+  }, [openSettings]);
 
   const choose = useCallback((m: boolean) => {
-    setConsent(writeConsent(m));
+    writeConsent(m);
     setMeasurement(m);
     setSettingsOpen(false);
   }, []);
@@ -87,7 +102,7 @@ export function CookieConsent() {
             <Button variant="secondary" onClick={() => choose(false)}>
               {t("cookies.reject")}
             </Button>
-            <Button variant="secondary" onClick={() => setSettingsOpen(true)}>
+            <Button variant="secondary" onClick={openSettings}>
               {t("cookies.settings")}
             </Button>
           </div>

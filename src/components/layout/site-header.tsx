@@ -22,13 +22,12 @@ const navItems: { href: string; key: NavKey }[] = [
 export function SiteHeader({ brand }: { brand: string }) {
   const t = useT();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  // The menu belongs to the page it was opened on, so it closes on navigation.
+  const [openedOn, setOpenedOn] = useState<string | null>(null);
+  const open = openedOn === pathname;
+  const setOpen = (v: boolean) => setOpenedOn(v ? pathname : null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const d = dialogRef.current;

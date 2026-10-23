@@ -22,6 +22,7 @@ export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: stri
   const realtimeUp = useRef(false);
   const inflight = useRef<Promise<void> | null>(null);
   const queued = useRef(false);
+  const refetchRef = useRef<() => Promise<void>>(async () => {});
   const auctionId = initial.auction.id;
 
   const apply = useCallback((next: T) => {
@@ -41,7 +42,7 @@ export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: stri
         const res = await fetch(snapshotUrl, { cache: "no-store", headers: { accept: "application/json" } });
         if (!res.ok) throw new Error(String(res.status));
         apply((await res.json()) as T);
-        if (!realtimeUp.current || connection !== "connected") setConnection(navigator.onLine ? "connected" : "offline");
+        setConnection("connected");
       } catch {
         setConnection(navigator.onLine ? "reconnecting" : "offline");
       }
@@ -51,9 +52,13 @@ export function useLiveAuction<T extends Snapshot>(initial: T, snapshotUrl: stri
     inflight.current = null;
     if (queued.current) {
       queued.current = false;
-      void refetch();
+      void refetchRef.current();
     }
-  }, [apply, snapshotUrl, connection]);
+  }, [apply, snapshotUrl]);
+
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
 
   const handleEvent = useCallback(
     (e: LiveEvent) => {
@@ -146,14 +151,13 @@ function offsetFrom(serverTime: string): number {
 
 /** Seconds left on the floor timer, using the server clock. */
 export function useCountdown(timerEndsAt: string | null, serverNow: () => number): number | null {
-  const [left, setLeft] = useState<number | null>(() => compute(timerEndsAt, serverNow()));
+  const [now, setNow] = useState(() => serverNow());
   useEffect(() => {
-    setLeft(compute(timerEndsAt, serverNow()));
     if (!timerEndsAt) return;
-    const id = setInterval(() => setLeft(compute(timerEndsAt, serverNow())), 250);
+    const id = setInterval(() => setNow(serverNow()), 250);
     return () => clearInterval(id);
   }, [timerEndsAt, serverNow]);
-  return left;
+  return compute(timerEndsAt, now);
 }
 
 function compute(end: string | null, now: number): number | null {

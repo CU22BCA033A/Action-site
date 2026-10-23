@@ -1,7 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useT } from "@/components/i18n/i18n-provider";
 
 type Theme = "dark" | "light";
@@ -9,14 +9,19 @@ type Theme = "dark" | "light";
 /** Inline script run before paint, so the page never flashes the wrong theme. */
 export const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();`;
 
+function readTheme(): Theme {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+
+function subscribeTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => observer.disconnect();
+}
+
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const t = useT();
-  const [theme, setTheme] = useState<Theme | null>(null);
-
-  useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme");
-    setTheme(current === "light" ? "light" : "dark");
-  }, []);
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => null);
 
   function toggle() {
     const next: Theme = theme === "light" ? "dark" : "light";
@@ -26,7 +31,6 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     } catch {
       /* storage blocked: the choice lasts for this page only */
     }
-    setTheme(next);
   }
 
   const label = theme === "light" ? t("theme.toDark") : t("theme.toLight");

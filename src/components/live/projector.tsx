@@ -1,7 +1,7 @@
 "use client";
 
 import { Gavel, Maximize, Minimize, Volume2, VolumeX } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { PlayerAvatar, RoleChip, TeamMark } from "@/components/auction/identity";
 import { formatPoints, formatStat } from "@/lib/format";
@@ -34,6 +34,28 @@ function knock() {
   }
 }
 
+const SOUND_KEY = "screen-sound";
+const SOUND_EVENT = "screen-sound-change";
+/** Fallback when browser storage is blocked: the choice lasts for this page. */
+let soundInMemory = false;
+
+function readSound(): boolean {
+  try {
+    return localStorage.getItem(SOUND_KEY) === "on";
+  } catch {
+    return soundInMemory;
+  }
+}
+
+function subscribeSound(onChange: () => void) {
+  window.addEventListener(SOUND_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(SOUND_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
 export function ProjectorScreen() {
   const { snapshot, connection, serverNow } = useLive();
   const { t } = useI18n();
@@ -43,32 +65,23 @@ export function ProjectorScreen() {
   const unit = a.pointsUnitLabel;
   const leader = teamById(snapshot, f.leadingTeamId);
   const left = useCountdown(f.phase === "live" ? f.timerEndsAt : null, serverNow);
-  const [sound, setSound] = useState(false);
-  const [moment, setMoment] = useState<string | null>(null);
+  const sound = useSyncExternalStore(subscribeSound, readSound, () => false);
   const [full, setFull] = useState(false);
-  const lastPhaseKey = useRef(`${f.currentAuctionPlayerId}:${f.phase}`);
-
-  useEffect(() => {
-    try {
-      setSound(localStorage.getItem("screen-sound") === "on");
-    } catch {
-      /* storage blocked */
-    }
-  }, []);
+  // A sale already on screen when the page opened does not replay.
+  const [initialKey] = useState(`${f.currentAuctionPlayerId}:${f.phase}`);
+  const [finished, setFinished] = useState<string | null>(null);
+  const saleKey = f.phase === "sold" && f.currentAuctionPlayerId ? `${f.currentAuctionPlayerId}:sold` : null;
+  const moment = saleKey && saleKey !== initialKey && saleKey !== finished ? f.currentAuctionPlayerId : null;
 
   // The sold moment plays once per sale, then settles into the sold card.
   useEffect(() => {
-    const key = `${f.currentAuctionPlayerId}:${f.phase}`;
-    if (key === lastPhaseKey.current) return;
-    lastPhaseKey.current = key;
-    if (f.phase === "sold" && f.currentAuctionPlayerId) {
-      setMoment(f.currentAuctionPlayerId);
-      if (sound) knock();
-      const id = setTimeout(() => setMoment(null), SOLD_MOMENT_MS);
-      return () => clearTimeout(id);
-    }
-    setMoment(null);
-  }, [f.phase, f.currentAuctionPlayerId, sound]);
+    if (!moment || !saleKey) return;
+    if (sound) knock();
+    const id = setTimeout(() => setFinished(saleKey), SOLD_MOMENT_MS);
+    return () => clearTimeout(id);
+    // Sound is read when the sale lands; toggling it later must not replay.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moment, saleKey]);
 
   useEffect(() => {
     const onChange = () => setFull(Boolean(document.fullscreenElement));
@@ -78,12 +91,13 @@ export function ProjectorScreen() {
 
   const toggleSound = () => {
     const next = !sound;
-    setSound(next);
+    soundInMemory = next;
     try {
-      localStorage.setItem("screen-sound", next ? "on" : "off");
+      localStorage.setItem(SOUND_KEY, next ? "on" : "off");
     } catch {
-      /* storage blocked */
+      /* storage blocked: kept in memory */
     }
+    window.dispatchEvent(new Event(SOUND_EVENT));
   };
 
   const buyer = teamById(snapshot, f.lastResultTeamId);
@@ -174,7 +188,7 @@ export function ProjectorScreen() {
                 {(f.phase === "sold" ? buyer : leader) ? (
                   <div className="mt-3 flex items-center gap-4">
                     <TeamMark team={(f.phase === "sold" ? buyer : leader)!} size={88} className="rounded-[var(--radius-md)]" />
-                    <span className="display text-4xl font-bold">{(f.phase === "sold" ? buyer : leader)!.name}</span>
+                    <span className="display text-4xl font-bold uppercase">{(f.phase === "sold" ? buyer : leader)!.name}</span>
                   </div>
                 ) : (
                   <p className="mt-3 text-2xl text-muted">{f.phase === "unsold" ? t("live.noBuyer") : t("live.noBidsYet")}</p>
@@ -198,7 +212,7 @@ export function ProjectorScreen() {
                 <span className="num w-7 text-xl font-bold text-muted">{i + 1}</span>
                 <TeamMark team={team} size={44} className="rounded-[var(--radius-sm)]" />
                 <div className="min-w-0 flex-1">
-                  <p className="display truncate text-base font-bold">{team.name}</p>
+                  <p className="display truncate text-base font-bold uppercase">{team.name}</p>
                   <p className="text-sm text-muted">{t("live.squadLine", { n: team.squadCount, max: a.squadMax, o: team.overseasCount })}</p>
                 </div>
                 <Price value={team.purseLeft} tick={false} className="text-2xl font-bold text-accent-text" />
@@ -219,7 +233,7 @@ export function ProjectorScreen() {
               <TeamMark team={buyer} size={104} className="rounded-[var(--radius-md)] border-2 border-accent-edge" />
               <div className="text-left">
                 <p className="text-lg font-semibold text-muted">{t("live.boughtBy")}</p>
-                <p className="display text-4xl font-bold">{buyer.name}</p>
+                <p className="display text-4xl font-bold uppercase">{buyer.name}</p>
               </div>
             </div>
             <div className="h-24 w-px bg-line-strong" aria-hidden="true" />

@@ -92,7 +92,7 @@ export default async function StatsPage({ params }: Props) {
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="num text-lg font-bold text-accent-text">{t("common.points", { amount: formatPoints(p.price), unit })}</p>
-                    <p className="max-w-40 truncate text-xs font-semibold text-muted">{team?.name}</p>
+                    <p className="max-w-40 truncate text-xs font-semibold uppercase tracking-wide text-muted">{team?.name}</p>
                   </div>
                 </li>
               );
@@ -158,7 +158,7 @@ export default async function StatsPage({ params }: Props) {
                 return (
                   <tr key={row.teamId} className="border-b border-line">
                     <th scope="row" className="py-3 pr-3 font-semibold">
-                      <Link href={`/teams/${team.id}`} className="flex items-center gap-3 hover:underline">
+                      <Link href={`/teams/${team.id}`} className="flex items-center gap-3 uppercase tracking-wide hover:underline">
                         <TeamMark team={team} size={36} className="rounded-[var(--radius-xs)]" />
                         {team.name}
                       </Link>
@@ -179,7 +179,7 @@ export default async function StatsPage({ params }: Props) {
             if (!team) return null;
             return (
               <li key={row.teamId} className="rounded-[var(--radius-sm)] bg-surface-2 p-3">
-                <Link href={`/teams/${team.id}`} className="flex items-center gap-3 font-semibold">
+                <Link href={`/teams/${team.id}`} className="flex items-center gap-3 font-semibold uppercase tracking-wide">
                   <TeamMark team={team} size={32} className="rounded-[var(--radius-xs)]" />
                   {team.name}
                 </Link>
