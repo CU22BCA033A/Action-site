@@ -38,7 +38,6 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
   const [editing, setEditing] = useState<AdminPlayer | "new" | null>(null);
   const [dialog, setDialog] = useState<"import" | "photos" | "bulkSet" | "bulkPrice" | "bulkDelete" | null>(null);
   const [retaining, setRetaining] = useState<AdminPlayer | null>(null);
-  const finished = ctx.status === "completed" || ctx.status === "archived";
   const preLive = ctx.status === "draft" || ctx.status === "scheduled";
   const roles = ctx.config.roles;
   const sets = useMemo(() => [...new Set(players.map((p) => p.setName))], [players]);
@@ -67,21 +66,19 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
     <div className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted">
-          {players.length} players. Lists group by the sport&apos;s roles. Only players in the pool or unsold can be bulk-edited.
+          {players.length} players. Lists group by the sport&apos;s roles. Set and base price changes apply to players in the pool or unsold; delete works on any player.
         </p>
-        {!finished ? (
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setDialog("photos")} icon={<Camera className="size-4" aria-hidden="true" />}>
-              Upload photos
-            </Button>
-            <Button onClick={() => setDialog("import")} icon={<FileUp className="size-4" aria-hidden="true" />}>
-              Import CSV
-            </Button>
-            <Button variant="primary" onClick={() => setEditing("new")} icon={<Plus className="size-4" aria-hidden="true" />}>
-              Add player
-            </Button>
-          </div>
-        ) : null}
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setDialog("photos")} icon={<Camera className="size-4" aria-hidden="true" />}>
+            Upload photos
+          </Button>
+          <Button onClick={() => setDialog("import")} icon={<FileUp className="size-4" aria-hidden="true" />}>
+            Import CSV
+          </Button>
+          <Button variant="primary" onClick={() => setEditing("new")} icon={<Plus className="size-4" aria-hidden="true" />}>
+            Add player
+          </Button>
+        </div>
       </div>
 
       <div className="mt-5 grid gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
@@ -133,7 +130,6 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
                       aria-label={`Select ${p.fullName}`}
                       checked={selected.has(p.auctionPlayerId)}
                       onChange={() => toggle(p.auctionPlayerId)}
-                      disabled={!editable || finished}
                       className="size-5 accent-[var(--accent)]"
                     />
                     <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={44} className="rounded-[var(--radius-sm)]" />
@@ -164,11 +160,12 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
                           Retain
                         </Button>
                       ) : null}
-                      {!finished ? (
-                        <Button size="sm" onClick={() => setEditing(p)} icon={<Pencil className="size-4" aria-hidden="true" />} aria-label={`Edit ${p.fullName}`}>
-                          Edit
-                        </Button>
-                      ) : null}
+                      <Button size="sm" onClick={() => setEditing(p)} icon={<Pencil className="size-4" aria-hidden="true" />} aria-label={`Edit ${p.fullName}`}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setSelected(new Set([p.auctionPlayerId])); setDialog("bulkDelete"); }} icon={<Trash2 className="size-4" aria-hidden="true" />} aria-label={`Delete ${p.fullName}`}>
+                        <span className="sr-only">Delete</span>
+                      </Button>
                     </div>
                   </li>
                 );
@@ -569,8 +566,8 @@ function BulkDialog({ kind, ids, ctx, sets, onClose }: { kind: "bulkSet" | "bulk
       <ConfirmDialog
         open
         onClose={() => onClose(false)}
-        title={`Delete ${ids.length} players?`}
-        consequences={["They are removed from this auction and its queue.", "Players with any bid history are never deleted, to keep results intact.", "Photos are removed from storage."]}
+        title={ids.length === 1 ? "Delete this player?" : `Delete ${ids.length} players?`}
+        consequences={["They are removed from this auction, with their bids and photos.", "Sold players give their points back to the team that bought them.", "A player on the floor is taken off it first. The audit log keeps the names."]}
         confirmLabel="Delete players"
         danger
         busy={run.pending}

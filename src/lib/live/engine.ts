@@ -22,7 +22,9 @@ type EngineFn =
   | "correct_sale"
   | "adjust_purse"
   | "retain_player"
-  | "update_auction_settings";
+  | "update_auction_settings"
+  | "admin_delete_players"
+  | "admin_delete_team";
 
 export async function callEngine(fn: EngineFn, args: unknown[]): Promise<EngineResult> {
   const placeholders = args.map((_, i) => `$${i + 1}`).join(", ");

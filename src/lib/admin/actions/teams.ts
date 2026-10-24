@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { db } from "@/lib/db";
-import { bumpAndRefresh, callEngine } from "@/lib/live/engine";
+import { bumpAndRefresh, callEngine, runAndBroadcast } from "@/lib/live/engine";
 import { generateAccessCode, hashAccessCode } from "@/lib/security/crypto";
 import { deleteImage, storeImage, UploadError } from "@/lib/storage";
 import { invalid, type ActionResult } from "../result";
@@ -40,7 +40,6 @@ export async function saveTeamAction(formData: FormData): Promise<ActionResult> 
   const auction = (await sql<{ status: string; rtmEnabled: boolean; cards: number }[]>`
     select status, rtm_enabled as "rtmEnabled", rtm_cards_per_team as cards from app.auctions where id = ${v.auctionId} and deleted_at is null`)[0];
   if (!auction) return { ok: false, error: "Auction not found." };
-  if (auction.status === "completed" || auction.status === "archived") return { ok: false, error: "This auction is finished. Teams can no longer be changed." };
 
   const dup = await sql`select 1 from app.teams where auction_id = ${v.auctionId} and lower(short_name) = lower(${v.shortName}) and deleted_at is null and id::text <> ${v.teamId ?? ""}`;
   if (dup.length) return { ok: false, error: "Another team uses that short name.", fieldErrors: { shortName: "Already used by another team." } };
@@ -110,28 +109,22 @@ export async function saveTeamAction(formData: FormData): Promise<ActionResult> 
   return { ok: true, message: `${v.name} saved.` };
 }
 
+/**
+ * Deletes a team at any time. Its players go back to the pool, its bids are
+ * kept in the history as void, and its code and sessions stop working.
+ */
 export async function deleteTeamAction(input: { auctionId: string; teamId: string }): Promise<ActionResult> {
   const admin = await requireAdmin();
-  const sql = db();
-  const team = (await sql<{ name: string; squad: number; bids: number; spent: number; logoPath: string | null }[]>`
-    select t.name, t.purse_spent as spent, t.logo_path as "logoPath",
-      (select count(*)::int from app.auction_players ap where ap.sold_to_team_id = t.id) as squad,
-      (select count(*)::int from app.bids b where b.team_id = t.id and not b.voided) as bids
-    from app.teams t where t.id = ${input.teamId} and t.auction_id = ${input.auctionId} and t.deleted_at is null`)[0];
-  if (!team) return { ok: false, error: "Team not found." };
-  if (team.squad > 0 || team.spent > 0) return { ok: false, error: `${team.name} has players. Return them to the pool with a results correction before deleting the team.` };
-  if (team.bids > 0) return { ok: false, error: `${team.name} has bids on record. Deleting it would break the bid history. Revoke its code instead.` };
-  await sql.begin(async (tx) => {
-    await tx`update app.teams set deleted_at = now() where id = ${input.teamId}`;
-    await tx`update app.team_access_codes set active = false, revoked_at = now() where team_id = ${input.teamId} and active`;
-    await tx`update app.team_sessions set revoked_at = now() where team_id = ${input.teamId} and revoked_at is null`;
-    await tx`update app.auction_players set previous_team_id = null where previous_team_id = ${input.teamId}`;
-    await tx`select app._audit(${input.auctionId}, 'admin', ${admin.actorId}, 'team.delete', 'team', ${input.teamId}, ${tx.json({ name: team.name })}, null, null)`;
-  });
-  await deleteImage(team.logoPath);
-  await bumpAndRefresh(input.auctionId);
-  revalidate(input.auctionId);
-  return { ok: true, message: `${team.name} deleted.` };
+  const ids = z.object({ auctionId: z.uuid(), teamId: z.uuid() }).safeParse(input);
+  if (!ids.success) return { ok: false, error: "Team not found." };
+  const logo = (await db()<{ logoPath: string | null }[]>`
+    select logo_path as "logoPath" from app.teams where id = ${ids.data.teamId} and auction_id = ${ids.data.auctionId} and deleted_at is null`)[0];
+  const res = await runAndBroadcast(ids.data.auctionId, "admin_delete_team", [ids.data.auctionId, ids.data.teamId, admin.actorId]);
+  if (!res.ok) return { ok: false, error: res.message };
+  await deleteImage(logo?.logoPath ?? null);
+  revalidate(ids.data.auctionId);
+  revalidatePath(`/auctions`, "layout");
+  return { ok: true, message: res.message };
 }
 
 /** Issues a new code. The previous code and all its sessions stop working at once. Returns the code once. */

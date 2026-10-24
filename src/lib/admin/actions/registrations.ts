@@ -31,7 +31,6 @@ export async function approveRegistrationAction(input: z.input<typeof approveSch
     select a.sport_id as "sportId", s.config, a.category_base_prices as "categoryPrices", a.default_base_price as "defaultBase", a.status
     from app.auctions a join app.sports s on s.id = a.sport_id where a.id = ${v.auctionId}`)[0];
   if (!ctx) return { ok: false, error: "Auction not found." };
-  if (ctx.status === "completed" || ctx.status === "archived") return { ok: false, error: "This auction is finished." };
   const problems = sportProblems(sportConfigSchema.parse(ctx.config), v.player);
   if (Object.keys(problems).length) return { ok: false, error: "Fix the highlighted fields.", fieldErrors: problems };
   if (isUnder18(v.player.dateOfBirth) && !v.player.guardianConsent) {

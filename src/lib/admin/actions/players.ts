@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/admin";
 import { parseCsv } from "@/lib/csv";
 import { db } from "@/lib/db";
 import { basePriceFor } from "@/lib/domain/auctions";
-import { bumpAndRefresh, callEngine } from "@/lib/live/engine";
+import { bumpAndRefresh, callEngine, runAndBroadcast } from "@/lib/live/engine";
 import { sportConfigSchema, type SportConfig } from "@/lib/sports/config";
 import { deleteImage, storeImage, UploadError } from "@/lib/storage";
 import { isUnder18, playerInputSchema, sportProblems, validateCsvRows, type CsvRowResult } from "../player-input";
@@ -50,7 +50,6 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
   if (!p.success) return invalid(p.error);
   const ctx = await auctionContext(f.auctionId);
   if (!ctx) return { ok: false, error: "Auction not found." };
-  if (ctx.status === "completed" || ctx.status === "archived") return { ok: false, error: "This auction is finished. Players can no longer be edited." };
   const problems = sportProblems(ctx.config, p.data);
   if (Object.keys(problems).length) return { ok: false, error: "Fix the highlighted fields.", fieldErrors: problems };
   if (isUnder18(p.data.dateOfBirth) && !p.data.guardianConsent) {
@@ -173,6 +172,17 @@ export async function bulkPlayersAction(input: z.input<typeof bulkSchema>): Prom
   if (!parsed.success) return invalid(parsed.error);
   const b = parsed.data;
   const sql = db();
+  if (b.action === "delete") {
+    // Delete works on any player: sold players refund their team, a player on the floor is taken off it.
+    const photos = await sql<{ photoPath: string | null }[]>`
+      select p.photo_path as "photoPath" from app.auction_players ap join app.players p on p.id = ap.player_id
+      where ap.auction_id = ${b.auctionId} and ap.id = any(${b.ids}::uuid[])`;
+    const res = await runAndBroadcast(b.auctionId, "admin_delete_players", [b.auctionId, b.ids, admin.actorId]);
+    if (!res.ok) return { ok: false, error: res.message };
+    for (const ph of photos) await deleteImage(ph.photoPath);
+    revalidate(b.auctionId);
+    return { ok: true, message: res.message };
+  }
   const eligible = await sql<{ id: string; playerId: string; photoPath: string | null; bids: number }[]>`
     select ap.id, ap.player_id as "playerId", p.photo_path as "photoPath",
       (select count(*)::int from app.bids x where x.auction_player_id = ap.id) as bids
@@ -190,17 +200,6 @@ export async function bulkPlayersAction(input: z.input<typeof bulkSchema>): Prom
     if (b.basePrice === undefined) return { ok: false, error: "Enter a base price.", fieldErrors: { basePrice: "Enter a base price." } };
     await sql`update app.auction_players set base_price = ${b.basePrice}, version = version + 1 where id = any(${ids}::uuid[])`;
     message = `Base price set for ${ids.length} players.`;
-  } else {
-    const withBids = eligible.filter((e) => e.bids > 0);
-    if (withBids.length) return { ok: false, error: `${withBids.length} of these players have bids on record. Deleting them would erase bid history, so they were not deleted.` };
-    await sql.begin(async (tx) => {
-      await tx`delete from app.shortlists where auction_player_id = any(${ids}::uuid[])`;
-      await tx`delete from app.auction_players where id = any(${ids}::uuid[])`;
-      await tx`update app.players set deleted_at = now() where id = any(${eligible.map((e) => e.playerId)}::uuid[])
-        and not exists (select 1 from app.auction_players ap where ap.player_id = app.players.id)`;
-    });
-    for (const e of eligible) await deleteImage(e.photoPath);
-    message = `${ids.length} players deleted.`;
   }
   await sql`select app._audit(${b.auctionId}, 'admin', ${admin.actorId}, ${`player.bulk_${b.action}`}, 'auction', ${b.auctionId}, null,
     ${sql.json({ count: ids.length, set_name: b.setName ?? null, base_price: b.basePrice ?? null })}, null)`;
@@ -217,7 +216,6 @@ export async function importPlayersCsvAction(input: { auctionId: string; csv: st
   if (input.csv.length > 2_000_000) return { ok: false, error: "That file is too large. Split it into files of up to 1,000 players." };
   const ctx = await auctionContext(input.auctionId);
   if (!ctx) return { ok: false, error: "Auction not found." };
-  if (ctx.status === "completed" || ctx.status === "archived") return { ok: false, error: "This auction is finished." };
   const { results, headerErrors } = validateCsvRows(parseCsv(input.csv), ctx.config);
   const report: ImportReport = {
     valid: results.filter((r) => r.ok).length,

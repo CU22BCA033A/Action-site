@@ -23,7 +23,6 @@ const ONLINE_MS = 90_000;
 
 export function TeamsManager({ teams, ctx }: { teams: AdminTeam[]; ctx: Ctx }) {
   const [editing, setEditing] = useState<AdminTeam | "new" | null>(null);
-  const finished = ctx.status === "completed" || ctx.status === "archived";
   // Rendered on the server per request; stable within a render.
   const [now] = useState(() => Date.now());
 
@@ -33,16 +32,14 @@ export function TeamsManager({ teams, ctx }: { teams: AdminTeam[]; ctx: Ctx }) {
         <p className="text-muted">
           {teams.length} teams. Each team has its own purse. Owners join with the team&apos;s access code; you can end any device&apos;s session.
         </p>
-        {!finished ? (
-          <Button variant="primary" onClick={() => setEditing("new")} icon={<Plus className="size-4" aria-hidden="true" />}>
-            Add team
-          </Button>
-        ) : null}
+        <Button variant="primary" onClick={() => setEditing("new")} icon={<Plus className="size-4" aria-hidden="true" />}>
+          Add team
+        </Button>
       </div>
       <ul className="mt-5 grid gap-4 lg:grid-cols-2">
         {teams.map((t) => (
           <li key={t.id}>
-            <TeamCard team={t} ctx={ctx} now={now} onEdit={() => setEditing(t)} finished={finished} />
+            <TeamCard team={t} ctx={ctx} now={now} onEdit={() => setEditing(t)} />
           </li>
         ))}
       </ul>
@@ -51,7 +48,7 @@ export function TeamsManager({ teams, ctx }: { teams: AdminTeam[]; ctx: Ctx }) {
   );
 }
 
-function TeamCard({ team, ctx, now, onEdit, finished }: { team: AdminTeam; ctx: Ctx; now: number; onEdit: () => void; finished: boolean }) {
+function TeamCard({ team, ctx, now, onEdit }: { team: AdminTeam; ctx: Ctx; now: number; onEdit: () => void }) {
   const router = useRouter();
   const [code, setCode] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<"regen" | "revoke" | "delete" | null>(null);
@@ -131,18 +128,16 @@ function TeamCard({ team, ctx, now, onEdit, finished }: { team: AdminTeam; ctx: 
           </div>
         ) : null}
 
-        {!finished ? (
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant={team.codeActive ? "secondary" : "primary"} loading={gen.pending} onClick={() => (team.codeActive ? setConfirm("regen") : issue())}>
-              {team.codeActive ? "Regenerate code" : "Generate code"}
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant={team.codeActive ? "secondary" : "primary"} loading={gen.pending} onClick={() => (team.codeActive ? setConfirm("regen") : issue())}>
+            {team.codeActive ? "Regenerate code" : "Generate code"}
+          </Button>
+          {team.codeActive ? (
+            <Button size="sm" variant="danger" onClick={() => setConfirm("revoke")} icon={<ShieldOff className="size-4" aria-hidden="true" />}>
+              Revoke
             </Button>
-            {team.codeActive ? (
-              <Button size="sm" variant="danger" onClick={() => setConfirm("revoke")} icon={<ShieldOff className="size-4" aria-hidden="true" />}>
-                Revoke
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
+          ) : null}
+        </div>
 
         <div>
           <h3 className="font-sans text-sm font-bold">
@@ -170,13 +165,11 @@ function TeamCard({ team, ctx, now, onEdit, finished }: { team: AdminTeam; ctx: 
           )}
         </div>
         {busyResult && !busyResult.ok && !confirm ? <FormStatus kind="error">{busyResult.error}</FormStatus> : null}
-        {!finished ? (
-          <div className="mt-auto pt-2">
-            <Button size="sm" variant="quiet" onClick={() => setConfirm("delete")} icon={<Trash2 className="size-4" aria-hidden="true" />}>
-              Delete team
-            </Button>
-          </div>
-        ) : null}
+        <div className="mt-auto pt-2">
+          <Button size="sm" variant="quiet" onClick={() => setConfirm("delete")} icon={<Trash2 className="size-4" aria-hidden="true" />}>
+            Delete team
+          </Button>
+        </div>
       </div>
 
       <ConfirmDialog
@@ -202,7 +195,7 @@ function TeamCard({ team, ctx, now, onEdit, finished }: { team: AdminTeam; ctx: 
         open={confirm === "delete"}
         onClose={() => setConfirm(null)}
         title={`Delete ${team.name}?`}
-        consequences={["The team, its code and its sessions are removed.", "This is refused if the team has players or any bids, to keep results and history intact."]}
+        consequences={["The team, its access code and every signed-in device are removed.", "Players it bought go back to the pool with their points refunded, so they can be auctioned again.", "Its bids stay in the history, marked void. If it is leading the player on the floor, that player goes back to the pool."]}
         confirmLabel="Delete team"
         danger
         busy={del.pending}

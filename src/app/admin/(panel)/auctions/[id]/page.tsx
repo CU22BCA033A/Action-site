@@ -1,6 +1,7 @@
 import { Check, Circle, ExternalLink, MonitorPlay, Projector } from "lucide-react";
 import Link from "next/link";
 import { AdminSection } from "@/components/admin/admin-shell";
+import { DeleteAuction } from "@/components/admin/delete-auction";
 import { CopyButton } from "@/components/ui/copy-button";
 import { getAdminAuction, listAdminPlayers, listAdminTeams, listRegistrations } from "@/lib/admin/queries";
 import { validateSlabs } from "@/lib/rules/slabs";
@@ -95,6 +96,9 @@ export default async function AuctionOverview({ params }: { params: Promise<{ id
             </li>
           </ul>
           {a.status === "draft" ? <p className="mt-3 text-sm text-muted">Public screens open once the auction is published.</p> : null}
+        </AdminSection>
+        <AdminSection title="Delete this auction" description="Removes the auction with its teams, players and results. Works at any time, even while live.">
+          <DeleteAuction auctionId={a.id} name={a.name} />
         </AdminSection>
       </div>
     </div>

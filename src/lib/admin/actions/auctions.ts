@@ -107,8 +107,10 @@ export async function setAuctionStatusAction(input: z.input<typeof statusSchema>
   if (to === "paused" && floor?.phase === "live") {
     await callEngine("pause_floor", [auctionId, floor.version, admin.actorId]);
   }
-  if (to === "completed" && floor && ["live", "paused", "rtm_pending"].includes(floor.phase)) {
-    return { ok: false, error: "A player is still being bid on. Mark them sold or unsold, or return them to the pool, then complete the auction." };
+  if (to === "completed" && floor && floor.currentAuctionPlayerId && ["idle", "live", "paused", "rtm_pending"].includes(floor.phase)) {
+    // The player still on the floor goes back to the pool without a result.
+    const back = await callEngine("return_to_pool", [auctionId, floor.currentAuctionPlayerId, floor.version, admin.actorId]);
+    if (!back.ok) return { ok: false, error: back.message };
   }
 
   await sql.begin(async (tx) => {
@@ -129,10 +131,13 @@ export async function deleteAuctionAction(input: { auctionId: string; confirmNam
   const sql = db();
   const a = (await sql<{ name: string; status: string }[]>`select name, status from app.auctions where id = ${id.data} and deleted_at is null`)[0];
   if (!a) return { ok: false, error: "Auction not found." };
-  if (a.status === "live" || a.status === "paused") return { ok: false, error: "Complete or pause the auction before deleting it. Live auctions cannot be deleted." };
   if (input.confirmName.trim() !== a.name) return { ok: false, error: "Type the auction name exactly to confirm.", fieldErrors: { confirmName: "The name does not match." } };
   await sql.begin(async (tx) => {
-    await tx`update app.auctions set deleted_at = now(), public = false, registration_open = false where id = ${id.data}`;
+    await tx`select app._lock_floor(${id.data})`;
+    await tx`update app.auction_players set status = 'pool', version = version + 1 where auction_id = ${id.data} and status = 'on_floor'`;
+    await tx`select app._clear_floor(${id.data})`;
+    await tx`update app.auctions set deleted_at = now(), public = false, registration_open = false,
+      status = case when status in ('live','paused') then 'completed' else status end where id = ${id.data}`;
     await tx`update app.team_access_codes c set active = false, revoked_at = now() from app.teams t where t.id = c.team_id and t.auction_id = ${id.data} and c.active`;
     await tx`update app.team_sessions s set revoked_at = now() from app.teams t where t.id = s.team_id and t.auction_id = ${id.data} and s.revoked_at is null`;
     await tx`select app._audit(${id.data}, 'admin', ${admin.actorId}, 'auction.delete', 'auction', ${id.data}, ${tx.json({ name: a.name })}, null, null)`;
