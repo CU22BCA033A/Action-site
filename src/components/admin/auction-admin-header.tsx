@@ -15,7 +15,7 @@ type Status = "draft" | "scheduled" | "live" | "paused" | "completed" | "archive
 
 const moves: Record<Status, { to: Status; label: string; icon: typeof Play; primary?: boolean; consequences: string[]; reason?: boolean }[]> = {
   draft: [
-    { to: "scheduled", label: "Publish", icon: Send, consequences: ["The public page, teams, players and queue become visible to anyone with the link.", "Team owners can join with their codes.", "Bidding does not start until you go live."] },
+    { to: "scheduled", label: "Publish", icon: Send, consequences: ["The public page, teams and players become visible to anyone with the link.", "Team owners can join with their codes.", "Bidding does not start until you go live."] },
     { to: "live", label: "Go live", icon: Radio, primary: true, consequences: ["The auction becomes visible and opens for bidding.", "You then put players on the floor from the console."] },
   ],
   scheduled: [
@@ -54,7 +54,7 @@ export function AuctionAdminHeader({
     { href: `${base}/teams`, label: "Teams" },
     { href: `${base}/players`, label: "Players" },
     { href: `${base}/registrations`, label: "Registrations" },
-    { href: `${base}/queue`, label: "Queue" },
+    { href: `${base}/queue`, label: "Sets" },
     { href: `${base}/results`, label: "Results" },
     { href: `${base}/audit`, label: "Audit" },
   ];

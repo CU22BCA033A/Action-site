@@ -126,3 +126,26 @@ export function TeamMark({
     </span>
   );
 }
+
+/**
+ * Large player photo that fills its box (square by default), like the
+ * player card on the original CPL site. Falls back to a big silhouette.
+ */
+export function PlayerPhoto({ name, photoPath, sizes, priority = false, className = "" }: { name: string; photoPath: string | null | undefined; sizes: string; priority?: boolean; className?: string }) {
+  const url = mediaUrl(photoPath);
+  return (
+    <div className={`relative aspect-square w-full overflow-hidden rounded-[var(--radius-sm)] bg-surface-3 [container-type:inline-size] ${className}`}>
+      {url ? (
+        <Image src={url} alt={`Photo of ${name}`} fill sizes={sizes} unoptimized priority={priority} className="object-cover object-top" />
+      ) : (
+        <span role="img" aria-label={`No photo for ${name}`} className="absolute inset-0 flex items-end justify-center">
+          <svg aria-hidden="true" viewBox="0 0 64 64" className="absolute inset-x-0 bottom-0 h-[82%] w-full text-line-strong">
+            <circle cx="32" cy="22" r="12" fill="currentColor" />
+            <path d="M8 64c2-14 12-22 24-22s22 8 24 22z" fill="currentColor" />
+          </svg>
+          <span className="display relative mb-[8%] text-[clamp(2rem,9cqw,4rem)] font-black text-text">{initials(name)}</span>
+        </span>
+      )}
+    </div>
+  );
+}

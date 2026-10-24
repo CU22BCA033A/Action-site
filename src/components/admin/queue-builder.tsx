@@ -80,7 +80,7 @@ export function QueueBuilder({ players, ctx }: { players: AdminPlayer[]; ctx: { 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 pb-28 sm:px-6">
       <p className="text-muted">
-        Players come up set by set, top to bottom. Drag a row by its handle, or use the arrow buttons. With a keyboard, focus a handle, press Space, move with the arrow keys and press Space again. Sold players keep their place and are listed at the end.
+        Optional. Group players into sets (for example Marquee, Batters, Bowlers) and arrange them. This only sorts the player list on the console; you still pick who to auction, in any order. Drag a row by its handle, or use the arrow buttons. With a keyboard, focus a handle, press Space, move with the arrow keys and press Space again. Sold players keep their place and are listed at the end.
       </p>
       <p className="sr-only" aria-live="polite">{announce}</p>
       {save.result?.ok ? <div className="mt-4"><FormStatus kind="success">{save.result.message}</FormStatus></div> : null}

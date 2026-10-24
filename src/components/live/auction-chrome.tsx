@@ -50,7 +50,7 @@ export function AuctionTopBar() {
             <ConnectionIndicator state={connection} compact />
           </div>
         </div>
-        {snapshot.floor.rulesChangedAt && (a.status === "live" || a.status === "paused") ? (
+        {snapshot.floor.rulesChangedAt && (a.status === "live" || a.status === "paused") && Date.parse(snapshot.serverTime) - Date.parse(snapshot.floor.rulesChangedAt) < 10 * 60_000 ? (
           <p className="border-t border-line px-4 py-2 text-center text-sm text-muted">
             {t("live.rulesChanged", { time: formatTime(snapshot.floor.rulesChangedAt, locale) })}
           </p>
@@ -64,7 +64,6 @@ const tabs = [
   { seg: "", key: "live" },
   { seg: "/teams", key: "teams" },
   { seg: "/players", key: "players" },
-  { seg: "/queue", key: "queue" },
   { seg: "/results", key: "results" },
   { seg: "/stats", key: "stats" },
 ] as const;

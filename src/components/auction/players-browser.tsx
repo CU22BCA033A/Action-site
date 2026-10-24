@@ -57,7 +57,7 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
 
   return (
     <div>
-      <div className="grid gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.q} className="text-sm font-semibold">
             {t("auction.searchPlayers")}
@@ -113,9 +113,17 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
         ) : null}
       </div>
 
-      <p role="status" aria-live="polite" className="mt-4 text-sm text-muted">
-        {t("auction.showing", { n: filtered.length })}
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <p role="status" aria-live="polite" className="text-sm text-muted">
+          {t("auction.showing", { n: filtered.length })}
+        </p>
+        <p className="num flex flex-wrap gap-3 text-xs font-bold">
+          <span className="text-accent-text">{t("playerStatus.on_floor")}: {players.filter((p) => p.status === "on_floor").length}</span>
+          <span className="text-royal-light">{t("playerStatus.pool")}: {players.filter((p) => p.status === "pool").length}</span>
+          <span className="text-remaining">{t("playerStatus.sold")}: {players.filter((p) => p.status === "sold" || p.status === "retained").length}</span>
+          <span className="text-muted">{t("playerStatus.unsold")}: {players.filter((p) => p.status === "unsold").length}</span>
+        </p>
+      </div>
 
       {groups.length === 0 ? (
         <p className="mt-6 rounded-[var(--radius-md)] border border-dashed border-line-strong p-8 text-center text-muted">{t("auction.noMatches")}</p>
@@ -127,26 +135,26 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
                 <RoleChip label={g.role.label} index={g.index} />
                 <span className="num text-sm text-muted">({g.items.length})</span>
               </h3>
-              <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {g.items.map((p) => {
                   const team = p.soldToTeamId ? teamMap.get(p.soldToTeamId) : undefined;
                   const done = p.status === "sold" || p.status === "retained";
                   return (
-                    <li key={p.id} className="flex items-center gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-3">
-                      <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={52} className="rounded-[var(--radius-sm)]" />
+                    <li key={p.id} className={`card flex items-center gap-3 p-3 ${p.status === "on_floor" ? "!border-[color-mix(in_srgb,var(--accent)_50%,transparent)] glow-gold" : ""}`}>
+                      <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={72} className="rounded-[var(--radius-sm)]" />
                       <div className="min-w-0 flex-1">
                         <p className="flex items-center gap-2">
                           <Link href={`/players/${p.id}`} className="truncate font-bold hover:underline">
                             {p.fullName}
                           </Link>
-                          <span className="num shrink-0 text-xs font-bold text-info">#{String(p.lotNo).padStart(3, "0")}</span>
+                          <span className="num shrink-0 rounded-[var(--radius-xs)] bg-[color-mix(in_srgb,var(--royal)_20%,transparent)] px-1.5 text-xs font-bold text-royal-light">#{p.lotNo}</span>
                         </p>
                         <p className="truncate text-xs text-muted">
                           {[p.subRole, p.category, t(`nationality.${p.nationalityGroup}`), p.setName].filter(Boolean).join(", ")}
                         </p>
                         <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold">
                           {team ? <TeamMark team={team} size={18} className="rounded-[2px]" /> : null}
-                          <span className={done ? "text-sold" : p.status === "unsold" ? "text-unsold" : "text-muted"}>
+                          <span className={done ? "text-remaining" : p.status === "unsold" ? "text-unsold" : p.status === "on_floor" ? "text-accent-text" : "text-royal-light"}>
                             {team ? team.name : t(`playerStatus.${p.status as "pool"}`)}
                           </span>
                         </p>

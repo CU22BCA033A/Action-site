@@ -10,6 +10,7 @@ const base = { auctionId: uuid, expectedVersion: z.number().int().min(0) };
 
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("move_to_floor"), auctionPlayerId: uuid, ...base }),
+  z.object({ action: z.literal("auction_player"), auctionPlayerId: uuid, ...base }),
   z.object({ action: z.literal("start_bidding"), ...base }),
   z.object({ action: z.literal("pause_floor"), ...base }),
   z.object({ action: z.literal("resume_floor"), ...base }),
@@ -34,6 +35,13 @@ export async function floorAction(input: FloorInput): Promise<EngineResult> {
   const v = parsed.data;
   const a = admin.actorId;
   switch (v.action) {
+    case "auction_player": {
+      // The admin picks any waiting player: put them on the floor and open bidding in one step.
+      const moved = await runAndBroadcast(v.auctionId, "move_to_floor", [v.auctionId, v.auctionPlayerId, v.expectedVersion, a]);
+      if (!moved.ok || !moved.floor) return moved;
+      const started = await runAndBroadcast(v.auctionId, "start_bidding", [v.auctionId, moved.floor.version, a]);
+      return started.ok ? started : { ...started, message: `The player is on the floor, but bidding did not open: ${started.message}`, floor: started.floor ?? moved.floor };
+    }
     case "move_to_floor":
     case "return_to_pool":
       return runAndBroadcast(v.auctionId, v.action, [v.auctionId, v.auctionPlayerId, v.expectedVersion, a]);

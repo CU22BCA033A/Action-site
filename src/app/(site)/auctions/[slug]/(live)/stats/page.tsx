@@ -37,9 +37,9 @@ export default async function StatsPage({ params }: Props) {
 
   const tiles = [
     { icon: Award, value: st.soldCount, label: t("stats.playersSold"), cls: "text-accent-text" },
-    { icon: TrendingUp, value: st.totalSpent, label: t("stats.totalSpent"), cls: "text-sold" },
-    { icon: Target, value: st.averagePrice, label: t("stats.averagePrice"), cls: "text-info" },
-    { icon: BarChart3, value: st.highestPrice, label: t("stats.highestBid"), cls: "text-accent-text" },
+    { icon: TrendingUp, value: st.totalSpent, label: t("stats.totalSpent"), cls: "text-remaining" },
+    { icon: Target, value: st.averagePrice, label: t("stats.averagePrice"), cls: "text-royal-light" },
+    { icon: BarChart3, value: st.highestPrice, label: t("stats.highestBid"), cls: "text-warning" },
   ];
 
   return (
@@ -58,7 +58,7 @@ export default async function StatsPage({ params }: Props) {
 
       <dl className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {tiles.map((tile) => (
-          <div key={tile.label} className="flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-line bg-surface px-3 py-6 text-center">
+          <div key={tile.label} className="flex flex-col items-center gap-2 card px-3 py-6 text-center">
             <tile.icon className={`size-8 ${tile.cls}`} aria-hidden="true" />
             <dd className={`num order-2 text-3xl font-bold ${tile.cls}`}>{formatPoints(tile.value)}</dd>
             <dt className="order-3 text-sm text-muted">{tile.label}</dt>
@@ -66,7 +66,7 @@ export default async function StatsPage({ params }: Props) {
         ))}
       </dl>
 
-      <section className="mt-8 rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:p-6" aria-labelledby="top-heading">
+      <section className="mt-8 card p-4 sm:p-6" aria-labelledby="top-heading">
         <h3 id="top-heading" className="flex items-center gap-2 text-xl">
           <Award className="size-6 text-accent-text" aria-hidden="true" />
           {t("stats.mostExpensive")}
@@ -78,9 +78,9 @@ export default async function StatsPage({ params }: Props) {
             {st.topPlayers.map((p, i) => {
               const team = teams.get(p.teamId);
               return (
-                <li key={p.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] bg-surface-2 px-3 py-3 sm:gap-4 sm:px-4">
-                  <span className={`num w-10 shrink-0 text-xl font-bold ${i === 0 ? "text-accent-text" : "text-muted"}`}>#{i + 1}</span>
-                  <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={48} className="rounded-full" />
+                <li key={p.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_60%,transparent)] px-3 py-3 sm:gap-4 sm:px-4">
+                  <span className={`num w-10 shrink-0 text-2xl font-bold ${i === 0 ? "text-accent-text" : i === 1 ? "text-[#9ca3af]" : i === 2 ? "text-[#d97706]" : "text-muted"}`}>#{i + 1}</span>
+                  <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={64} className="rounded-[var(--radius-sm)]" />
                   <div className="min-w-0 flex-1">
                     <Link href={`/players/${p.playerId}`} className="block truncate font-bold hover:underline">
                       {p.fullName}
@@ -103,10 +103,10 @@ export default async function StatsPage({ params }: Props) {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {[
-          { id: "cat", title: t("stats.byCategory"), icon: BarChart3, rows: st.byCategory.map((c) => ({ key: c.key, label: c.key, spent: c.spent, players: c.players })), max: maxCat, tone: "bg-accent", empty: t("stats.noCategories") },
-          { id: "role", title: t("stats.byRole"), icon: Users, rows: st.byRole.map((c) => ({ key: c.key, label: roleLabel(c.key), spent: c.spent, players: c.players })), max: maxRole, tone: "bg-sold", empty: t("stats.noData") },
+          { id: "cat", title: t("stats.byCategory"), icon: BarChart3, rows: st.byCategory.map((c) => ({ key: c.key, label: c.key, spent: c.spent, players: c.players })), max: maxCat, tone: "bg-[linear-gradient(90deg,var(--royal),var(--accent))]", empty: t("stats.noCategories") },
+          { id: "role", title: t("stats.byRole"), icon: Users, rows: st.byRole.map((c) => ({ key: c.key, label: roleLabel(c.key), spent: c.spent, players: c.players })), max: maxRole, tone: "bg-[linear-gradient(90deg,#22c55e,#34d399)]", empty: t("stats.noData") },
         ].map((block) => (
-          <section key={block.id} className="rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:p-6" aria-labelledby={`${block.id}-heading`}>
+          <section key={block.id} className="card p-4 sm:p-6" aria-labelledby={`${block.id}-heading`}>
             <h3 id={`${block.id}-heading`} className="flex items-center gap-2 text-xl">
               <block.icon className="size-6 text-accent-text" aria-hidden="true" />
               {block.title}
@@ -122,8 +122,8 @@ export default async function StatsPage({ params }: Props) {
                       <span className="num font-bold text-accent-text">{t("common.points", { amount: formatPoints(r.spent), unit })}</span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-3">
-                      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
-                        <div className={`h-full ${block.tone}`} style={{ width: `${Math.max(2, (r.spent / block.max) * 100)}%` }} />
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
+                        <div className={`h-full rounded-full ${block.tone}`} style={{ width: `${Math.max(2, (r.spent / block.max) * 100)}%` }} />
                       </div>
                       <span className="w-24 shrink-0 text-right text-xs text-muted">{t("stats.playerCount", { n: r.players })}</span>
                     </div>
@@ -135,7 +135,7 @@ export default async function StatsPage({ params }: Props) {
         ))}
       </div>
 
-      <section className="mt-8 rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:p-6" aria-labelledby="teams-heading">
+      <section className="mt-8 card p-4 sm:p-6" aria-labelledby="teams-heading">
         <h3 id="teams-heading" className="flex items-center gap-2 text-xl">
           <TrendingUp className="size-6 text-accent-text" aria-hidden="true" />
           {t("stats.teamSpending")}
@@ -178,7 +178,7 @@ export default async function StatsPage({ params }: Props) {
             const team = teams.get(row.teamId);
             if (!team) return null;
             return (
-              <li key={row.teamId} className="rounded-[var(--radius-sm)] bg-surface-2 p-3">
+              <li key={row.teamId} className="rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_60%,transparent)] p-3">
                 <Link href={`/teams/${team.id}`} className="flex items-center gap-3 font-semibold uppercase tracking-wide">
                   <TeamMark team={team} size={32} className="rounded-[var(--radius-xs)]" />
                   {team.name}
@@ -199,13 +199,13 @@ export default async function StatsPage({ params }: Props) {
         </ul>
       </section>
 
-      <dl className="mt-8 grid gap-3 sm:grid-cols-3">
+      <dl className="mt-8 grid grid-cols-3 gap-3">
         {[
-          { value: s.counts.sold + s.counts.retained, label: t("stats.sold"), cls: "border-sold text-sold" },
-          { value: s.counts.unsold, label: t("stats.unsold"), cls: "border-live text-live" },
-          { value: available, label: t("stats.available"), cls: "border-info text-info" },
+          { value: s.counts.sold + s.counts.retained, label: t("stats.sold"), cls: "!border-l-sold text-remaining" },
+          { value: s.counts.unsold, label: t("stats.unsold"), cls: "!border-l-live text-live" },
+          { value: available, label: t("stats.available"), cls: "!border-l-royal text-royal-light" },
         ].map((c) => (
-          <div key={c.label} className={`flex flex-col items-center rounded-[var(--radius-md)] border-2 bg-surface px-3 py-6 ${c.cls}`}>
+          <div key={c.label} className={`card flex flex-col items-center !border-l-4 px-3 py-6 ${c.cls}`}>
             <dd className="num order-1 text-4xl font-bold">{c.value}</dd>
             <dt className="order-2 text-sm font-semibold text-muted">{c.label}</dt>
           </div>

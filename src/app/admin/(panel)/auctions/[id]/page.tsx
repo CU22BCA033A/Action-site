@@ -20,7 +20,7 @@ export default async function AuctionOverview({ params }: { params: Promise<{ id
     { done: teams.length >= 2, title: "Teams with their purses", detail: `${teams.length} teams`, href: `${base}/teams` },
     { done: codes === teams.length && teams.length > 0, title: "Access codes for team owners", detail: `${codes} of ${teams.length} teams have a code`, href: `${base}/teams` },
     { done: players.length > 0, title: "Players", detail: `${players.length} players${pending ? `, ${pending} registrations waiting for review` : ""}`, href: `${base}/players` },
-    { done: players.length > 0, title: "Queue order and sets", detail: `${new Set(players.map((p) => p.setName)).size} sets`, href: `${base}/queue` },
+    { done: players.length > 0, title: "Player sets (optional)", detail: `${new Set(players.map((p) => p.setName)).size} sets`, href: `${base}/queue` },
     { done: a.status !== "draft", title: "Publish or go live", detail: `Status: ${a.status}`, href: base },
   ];
   const publicUrl = absoluteUrl(`/auctions/${a.slug}`);

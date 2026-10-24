@@ -1,7 +1,7 @@
 import { QueueBuilder } from "@/components/admin/queue-builder";
 import { getAdminAuction, listAdminPlayers } from "@/lib/admin/queries";
 
-export const metadata = { title: "Queue | Admin" };
+export const metadata = { title: "Sets | Admin" };
 
 export default async function QueuePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
