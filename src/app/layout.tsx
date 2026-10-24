@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
 import { siteConfig } from "@config";
 import { I18nProvider } from "@/components/i18n/i18n-provider";
-import { themeInitScript } from "@/components/layout/theme-toggle";
 import { localeNames } from "@/lib/i18n/config";
 import { getT } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/site";
@@ -35,12 +34,9 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale, dict } = await getT();
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const theme = (await cookies()).get("theme")?.value === "light" ? "light" : "dark";
   return (
-    <html lang={localeNames[locale].htmlLang} data-theme="dark" className={fontVariables} suppressHydrationWarning>
-      <head>
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+    <html lang={localeNames[locale].htmlLang} data-theme={theme} className={fontVariables} suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
         <I18nProvider locale={locale} dict={dict}>
           {children}

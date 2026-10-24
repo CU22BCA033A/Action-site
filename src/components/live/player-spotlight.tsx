@@ -44,7 +44,7 @@ export function PlayerSpotlight({
       className={`relative overflow-hidden ${live ? "card-gold pulse-gold" : "card"} ${sold ? "!border-sold" : unsold ? "!border-unsold" : ""}`}
     >
       <p className={`px-3 py-1.5 text-center text-xs font-bold uppercase tracking-wider ${sold ? "bg-sold text-sold-ink" : "bg-[linear-gradient(90deg,var(--royal),var(--royal-dark))] text-royal-ink"}`}>
-        {sold ? t("phase.sold") : unsold ? t("phase.unsold") : (p.category ?? role.label)}
+        {sold ? t("phase.sold") : unsold ? t("phase.unsold") : (p.category ?? p.setName ?? snapshot.auction.sportName)}
       </p>
 
       <div className={`relative bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] ${lg ? "p-5" : "p-4 sm:p-5"}`}>

@@ -18,3 +18,9 @@ The old live page showed a SOLD overlay with a gavel for about two seconds after
 
 ## Admin screens are English only
 Viewer and team-manager screens are translated into English, Kannada and Hindi. The admin panel is English only: it is used by one person, and dense rule editors are easier to support in one language.
+
+## Team owner screen keeps only what a bidder needs
+The owner screen shows the team's purse and largest allowed bid, one line of squad counts and role needs, the player on the floor as a big photo card, and the bid button. The squad is folded away under "My squad". The bid history, shortlist and upcoming-player list were removed: the admin picks players in any order, so an "upcoming" list was misleading, and the extra panels made the phone screen hard to read.
+
+## Theme is stored in a cookie, not set by a script
+The root layout reads a `theme` cookie and sets `data-theme` on the server. An inline theme script caused a React warning on every page in development and was not needed once the server knows the choice. Dark is the default.

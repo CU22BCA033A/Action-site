@@ -6,9 +6,6 @@ import { useT } from "@/components/i18n/i18n-provider";
 
 type Theme = "dark" | "light";
 
-/** Inline script run before paint, so the page never flashes the wrong theme. */
-export const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t='dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();`;
-
 function readTheme(): Theme {
   return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 }
@@ -26,11 +23,8 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   function toggle() {
     const next: Theme = theme === "light" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      /* storage blocked: the choice lasts for this page only */
-    }
+    // A first-party preference cookie, read on the server so the page never flashes.
+    document.cookie = `theme=${next}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   }
 
   const label = theme === "light" ? t("theme.toDark") : t("theme.toLight");
