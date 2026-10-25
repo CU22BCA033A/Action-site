@@ -31,8 +31,30 @@ async function main() {
       console.log(`applied ${file}`);
     }
     console.log("migrations up to date");
+    await ensureMediaBucket();
   } finally {
     await sql.end();
+  }
+}
+
+/** Creates the public "media" storage bucket for photos and logos, once. */
+async function ensureMediaBucket() {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) {
+    console.log("storage: Supabase keys not set, photos are saved on this computer (local development only)");
+    return;
+  }
+  const res = await fetch(`${base}/storage/v1/bucket`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, apikey: key, "Content-Type": "application/json" },
+    body: JSON.stringify({ id: "media", name: "media", public: true, file_size_limit: 3 * 1024 * 1024, allowed_mime_types: ["image/webp"] }),
+  });
+  if (res.ok) console.log("storage: created the media bucket");
+  else {
+    const text = await res.text();
+    if (/already exists|Duplicate/i.test(text)) console.log("storage: media bucket ready");
+    else throw new Error(`Could not create the media bucket: ${res.status} ${text}`);
   }
 }
 
