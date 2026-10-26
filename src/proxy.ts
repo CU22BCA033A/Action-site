@@ -4,7 +4,13 @@ import { NextResponse, type NextRequest } from "next/server";
  * Generates a fresh nonce per request and sets a strict Content Security
  * Policy. Inline scripts run only with this nonce.
  */
+const REQUIRED = ["ADMIN_USERNAME", "ADMIN_PASSWORD_HASH", "SESSION_SECRET", "CODE_PEPPER", "DATABASE_URL"] as const;
+
 export function proxy(request: NextRequest) {
+  // A fresh deployment without its settings goes to the setup helper instead of an error page.
+  if (!request.nextUrl.pathname.startsWith("/setup") && REQUIRED.some((k) => !process.env[k])) {
+    return NextResponse.redirect(new URL("/setup", request.url));
+  }
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
   const host = request.nextUrl.hostname;

@@ -32,3 +32,6 @@ The owner asked for full admin control. Deletes are no longer refused to protect
 - **Auction:** works even while live (typed name to confirm). Bidding stops, codes are revoked, and the auction is hidden everywhere.
 - Finished auctions can still be edited: teams, players and registrations stay editable after completion. Completing an auction with a player still on the floor returns that player to the pool instead of refusing.
 These run as database functions (`admin_delete_players`, `admin_delete_team`) under the floor lock, so they never race a bid.
+
+## First-run setup in the browser, database set up during the Vercel build
+The owner deploys from Vercel without a terminal. Until the required settings exist, every page redirects to `/setup`, which lists what is missing, hashes the chosen admin password (only while `ADMIN_PASSWORD_HASH` is unset) and offers fresh random secrets. Once configured, `/setup` returns 404. On Vercel the build runs `scripts/predeploy.ts` first, which applies migrations and adds the sports when `DATABASE_URL` is set, so the database always matches the deployed code.

@@ -54,7 +54,7 @@ async function ensureMediaBucket() {
   else {
     const text = await res.text();
     if (/already exists|Duplicate/i.test(text)) console.log("storage: media bucket ready");
-    else throw new Error(`Could not create the media bucket: ${res.status} ${text}`);
+    else console.warn(`storage: could not create the media bucket (${res.status}). Create a public bucket named "media" in Supabase > Storage. ${text}`);
   }
 }
 

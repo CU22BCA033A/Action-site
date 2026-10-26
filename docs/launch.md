@@ -7,38 +7,31 @@ The site runs on Vercel (web app) with Supabase (database, photo storage and liv
 2. Project Settings > Data API: copy the **Project URL**, the **anon** key and the **service_role** key.
 3. Connect > Connection string > **Transaction pooler**: copy the URL (port 6543) and put your database password in it.
 
-## 2. Set up the database (once, from your computer)
-```
-git clone https://github.com/CU22BCA033A/Action-site.git
-cd Action-site
-npm install
-cp .env.example .env.local      # then fill in every value
-npm run hash-password           # pick the admin password; paste the .env.local line it prints
-npm run db:migrate              # creates the tables and the public "media" bucket for photos
-npm run db:seed                 # adds Cricket, Kabaddi, Football and Volleyball
-```
-Optional: `npm run db:seed:demo` adds rehearsal auctions with invented data.
-
-Run `npm run db:migrate` again after every update that adds a file to `supabase/migrations`.
-
-## 3. Vercel
-1. At vercel.com, Add New > Project > import `CU22BCA033A/Action-site`. Framework: Next.js. Leave the build settings as they are.
-2. Before the first deploy, add these Environment Variables (Production):
+## 2. Vercel
+1. At vercel.com, Add New > Project > import `CU22BCA033A/Action-site`. Framework: Next.js. Leave the build settings as they are, and deploy.
+2. Open the site. Until it has its settings, every page goes to **/setup**, which:
+   - lists what is still missing,
+   - turns your chosen admin password into `ADMIN_PASSWORD_HASH` (the password itself is never stored),
+   - gives you fresh random values for `SESSION_SECRET` and `CODE_PEPPER`.
+3. In Vercel > Settings > Environment Variables, add:
 
 | Name | Value |
 | --- | --- |
-| `ADMIN_USERNAME` | the admin name you chose |
-| `ADMIN_PASSWORD_HASH` | the second line `npm run hash-password` printed ("for the Vercel dashboard"), with no backslashes |
-| `SESSION_SECRET` | same value as in `.env.local` |
-| `CODE_PEPPER` | same value as in `.env.local`. Never change it after teams get codes, or every code stops working |
-| `DATABASE_URL` | the Transaction pooler URL |
+| `ADMIN_USERNAME` | any admin name you choose |
+| `ADMIN_PASSWORD_HASH` | from /setup |
+| `SESSION_SECRET` | from /setup |
+| `CODE_PEPPER` | from /setup. Never change it after teams get codes, or every code stops working |
+| `DATABASE_URL` | Supabase Transaction pooler URL (port 6543) with your database password |
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (keep it secret) |
-| `SITE_URL` | your site address, for example `https://action-site.vercel.app` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key (Legacy API keys tab) |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (Legacy API keys tab; keep it secret) |
+| `SITE_URL` | your site address, for example `https://action-site-seven.vercel.app` |
 
-3. Deploy. Open `/admin/login` and sign in.
-4. In Vercel > Settings > Functions, set the region to Mumbai (`bom1`) so it sits next to the database.
+4. Deployments > the newest one > Redeploy. During the build the database tables, the photo bucket and the four sports are created automatically, so nothing has to run on your computer.
+5. Open `/admin/login` and sign in. `/setup` now shows "not found", which is expected.
+6. Optional: Settings > Functions, set the region to Mumbai (`bom1`) so it sits next to the database.
+
+To set up from a computer instead: clone the repo, `npm install`, fill `.env.local` from `.env.example`, then `npm run hash-password`, `npm run db:migrate` and `npm run db:seed`.
 
 ## Things to know
 - Vercel's free Hobby plan is for non-commercial use. If you charge money for the auction or the site, use the Pro plan.
@@ -52,4 +45,4 @@ Open `https://<your-site>/api/health`. It lists, in plain words, what is missing
 The most common causes:
 - Environment variables were added after the first deploy. Vercel only uses them after a redeploy.
 - `DATABASE_URL` is the "Direct connection" string. Vercel cannot reach it; use the **Transaction pooler** string (port 6543).
-- `npm run db:migrate` and `npm run db:seed` were not run against the Supabase database.
+- The build failed with "predeploy: database setup failed": `DATABASE_URL` is wrong. Copy the Transaction pooler string again and put your database password in it.
