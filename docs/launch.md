@@ -45,3 +45,11 @@ Run `npm run db:migrate` again after every update that adds a file to `supabase/
 - A free Supabase project that gets no traffic for about a week is paused. Open the site a day or two before an auction; if it is paused, press Restore in the Supabase dashboard.
 - Every push to the `main` branch redeploys the site automatically.
 - Business details (name, address, contact email) come from `site.config.ts`. Fill them in before you share the site publicly.
+
+## If you see "Internal Server Error"
+Open `https://<your-site>/api/health`. It lists, in plain words, what is missing: an environment variable, a wrong database connection string, tables not created (`npm run db:migrate`) or sports not added (`npm run db:seed`). It never shows passwords or keys. Fix what it says, then in Vercel use Deployments > Redeploy if you changed an environment variable.
+
+The most common causes:
+- Environment variables were added after the first deploy. Vercel only uses them after a redeploy.
+- `DATABASE_URL` is the "Direct connection" string. Vercel cannot reach it; use the **Transaction pooler** string (port 6543).
+- `npm run db:migrate` and `npm run db:seed` were not run against the Supabase database.

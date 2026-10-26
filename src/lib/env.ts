@@ -73,6 +73,12 @@ export function getEnv(): ServerEnv {
   return cached;
 }
 
+/** Setup problems as plain messages, for the health check. Never includes values. */
+export function envProblems(): string[] {
+  const parsed = schema.safeParse(process.env);
+  return parsed.success ? [] : parsed.error.issues.map((i) => i.message);
+}
+
 /** For tests only. */
 export function resetEnvCache() {
   cached = null;

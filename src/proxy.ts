@@ -10,7 +10,12 @@ export function proxy(request: NextRequest) {
   const host = request.nextUrl.hostname;
   const isLocal = host === "localhost" || host === "127.0.0.1";
 
-  const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL) : null;
+  let supabase: URL | null = null;
+  try {
+    supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL) : null;
+  } catch {
+    // A malformed URL is reported by /api/health; pages still load.
+  }
   const supabaseHttp = supabase ? `https://${supabase.host}` : "";
   const supabaseWs = supabase ? `wss://${supabase.host}` : "";
 
