@@ -52,10 +52,16 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
   const stats = a.sportConfig.statFields.filter((s) => s.showOnCard).slice(0, 4);
   const total = a.bidTimerSeconds ?? 0;
   const timerShown = live && timerLeft !== null && total > 0;
+  // Accent for the photo frame and card glow: the bidding team's colour, gold before any bid, green once sold.
+  const glow = sold ? "#22c55e" : /^#[0-9a-f]{6}$/i.test(shownTeam?.primaryColor ?? "") ? shownTeam!.primaryColor : "#ffbf00";
   const barPct = timerShown ? Math.max(0, Math.min(100, ((timerLeft ?? 0) / total) * 100)) : sold ? 100 : 0;
 
   return (
-    <article aria-labelledby="stage-name" className="@container flex flex-col overflow-hidden rounded-[2rem] border border-line bg-surface">
+    <article
+      aria-labelledby="stage-name"
+      className="@container relative flex flex-col overflow-hidden rounded-[2rem] border border-line bg-surface"
+      style={{ backgroundImage: `radial-gradient(90% 70% at 18% 0%, ${glow}26, transparent 62%), radial-gradient(70% 60% at 100% 100%, ${glow}12, transparent 60%)` }}
+    >
       {/* Phones have no room header row, so base price and bidder sit here. */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-line px-5 py-3 lg:hidden">
         <p className="flex items-baseline gap-2">
@@ -72,15 +78,28 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
         <div className="h-full rounded-r-full bg-[#22c55e] transition-[width] duration-300 ease-linear" style={{ width: `${barPct}%` }} />
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 @[36rem]:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] @[36rem]:px-8 @[52rem]:grid-cols-[minmax(0,18.75rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12">
-        <div className="relative mx-auto w-full max-w-[18.75rem] @[36rem]:max-w-none">
-          <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 768px) 300px, 90vw" className="!aspect-[3/4] !rounded-[1.75rem] border border-line-strong !bg-[#1a1a1a]" />
-          {live ? (
-            <span className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#c81e1e] px-2.5 py-1 text-[0.6875rem] font-extrabold uppercase text-white">
-              <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-current" />
-              {t("status.live")}
-            </span>
-          ) : null}
+      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 @[36rem]:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @[36rem]:px-8 @[42rem]:grid-cols-[minmax(0,19.5rem)_minmax(0,1fr)] @[48rem]:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12 @[60rem]:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+        {/* Photo in a frame lit in the colour of the team that is bidding (gold before any bid, green once sold). */}
+        <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none">
+          <div
+            className="rounded-[2rem] p-[3px]"
+            style={{ background: `linear-gradient(160deg, ${glow}, ${glow}33 38%, #2f2f2f 60%, ${glow}66)`, boxShadow: `0 24px 60px -24px ${glow}88` }}
+          >
+            <div className="relative overflow-hidden rounded-[calc(2rem-3px)]" style={{ background: `radial-gradient(85% 65% at 50% 100%, ${glow}55, #161616 70%)` }}>
+              <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 416px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent" />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,transparent,rgb(0_0_0/0.75))]" />
+              <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-2">
+                <span className="num rounded-full border border-white/15 bg-black/55 px-3 py-1 text-sm font-extrabold text-white">#{p.lotNo}</span>
+                {p.setName ? <span className="truncate rounded-full border border-white/15 bg-black/55 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.12em] text-white">{p.setName}</span> : null}
+              </div>
+              {live ? (
+                <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-[#c81e1e] px-2.5 py-1 text-[0.6875rem] font-extrabold uppercase text-white">
+                  <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-current" />
+                  {t("status.live")}
+                </span>
+              ) : null}
+            </div>
+          </div>
         </div>
 
         <div className="flex min-w-0 flex-col">
