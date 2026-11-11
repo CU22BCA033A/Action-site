@@ -8,33 +8,32 @@ import { formatPoints, formatStat } from "@/lib/format";
 import type { Snapshot } from "@/lib/live/types";
 import { Price, roleInfo, teamById } from "./bits";
 
-/** Stat values take turns between plain, green, blue and gold, as on a broadcast scorecard. */
-const STAT_TONES = ["text-text", "text-remaining", "text-royal-light", "text-accent-text"];
+/** Stat values in the reference's order: white, green, cyan, amber. */
+const STAT_TONES = ["text-[#fafafa]", "text-[#22c55e]", "text-[#22d3ee]", "text-[#f59e0b]"];
 
-/** Round countdown: a thin ring that empties as time runs out. */
-function TimerRing({ left, total }: { left: number; total: number }) {
+const LABEL = "text-[0.6875rem] font-extrabold uppercase tracking-[0.14em] text-faint";
+
+/** Round countdown: a green ring, amber under 10 seconds, red under 5. */
+function TimerRing({ left }: { left: number }) {
   const { t } = useI18n();
-  const r = 34;
-  const c = 2 * Math.PI * r;
-  const frac = total > 0 ? Math.max(0, Math.min(1, left / total)) : 0;
-  const tone = left <= 5 ? "var(--live)" : left <= 10 ? "var(--warning)" : "var(--remaining)";
+  const tone = left <= 5 ? "border-[#ef4444] bg-[#ef4444]/10 text-[#f87171]" : left <= 10 ? "border-[#f59e0b] bg-[#f59e0b]/10 text-[#fbbf24]" : "border-[#16a34a] bg-[#16a34a]/10 text-[#22c55e]";
   return (
-    <div className="relative size-20 shrink-0" role="timer" aria-label={left === 0 ? t("time.timeUp") : t("time.secondsLeft", { s: left })}>
-      <svg viewBox="0 0 80 80" className="size-full -rotate-90" aria-hidden="true">
-        <circle cx="40" cy="40" r={r} fill="none" stroke="var(--line-strong)" strokeWidth="4" />
-        <circle cx="40" cy="40" r={r} fill="none" stroke={tone} strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} className="transition-[stroke-dashoffset] duration-300" />
-      </svg>
-      <span aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center leading-none" style={{ color: tone }}>
-        <span className="num text-2xl font-extrabold">{left}</span>
-        <span className="mt-0.5 text-[0.6rem] font-bold uppercase tracking-[0.14em]">sec</span>
-      </span>
+    <div
+      role="timer"
+      aria-label={left === 0 ? t("time.timeUp") : t("time.secondsLeft", { s: left })}
+      className={`flex size-[5rem] shrink-0 flex-col items-center justify-center rounded-full border-2 leading-none ${tone}`}
+    >
+      <span aria-hidden="true" className="num text-[1.75rem] font-extrabold">{left}</span>
+      <span aria-hidden="true" className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.14em]">sec</span>
     </div>
   );
 }
 
 /**
- * The player on the floor in the auction room: base price and bidder on top,
- * a thin timer bar, then the photo beside the name, stats and current bid.
+ * The player on the floor, matching the owner's reference: a card with a
+ * green timer line along its top edge, the photo beside role pills, a large
+ * name, a four-stat strip, the current bid with the bidding team's badge and
+ * a countdown ring, and a read-only bar at the bottom.
  */
 export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLeft: number | null }) {
   const { t } = useI18n();
@@ -53,93 +52,94 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
   const stats = a.sportConfig.statFields.filter((s) => s.showOnCard).slice(0, 4);
   const total = a.bidTimerSeconds ?? 0;
   const timerShown = live && timerLeft !== null && total > 0;
+  const barPct = timerShown ? Math.max(0, Math.min(100, ((timerLeft ?? 0) / total) * 100)) : sold ? 100 : 0;
 
   return (
-    <article aria-labelledby="stage-name" className={`flex h-full flex-col overflow-hidden rounded-[1.5rem] border bg-surface ${sold ? "border-sold" : "border-line"}`}>
+    <article aria-labelledby="stage-name" className="@container flex flex-col overflow-hidden rounded-[2rem] border border-line bg-surface">
       {/* Phones have no room header row, so base price and bidder sit here. */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-line px-5 py-3 lg:hidden">
         <p className="flex items-baseline gap-2">
-          <span className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-faint">{t("live.basePrice")}</span>
+          <span className={LABEL}>{t("live.basePrice")}:</span>
           <span className="num font-extrabold">{formatPoints(p.basePrice)}</span>
         </p>
         <p className="ml-auto flex min-w-0 items-center gap-2">
-          <span className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-faint">{sold ? t("live.boughtBy") : t("live.bidder")}</span>
-          <span className="truncate font-extrabold">{shownTeam ? shownTeam.shortName : unsold ? t("phase.unsold") : t("common.none")}</span>
+          <span className={LABEL}>{sold ? t("live.boughtBy") : t("live.bidder")}:</span>
+          <span className="truncate font-extrabold uppercase">{shownTeam ? shownTeam.shortName : unsold ? t("phase.unsold") : t("common.none")}</span>
         </p>
       </div>
 
-      <div className="h-1 shrink-0 bg-surface-3" aria-hidden="true">
-        {timerShown ? (
-          <div className="h-full bg-remaining transition-[width] duration-300 ease-linear" style={{ width: `${Math.max(0, Math.min(100, ((timerLeft ?? 0) / total) * 100))}%` }} />
-        ) : sold ? (
-          <div className="h-full w-full bg-sold" />
-        ) : null}
+      <div className="h-1 shrink-0" aria-hidden="true">
+        <div className="h-full rounded-r-full bg-[#22c55e] transition-[width] duration-300 ease-linear" style={{ width: `${barPct}%` }} />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] items-center gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:gap-10 lg:p-8 xl:grid-cols-[minmax(0,19rem)_minmax(0,1fr)]">
-        <div className="relative mx-auto w-full max-w-[19rem]">
-          <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 768px) 304px, 90vw" className="!aspect-[4/5] !rounded-[1.25rem] border border-line" />
+      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 @[36rem]:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] @[36rem]:px-8 @[52rem]:grid-cols-[minmax(0,18.75rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12">
+        <div className="relative mx-auto w-full max-w-[18.75rem] @[36rem]:max-w-none">
+          <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 768px) 300px, 90vw" className="!aspect-[3/4] !rounded-[1.75rem] border border-line-strong !bg-[#1a1a1a]" />
           {live ? (
-            <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[#c81e1e] px-2.5 py-1 text-xs font-bold uppercase text-white">
+            <span className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#c81e1e] px-2.5 py-1 text-[0.6875rem] font-extrabold uppercase text-white">
               <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-current" />
               {t("status.live")}
             </span>
           ) : null}
-          <span className="num absolute right-3 top-3 rounded-full bg-[color-mix(in_srgb,var(--bg)_80%,transparent)] px-2.5 py-1 text-xs font-bold">#{p.lotNo}</span>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-5">
+        <div className="flex min-w-0 flex-col">
           <ul className="flex flex-wrap gap-2" aria-label={t("register.role")}>
-            <li className="rounded-full border border-[color-mix(in_srgb,var(--royal)_60%,transparent)] bg-[color-mix(in_srgb,var(--royal)_16%,transparent)] px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-royal-light">
+            <li className="rounded-full border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#60a5fa]">
               {role.label}
               {p.subRole ? ` · ${p.subRole}` : ""}
             </li>
-            <li className="rounded-full border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-accent-text">
+            <li className="rounded-full border border-[#a855f7]/40 bg-[#a855f7]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#c084fc]">
               {t(`nationality.${p.nationalityGroup}`)}
             </li>
-            {p.category ? <li className="rounded-full border border-line-strong px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-muted">{p.category}</li> : null}
+            {p.category ? <li className="rounded-full border border-line-strong px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-muted">{p.category}</li> : null}
           </ul>
 
-          <h2 id="stage-name" className="text-4xl leading-[1.02] sm:text-5xl xl:text-[3.4rem]">{p.fullName}</h2>
+          <h2 id="stage-name" className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-[-0.035em] @[52rem]:text-[3.5rem] @[60rem]:text-[4rem]">
+            {p.fullName}
+          </h2>
 
           {stats.length ? (
-            <dl className="grid grid-cols-2 overflow-hidden rounded-[1rem] border border-line bg-surface-2 sm:grid-cols-4">
+            <dl className="mt-8 grid grid-cols-2 overflow-hidden rounded-[1.25rem] border border-line bg-[#141414] py-1 @[46rem]:grid-cols-4">
               {stats.map((s, i) => (
-                <div key={s.key} className={`flex flex-col items-center px-2 py-4 text-center ${i ? "border-l border-line" : ""} ${i === 2 ? "max-sm:border-l-0 max-sm:border-t" : ""} ${i === 3 ? "max-sm:border-t" : ""}`}>
-                  <dt className="order-1 max-w-full truncate text-[0.62rem] font-bold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
-                  <dd className={`num order-2 mt-1.5 whitespace-nowrap text-2xl font-extrabold 2xl:text-3xl ${STAT_TONES[i % STAT_TONES.length]}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
+                <div key={s.key} className={`flex flex-col items-center px-2 py-4 text-center ${i % 2 === 1 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line @[46rem]:border-t-0" : ""} ${i === 2 ? "@[46rem]:border-l" : ""}`}>
+                  <dt className="order-1 max-w-full truncate text-[0.625rem] font-extrabold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
+                  <dd className={`num order-2 mt-2 whitespace-nowrap text-[1.75rem] font-bold leading-none ${STAT_TONES[i % STAT_TONES.length]}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
                 </div>
               ))}
             </dl>
           ) : null}
 
-          <div className="flex items-end justify-between gap-4">
+          <div className="mt-10 flex items-end justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-faint">{sold ? t("live.soldFor") : t("live.currentBid")}</p>
+              <p className={LABEL}>{sold ? t("live.soldFor") : t("live.currentBid")}</p>
               {sold || leader ? (
-                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <p className={`flex items-baseline gap-2 ${sold ? "text-remaining" : "text-text"}`}>
-                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-5xl font-extrabold leading-none xl:text-6xl" />
-                    <span className="text-lg font-bold text-muted">{unit}</span>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <p className={`flex items-baseline gap-2 ${sold ? "text-[#22c55e]" : "text-text"}`}>
+                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-[2.5rem] font-extrabold leading-none tracking-[-0.02em]" />
+                    <span className="text-xl font-extrabold">{unit}</span>
                   </p>
                   {shownTeam ? (
-                    <span className="inline-flex items-center gap-2 rounded-[0.75rem] border border-line-strong bg-surface-2 py-1.5 pl-1.5 pr-3 text-sm font-extrabold">
+                    <span className="inline-flex items-center gap-2 rounded-[0.75rem] border border-line-strong bg-surface-2 py-1.5 pl-1.5 pr-3 text-[0.8125rem] font-extrabold">
                       <TeamMark team={shownTeam} size={26} className="rounded-[0.5rem]" />
                       {shownTeam.shortName}
                     </span>
                   ) : null}
                 </div>
               ) : (
-                <p className="mt-1 text-lg font-semibold text-muted">{unsold ? t("live.noBuyer") : t("live.noBidsYet")}</p>
+                <p className="mt-2 flex items-baseline gap-2">
+                  <span className="num text-[2.5rem] font-extrabold leading-none tracking-[-0.02em]">{unsold ? "-" : "0"}</span>
+                  <span className="text-xl font-extrabold">{unsold ? t("phase.unsold") : unit}</span>
+                </p>
               )}
             </div>
-            {timerShown ? <TimerRing left={timerLeft ?? 0} total={total} /> : null}
+            {timerShown ? <TimerRing left={timerLeft ?? 0} /> : null}
           </div>
         </div>
       </div>
 
-      <div className="flex shrink-0 gap-3 border-t border-line p-4 sm:p-5">
-        <p className="flex min-h-14 flex-1 items-center justify-center gap-2.5 rounded-[1rem] border border-line bg-surface-2 px-4 text-center text-sm font-extrabold uppercase tracking-[0.14em] text-faint">
+      <div className="flex gap-4 border-t border-line p-5 @[36rem]:gap-5 @[36rem]:px-8 @[36rem]:py-6">
+        <p className="flex min-h-[4.5rem] flex-1 items-center justify-center gap-3 rounded-[1.25rem] border border-line bg-[#141414] px-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-faint @[36rem]:min-h-[5.5rem] @[36rem]:text-lg">
           <Eye className="size-5 shrink-0" aria-hidden="true" />
           {t("live.spectator")}
         </p>
@@ -147,9 +147,9 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
           href={`/auctions/${a.slug}/results`}
           aria-label={t("live.tab.results")}
           title={t("live.tab.results")}
-          className="inline-flex size-14 shrink-0 items-center justify-center rounded-[1rem] border border-line bg-surface-2 text-muted hover:border-line-strong hover:text-text"
+          className="inline-flex size-[4.5rem] shrink-0 items-center justify-center rounded-[1.25rem] @[36rem]:size-[5.5rem] border border-line bg-[#141414] text-muted hover:border-line-strong hover:text-text"
         >
-          <ListOrdered className="size-5" aria-hidden="true" />
+          <ListOrdered className="size-6" aria-hidden="true" />
         </Link>
       </div>
     </article>

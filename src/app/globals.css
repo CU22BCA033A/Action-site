@@ -12,20 +12,20 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   /* CPL palette: deep navy, gold, royal blue, warm off-white text. */
-  --bg: #09090b;
-  --bg-sunken: #060607;
-  --bg-top: #0b0b0d;
-  --bg-bottom: #08080a;
-  --surface: #111113;
-  --surface-2: #17171a;
-  --surface-3: #202024;
-  --line: #222226;
-  --line-strong: #34343b;
+  --bg: #0a0a0a;
+  --bg-sunken: #070707;
+  --bg-top: #0a0a0a;
+  --bg-bottom: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #171717;
+  --surface-3: #1f1f1f;
+  --line: #222222;
+  --line-strong: #2f2f2f;
   --silver-from: #f6f6f7;
   --silver-to: #b3b5bd;
-  --text: #f5f5f4;
-  --text-muted: #a1a1aa;
-  --text-faint: #8b8b94;
+  --text: #fafafa;
+  --text-muted: #a3a3a3;
+  --text-faint: #8a8a8a;
   --accent: #ffbf00;
   --accent-hover: #ffd966;
   --accent-press: #e6ac00;
@@ -35,14 +35,14 @@
   --gold-from: #ffd666;
   --gold-to: #f0a400;
   --gold-dark: #b38600;
-  --royal: #4169e1;
-  --royal-light: #7b97ea;
+  --royal: #3b82f6;
+  --royal-light: #60a5fa;
   --royal-dark: #2c4fb8;
   --royal-ink: #ffffff;
   --glow-gold: rgb(255 191 0 / 0.18);
   --glow-royal: rgb(65 105 225 / 0.22);
   --card-shadow: 0 4px 30px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.05);
-  --spent: #ef4343;
+  --spent: #f87171;
   --remaining: #22c55e;
   --live: #f87171;
   --live-ink: #ffffff;
@@ -58,7 +58,7 @@
   --success-surface: #0c2a1b;
   --info-surface: #121c3a;
   --focus: #ffd966;
-  --overlay: rgb(5 8 15 / 0.9);
+  --overlay: rgb(0 0 0 / 0.85);
 }
 
 :root[data-theme="light"] {

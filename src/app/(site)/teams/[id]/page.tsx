@@ -62,7 +62,7 @@ export default async function TeamPage({ params }: Props) {
         {squad.length === 0 ? (
           <p className="mt-10 rounded-[var(--radius-md)] border border-dashed border-line-strong p-8 text-center text-muted">{t("auction.emptySquad")}</p>
         ) : (
-          <div className="mt-8 grid gap-8 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-3">
             {roles.map((r) => {
               const items = squad.filter((p) => p.roleKey === r.key);
               if (items.length === 0) return null;

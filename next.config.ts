@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   serverExternalPackages: ["@node-rs/argon2", "sharp"],
+  // The player card route reads its fonts from disk; ship them with that function.
+  outputFileTracingIncludes: { "/api/auctions/[slug]/card/[auctionPlayerId]": ["./src/assets/card/**"] },
   experimental: {
     serverActions: { bodySizeLimit: "4mb" },
   },

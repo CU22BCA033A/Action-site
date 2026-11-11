@@ -14,8 +14,11 @@ The gavel hit is the Web Audio synth from the owner's CPL site (a low-passed thu
 ## Public pages show only the sport being auctioned
 The organiser creates an auction for one sport (almost always cricket). The header, footer, home page and sitemap no longer list every sport; the home page names only the sports of published auctions, and `/sports` redirects to `/auctions`. The other sports still exist for the admin.
 
-## Look follows the owner's crickauction.in reference
-The owner found the navy and Orbitron design crowded and asked for the font and design of a crickauction.in auction-room screenshot. Now: charcoal surfaces (#09090b to #202024), flat panels without glows, rounded corners (10, 16 and 24 px), Archivo for all Latin text with heavy mixed-case headings, and a slim one-row auction header. This supersedes two earlier owner bans (Inter-style fonts, soft corners) because it is the newer instruction; Inter itself is still not used. Gold stays the brand accent; the silver and gold AuctionX wordmark stays.
+## Look follows the owner's crickauction.in reference exactly
+The owner asked for the exact look of their crickauction.in room screenshots: colours, fonts, sizes and backgrounds. So: Inter for all Latin text (the font that site uses; this overrides the owner's earlier ban on Inter, by their newer instruction), neutral near-black #0a0a0a background with #111/#171717 panels and #222 borders, rounded panels (up to 32 px), 64 px player names, 28 px stat values in white, green, cyan and amber, blue and purple tag pills, a solid green countdown ring and a green timer line. The live page is a full-screen room (no site header or footer) with a slim top bar. Gold stays the brand accent; the silver and gold AuctionX wordmark stays elsewhere on the site.
+
+## Save player card
+Each sale card on the live page can be downloaded as a 1080x1350 PNG from `/api/auctions/[slug]/card/[auctionPlayerId]`, rendered on the server with public data only (404 for unsold players or private profiles). Uploaded WebP photos are converted to PNG first, and the route ships its own two Inter WOFF files (`src/assets/card`).
 
 ## The owner's logo file is still needed
 The owner shared an AuctionX logo image in chat, but no file reached the repository. Until it is added (for example as `public/brand/auctionx-logo.png`), the site uses an in-house gavel mark and a typeset AuctionX wordmark.
