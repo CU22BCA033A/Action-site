@@ -58,29 +58,31 @@ export default async function StatsPage({ params }: Props) {
 
       <dl className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {tiles.map((tile) => (
-          <div key={tile.label} className="flex flex-col items-center gap-2 card px-3 py-6 text-center">
-            <tile.icon className={`size-8 ${tile.cls}`} aria-hidden="true" />
-            <dd className={`num order-2 text-3xl font-bold ${tile.cls}`}>{formatPoints(tile.value)}</dd>
-            <dt className="order-3 text-sm text-muted">{tile.label}</dt>
+          <div key={tile.label} className="card flex flex-col gap-3 px-4 py-5 sm:px-5">
+            <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted">
+              <tile.icon className={`size-4 shrink-0 ${tile.cls}`} aria-hidden="true" />
+              {tile.label}
+            </dt>
+            <dd className={`num text-3xl font-bold sm:text-4xl ${tile.cls}`}>{formatPoints(tile.value)}</dd>
           </div>
         ))}
       </dl>
 
-      <section className="mt-8 card p-4 sm:p-6" aria-labelledby="top-heading">
-        <h3 id="top-heading" className="flex items-center gap-2 text-xl">
-          <Award className="size-6 text-accent-text" aria-hidden="true" />
+      <section className="mt-8 card overflow-hidden" aria-labelledby="top-heading">
+        <h3 id="top-heading" className="flex items-center gap-2 border-b border-line px-4 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.18em] text-muted sm:px-6">
+          <Award className="size-4 text-accent-text" aria-hidden="true" />
           {t("stats.mostExpensive")}
         </h3>
         {st.topPlayers.length === 0 ? (
-          <p className="mt-4 text-muted">{t("stats.noData")}</p>
+          <p className="px-4 py-6 text-muted sm:px-6">{t("stats.noData")}</p>
         ) : (
-          <ol className="mt-4 flex flex-col gap-2">
+          <ol className="divide-y divide-line">
             {st.topPlayers.map((p, i) => {
               const team = teams.get(p.teamId);
               return (
-                <li key={p.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_60%,transparent)] px-3 py-3 sm:gap-4 sm:px-4">
+                <li key={p.auctionPlayerId} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2 sm:gap-4 sm:px-6">
                   <span className={`num w-12 shrink-0 whitespace-nowrap text-2xl font-bold ${i === 0 ? "text-accent-text" : i === 1 ? "text-[#9ca3af]" : i === 2 ? "text-[#d97706]" : "text-muted"}`}>#{i + 1}</span>
-                  <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={64} className="rounded-[var(--radius-sm)]" />
+                  <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={52} className="rounded-[var(--radius-sm)]" />
                   <div className="min-w-0 flex-1">
                     <Link href={`/players/${p.playerId}`} className="block truncate font-bold hover:underline">
                       {p.fullName}
@@ -107,8 +109,8 @@ export default async function StatsPage({ params }: Props) {
           { id: "role", title: t("stats.byRole"), icon: Users, rows: st.byRole.map((c) => ({ key: c.key, label: roleLabel(c.key), spent: c.spent, players: c.players })), max: maxRole, tone: "bg-[linear-gradient(90deg,#22c55e,#34d399)]", empty: t("stats.noData") },
         ].map((block) => (
           <section key={block.id} className="card p-4 sm:p-6" aria-labelledby={`${block.id}-heading`}>
-            <h3 id={`${block.id}-heading`} className="flex items-center gap-2 text-xl">
-              <block.icon className="size-6 text-accent-text" aria-hidden="true" />
+            <h3 id={`${block.id}-heading`} className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.18em] text-muted">
+              <block.icon className="size-4 text-accent-text" aria-hidden="true" />
               {block.title}
             </h3>
             {block.rows.length === 0 ? (
@@ -136,14 +138,14 @@ export default async function StatsPage({ params }: Props) {
       </div>
 
       <section className="mt-8 card p-4 sm:p-6" aria-labelledby="teams-heading">
-        <h3 id="teams-heading" className="flex items-center gap-2 text-xl">
-          <TrendingUp className="size-6 text-accent-text" aria-hidden="true" />
+        <h3 id="teams-heading" className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.18em] text-muted">
+          <TrendingUp className="size-4 text-accent-text" aria-hidden="true" />
           {t("stats.teamSpending")}
         </h3>
         <div className="mt-4 hidden md:block">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-line text-sm">
+              <tr className="border-b border-line text-xs uppercase tracking-[0.12em] text-muted">
                 <th scope="col" className="py-3 pr-3 font-bold">{t("stats.team")}</th>
                 <th scope="col" className="px-3 py-3 text-right font-bold">{t("stats.players")}</th>
                 <th scope="col" className="px-3 py-3 text-right font-bold">{t("stats.spent")}</th>

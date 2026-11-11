@@ -86,8 +86,11 @@ export function ManagerConsole({ initial }: { initial: ManagerSnapshot }) {
           player: p ? { roleKey: p.roleKey, nationalityGroup: p.nationalityGroup } : null,
         });
 
+  // A finished lot stays on the floor until the admin brings the next player.
+  const lotFinished = Boolean(p) && (f.phase === "sold" || f.phase === "unsold");
   const reason = (() => {
     if (connection !== "connected") return t("connection.bidsPaused");
+    if (lotFinished) return t("live.waitingBody");
     switch (block.kind) {
       case "ok":
         return null;
@@ -258,13 +261,15 @@ export function ManagerConsole({ initial }: { initial: ManagerSnapshot }) {
             onClick={placeBid}
             disabled={block.kind !== "ok" || pending !== null}
             aria-describedby={reason ? "bid-reason" : undefined}
-            className="num flex min-h-20 w-full items-center justify-center gap-3 rounded-[var(--radius-md)] bg-[linear-gradient(90deg,var(--accent),var(--gold-dark))] px-4 text-2xl font-bold uppercase text-accent-ink shadow-[0_8px_30px_var(--glow-gold)] transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-none disabled:bg-surface-3 disabled:text-muted disabled:shadow-none sm:text-3xl"
+            className="num flex min-h-20 w-full items-center justify-center gap-3 rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--gold-dark)_70%,transparent)] bg-[linear-gradient(180deg,var(--gold-from),var(--gold-to))] px-4 text-2xl font-bold uppercase text-accent-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.45),0_10px_30px_-8px_var(--glow-gold)] transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:border-line disabled:bg-none disabled:bg-surface-3 disabled:text-base disabled:text-muted disabled:shadow-none sm:text-3xl sm:disabled:text-xl"
           >
             <Gavel className="size-7 shrink-0" aria-hidden="true" />
             <span>
               {pending !== null
                 ? t("manager.placing", { amount: formatPoints(pending) })
-                : t("manager.bid", { amount: formatPoints(block.kind === "ok" ? block.amount : f.nextBidAmount ?? p?.basePrice ?? 0), unit })}
+                : lotFinished
+                  ? t("live.waitingTitle")
+                  : t("manager.bid", { amount: formatPoints(block.kind === "ok" ? block.amount : f.nextBidAmount ?? p?.basePrice ?? 0), unit })}
             </span>
           </button>
           {reason ? (

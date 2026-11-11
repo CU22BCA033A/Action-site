@@ -12,15 +12,17 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   /* CPL palette: deep navy, gold, royal blue, warm off-white text. */
-  --bg: #080c16;
-  --bg-sunken: #060911;
-  --bg-top: #0b111e;
-  --bg-bottom: #05080f;
-  --surface: #0b111e;
-  --surface-2: #10192d;
-  --surface-3: #1b2232;
-  --line: #242d42;
-  --line-strong: #3a4560;
+  --bg: #070a12;
+  --bg-sunken: #05070d;
+  --bg-top: #0b1120;
+  --bg-bottom: #04060b;
+  --surface: #0c1222;
+  --surface-2: #121a2f;
+  --surface-3: #1a2440;
+  --line: #1e2840;
+  --line-strong: #34415f;
+  --silver-from: #f4f6fb;
+  --silver-to: #a9b3c7;
   --text: #fff9e6;
   --text-muted: #8f9bb6;
   --text-faint: #8591ad;
@@ -30,8 +32,8 @@
   --accent-ink: #0b1220;
   --accent-text: #ffbf00;
   --accent-edge: #ffbf00;
-  --gold-from: #ffcc33;
-  --gold-to: #ff9500;
+  --gold-from: #ffd666;
+  --gold-to: #f0a400;
   --gold-dark: #b38600;
   --royal: #4169e1;
   --royal-light: #7b97ea;
@@ -98,6 +100,8 @@
   --gold-from: #ffcc33;
   --gold-to: #ff9500;
   --gold-dark: #7a5600;
+  --silver-from: #2a3448;
+  --silver-to: #0b1222;
   --royal: #2c4fb8;
   --royal-light: #2c4fb8;
   --royal-dark: #233f94;
@@ -160,6 +164,14 @@
 }
 
 @layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  a, button, summary, input, select, textarea {
+    transition-property: color, background-color, border-color, text-decoration-color, box-shadow, opacity;
+    transition-duration: 160ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -186,7 +198,8 @@
     font-family: var(--font-display);
     font-weight: 700;
     line-height: 1.12;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     overflow-wrap: normal;
     word-break: normal;
   }
@@ -225,6 +238,7 @@
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
     border-radius: var(--radius-md);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.03);
   }
   .card-gold {
     background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -248,6 +262,41 @@
     background-image: none;
     color: var(--accent-text);
   }
+  /* Silver half of the AuctionX wordmark, as in the owner's logo. Wordmark only. */
+  .text-silver {
+    background-image: linear-gradient(180deg, var(--silver-from), var(--silver-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
+  /* Small uppercase label above a heading, led by a short gold rule. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.5rem;
+    height: 2px;
+    background: currentColor;
+  }
+  /* Quiet top highlight that gives panels depth without a drop shadow. */
+  .panel-edge {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+  :root[data-theme="light"] .panel-edge {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
+  }
   .text-royal-gradient {
     background-image: linear-gradient(135deg, var(--royal-light), var(--royal));
     -webkit-background-clip: text;
@@ -255,7 +304,7 @@
     color: transparent;
   }
   @media (forced-colors: active) {
-    .text-gold, .text-royal-gradient {
+    .text-gold, .text-royal-gradient, .text-silver {
       background-image: none;
       color: CanvasText;
     }

@@ -8,7 +8,7 @@ import { TeamStatsCard } from "@/components/home/team-stats-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badges";
 import { TeamMark } from "@/components/auction/identity";
-import { listPublicAuctions, listSports } from "@/lib/data/public";
+import { listPublicAuctions } from "@/lib/data/public";
 import { formatPoints } from "@/lib/format";
 import { getT } from "@/lib/i18n/server";
 import { getSnapshot } from "@/lib/live/engine";
@@ -27,7 +27,9 @@ const screens = [
 
 export default async function HomePage() {
   const { t } = await getT();
-  const [auctions, sports] = await Promise.all([listPublicAuctions(), listSports()]);
+  const auctions = await listPublicAuctions();
+  // Only the sports the organiser actually runs auctions for, never the full catalogue.
+  const sportNames = [...new Set(auctions.map((a) => a.sportName))];
   const featured = auctions[0];
   const snapshot = featured ? await getSnapshot(featured.id) : null;
   const shots = screens.filter((s) => existsSync(join(process.cwd(), "public", "screens", `${s.file}.webp`)));
@@ -35,6 +37,9 @@ export default async function HomePage() {
   const isLive = snapshot && (snapshot.auction.status === "live" || snapshot.auction.status === "paused");
   const isDone = snapshot?.auction.status === "completed";
 
+  const liveShot = shots.find((s) => s.file === "live");
+  // With no public auction the hero already shows the live view, so the gallery skips it.
+  const gallery = snapshot ? shots : shots.filter((s) => s.file !== "live");
   const teamById = new Map(snapshot?.teams.map((tm) => [tm.id, tm]) ?? []);
   const signings = (snapshot?.recentSales ?? []).filter((s) => s.status === "sold").slice(0, 6);
   const steps = [
@@ -48,13 +53,7 @@ export default async function HomePage() {
       <section className="border-b border-line">
         <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="text-center lg:text-left">
-            <ul className="flex flex-wrap justify-center gap-2 lg:justify-start" aria-label={t("nav.sports")}>
-              {sports.map((s) => (
-                <li key={s.id} className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted">
-                  {s.name}
-                </li>
-              ))}
-            </ul>
+            {sportNames.length ? <p className="eyebrow">{sportNames.join(" · ")}</p> : null}
             <h1 className="mt-6 uppercase">
               <span className="block pb-1 text-[clamp(2.4rem,8vw,4.5rem)] font-black tracking-wide text-gold">{t("home.titleTop")}</span>
               <span className="mt-1 block text-[clamp(1.75rem,5.6vw,3rem)] font-bold tracking-wide text-text">{t("home.titleBottom")}</span>
@@ -138,6 +137,15 @@ export default async function HomePage() {
                   </ButtonLink>
                 </div>
               </>
+            ) : liveShot ? (
+              <figure>
+                <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+                  <figcaption className="text-xs font-bold uppercase tracking-[0.18em] text-muted">{t("home.screensTitle")}</figcaption>
+                  <Badge tone="accent">{t("common.demoData")}</Badge>
+                </div>
+                <Image src="/screens/live.webp" alt={t("home.shotLive")} width={liveShot.w} height={liveShot.h} priority sizes="(min-width: 1024px) 560px, 100vw" className="h-auto w-full" />
+                <p className="border-t border-line px-5 py-3 text-sm text-muted">{t("home.noAuctionBody")}</p>
+              </figure>
             ) : (
               <div className="p-8 text-center">
                 <Trophy className="mx-auto size-14 text-accent-text" strokeWidth={1.75} aria-hidden="true" />
@@ -159,7 +167,8 @@ export default async function HomePage() {
 
       <section className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <div>
-          <h2 className="text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
+          <p className="eyebrow">{t("nav.howItWorks")}</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
           <p className="mt-4">
             <Link href="/how-it-works" className="link inline-flex items-center gap-2 font-semibold text-accent-text">
               {t("home.howLink")}
@@ -183,17 +192,19 @@ export default async function HomePage() {
         </ol>
       </section>
 
-      {shots.length ? (
+      {gallery.length ? (
         <section className="border-y border-line bg-[color-mix(in_srgb,var(--bg-sunken)_60%,transparent)]">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 className="text-3xl sm:text-4xl">{t("home.screensTitle")}</h2>
-              <Badge tone="accent">{t("common.demoData")}</Badge>
+              <div>
+                <p className="eyebrow">{t("common.demoData")}</p>
+                <h2 className="mt-3 text-3xl sm:text-4xl">{t("home.screensTitle")}</h2>
+              </div>
             </div>
             <p className="mt-2 text-muted">{t("home.screensNote")}</p>
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              {shots.map((s, i) => (
-                <figure key={s.file} className={i === 0 ? "lg:col-span-2" : ""}>
+              {gallery.map((s, i) => (
+                <figure key={s.file} className={i === 0 && gallery.length === 3 ? "lg:col-span-2" : ""}>
                   <Image
                     src={`/screens/${s.file}.webp`}
                     alt={t(`home.${s.key}`)}
@@ -210,26 +221,14 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[2fr_1fr]">
-        <div>
-          <h2 className="text-3xl sm:text-4xl">{t("home.sportsTitle")}</h2>
-          <p className="mt-2 text-muted">{t("home.sportsBody")}</p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {sports.map((s) => (
-              <li key={s.id}>
-                <Link href={`/sports#${s.key}`} className="flex items-center justify-between gap-3 card p-4 hover:border-[color-mix(in_srgb,var(--accent)_40%,var(--line))]">
-                  <span className="display text-lg font-bold uppercase">{s.name}</span>
-                  <span className="text-sm text-muted">{t("home.rolesCount", { n: s.config.roles.filter((r) => !r.hidden).length })}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <div className="card-gold flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
+          <Wallet className="size-10 shrink-0 text-remaining" aria-hidden="true" />
+          <div>
+            <h2 className="text-2xl">{t("home.freeTitle")}</h2>
+            <p className="mt-2 max-w-3xl text-muted">{t("home.freeBody")}</p>
+          </div>
         </div>
-        <aside className="card-gold p-6">
-          <Wallet className="size-8 text-remaining" aria-hidden="true" />
-          <h2 className="mt-4 text-2xl">{t("home.freeTitle")}</h2>
-          <p className="mt-2 text-muted">{t("home.freeBody")}</p>
-        </aside>
       </section>
     </>
   );

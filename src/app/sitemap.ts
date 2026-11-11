@@ -4,7 +4,7 @@ import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-const staticPaths = ["/", "/auctions", "/how-it-works", "/sports", "/faq", "/contact", "/join", "/privacy", "/terms", "/refund-policy", "/cookies", "/data-deletion", "/licenses"];
+const staticPaths = ["/", "/auctions", "/how-it-works", "/faq", "/contact", "/join", "/privacy", "/terms", "/refund-policy", "/cookies", "/data-deletion", "/licenses"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = staticPaths.map((p) => ({ url: absoluteUrl(p), changeFrequency: "monthly", priority: p === "/" ? 1 : 0.6 }));

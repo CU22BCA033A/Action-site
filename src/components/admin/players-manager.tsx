@@ -122,7 +122,6 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
             </h2>
             <ul className="mt-2 divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface">
               {g.items.map((p) => {
-                const editable = p.status === "pool" || p.status === "unsold";
                 return (
                   <li key={p.auctionPlayerId} className="grid grid-cols-[auto_auto_1fr] items-center gap-3 p-3 md:grid-cols-[auto_auto_minmax(0,1fr)_8rem_7rem_9rem_auto]">
                     <input

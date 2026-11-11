@@ -84,28 +84,29 @@ export function CookieConsent() {
       {consent === null ? (
         <section
           aria-labelledby="cookie-banner-title"
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-line-strong bg-surface p-4 sm:inset-x-auto sm:bottom-4 sm:left-4 sm:max-w-md sm:border sm:p-5"
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-line-strong bg-surface p-4 shadow-[0_-8px_30px_rgb(0_0_0/0.35)] sm:inset-x-auto sm:bottom-4 sm:left-4 sm:max-w-sm sm:rounded-[var(--radius-md)] sm:border"
         >
-          <h2 id="cookie-banner-title" className="text-xl">
+          <h2 id="cookie-banner-title" className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-accent-text">
             {t("cookies.title")}
           </h2>
-          <p className="mt-2 text-sm text-muted">{t("cookies.body")}</p>
-          <p className="mt-2 text-sm">
-            <Link href="/cookies" className="link text-muted hover:text-text">
+          <p className="mt-2 text-sm leading-snug text-muted">{t("cookies.body")}</p>
+          {/* Accept and reject are the same size and style: no nudging either way. */}
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button variant="secondary" size="sm" className="h-11 whitespace-normal leading-tight" onClick={() => choose(true)}>
+              {t("cookies.accept")}
+            </Button>
+            <Button variant="secondary" size="sm" className="h-11 whitespace-normal leading-tight" onClick={() => choose(false)}>
+              {t("cookies.reject")}
+            </Button>
+          </div>
+          <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
+            <button type="button" className="link inline-flex min-h-11 items-center text-muted hover:text-text" onClick={openSettings}>
+              {t("cookies.settings")}
+            </button>
+            <Link href="/cookies" className="link inline-flex min-h-11 items-center text-muted hover:text-text">
               {t("cookies.policyLink")}
             </Link>
           </p>
-          <div className="mt-4 grid grid-cols-1 gap-2 min-[400px]:grid-cols-3">
-            <Button variant="secondary" onClick={() => choose(true)}>
-              {t("cookies.accept")}
-            </Button>
-            <Button variant="secondary" onClick={() => choose(false)}>
-              {t("cookies.reject")}
-            </Button>
-            <Button variant="secondary" onClick={openSettings}>
-              {t("cookies.settings")}
-            </Button>
-          </div>
         </section>
       ) : null}
 

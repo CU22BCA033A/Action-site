@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { siteConfig } from "@config";
-import { LogoMark } from "@/components/brand/logo";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { getT } from "@/lib/i18n/server";
 import { CookieSettingsLink } from "./cookie-consent";
 
@@ -14,7 +14,6 @@ export async function SiteFooter() {
   const product = [
     { href: "/auctions", label: t("nav.auctions") },
     { href: "/how-it-works", label: t("nav.howItWorks") },
-    { href: "/sports", label: t("nav.sports") },
     { href: "/faq", label: t("nav.faq") },
     { href: "/join", label: t("nav.join") },
     { href: "/search", label: t("nav.search") },
@@ -32,18 +31,18 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="mt-auto border-t border-line bg-[color-mix(in_srgb,var(--surface-2)_50%,transparent)]">
+    <footer className="mt-auto border-t border-line bg-bg-sunken">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr_1.4fr]">
         <div className="flex flex-col gap-4">
           <Link href="/" className="inline-flex w-fit items-center gap-2.5" aria-label={siteConfig.brandName ? `${siteConfig.brandName}, ${t("nav.home")}` : t("nav.home")}>
             <LogoMark className="size-9" />
-            {siteConfig.brandName ? <span className="display pb-0.5 text-xl font-black text-gold">{siteConfig.brandName}</span> : null}
+            {siteConfig.brandName ? <Wordmark brand={siteConfig.brandName} className="text-2xl" /> : null}
           </Link>
           <p className="max-w-xs text-sm text-muted">{t("footer.virtualPoints")}</p>
         </div>
 
         <nav aria-label={t("footer.product")}>
-          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.product")}</h2>
+          <h2 className="mb-4 font-sans text-xs font-bold uppercase tracking-[0.18em] text-accent-text">{t("footer.product")}</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {product.map((l) => (
               <li key={l.href}>
@@ -56,7 +55,7 @@ export async function SiteFooter() {
         </nav>
 
         <nav aria-label={t("footer.legal")}>
-          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.legal")}</h2>
+          <h2 className="mb-4 font-sans text-xs font-bold uppercase tracking-[0.18em] text-accent-text">{t("footer.legal")}</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {legal.map((l) => (
               <li key={l.href}>
@@ -73,7 +72,7 @@ export async function SiteFooter() {
 
         {hasDetails ? (
         <div>
-          <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.company")}</h2>
+          <h2 className="mb-4 font-sans text-xs font-bold uppercase tracking-[0.18em] text-accent-text">{t("footer.company")}</h2>
           <dl className="flex flex-col gap-3 text-sm">
             {siteConfig.legalEntityName ? (
               <div>
@@ -129,7 +128,21 @@ export async function SiteFooter() {
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm text-faint sm:px-6">
-          <p>{t("footer.rights", { year, entity })}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em]">{t("footer.rights", { year, entity })}</p>
+          <ul className="flex flex-wrap text-xs font-semibold uppercase tracking-[0.16em]">
+            {[
+              { href: "/privacy", label: t("footer.privacy") },
+              { href: "/terms", label: t("footer.terms") },
+              { href: "/cookies", label: t("footer.cookies") },
+              { href: "/contact", label: t("nav.contact") },
+            ].map((l, i) => (
+              <li key={l.href} className={i ? "border-l border-line" : ""}>
+                <Link href={l.href} className="inline-flex min-h-11 items-center px-3 text-muted hover:text-accent-text">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

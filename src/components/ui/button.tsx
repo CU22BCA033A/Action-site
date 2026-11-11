@@ -6,23 +6,23 @@ type Variant = "primary" | "royal" | "glass" | "secondary" | "ghost" | "danger" 
 type Size = "sm" | "md" | "lg" | "xl";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-bold uppercase tracking-wider select-none whitespace-nowrap rounded-[var(--radius-sm)] border transition-[transform,box-shadow,border-color,color,opacity] duration-300 motion-safe:active:scale-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
+  "inline-flex items-center justify-center gap-2 font-bold uppercase tracking-wider select-none whitespace-nowrap rounded-[var(--radius-sm)] border transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-200 ease-out motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
 
 /** Variants from the original CPL site: gold, royal, glass and outline. */
 const variants: Record<Variant, string> = {
   primary:
-    "border-transparent bg-[linear-gradient(90deg,var(--accent),var(--gold-dark))] text-accent-ink hover:shadow-[0_8px_24px_var(--glow-gold)] motion-safe:hover:scale-105 disabled:hover:shadow-none disabled:hover:scale-100",
+    "border-[color-mix(in_srgb,var(--gold-dark)_70%,transparent)] bg-[linear-gradient(180deg,var(--gold-from),var(--gold-to))] text-accent-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.45),0_1px_2px_rgb(0_0_0/0.3)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.55),0_10px_28px_-8px_var(--glow-gold)] motion-safe:hover:-translate-y-px disabled:hover:translate-y-0 disabled:hover:shadow-none",
   royal:
-    "border-transparent bg-[linear-gradient(90deg,var(--royal),var(--royal-dark))] text-royal-ink hover:shadow-[0_8px_24px_var(--glow-royal)] motion-safe:hover:scale-105 disabled:hover:scale-100",
+    "border-[color-mix(in_srgb,var(--royal-dark)_80%,transparent)] bg-[linear-gradient(180deg,#4a70e3,#2c4fb8)] text-royal-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_1px_2px_rgb(0_0_0/0.3)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_var(--glow-royal)] motion-safe:hover:-translate-y-px disabled:hover:translate-y-0",
   glass:
-    "bg-[color-mix(in_srgb,var(--surface)_55%,transparent)] text-text border-line hover:border-[color-mix(in_srgb,var(--accent)_40%,var(--line))]",
+    "bg-surface-2 text-text border-line-strong shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] hover:border-[color-mix(in_srgb,var(--accent)_55%,var(--line))] hover:bg-surface-3",
   secondary:
     "bg-transparent text-text border-line-strong hover:border-text active:bg-surface-2",
   ghost: "bg-transparent text-text border-transparent hover:border-line-strong active:bg-surface-2",
   quiet: "bg-transparent normal-case tracking-normal font-semibold text-muted border-transparent underline-offset-4 hover:text-text hover:underline",
   danger:
     "bg-transparent text-danger border-danger hover:shadow-[0_0_0_1px_var(--danger)] active:bg-danger-surface",
-  sold: "border-transparent bg-[linear-gradient(90deg,var(--sold),#15803d)] text-sold-ink hover:shadow-[0_8px_24px_rgb(22_163_73/0.3)]",
+  sold: "border-transparent bg-[linear-gradient(180deg,#22b45a,var(--sold))] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(22_163_73/0.45)]",
 };
 
 const sizes: Record<Size, string> = {

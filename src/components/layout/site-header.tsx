@@ -4,7 +4,7 @@ import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LogoMark } from "@/components/brand/logo";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { useT } from "@/components/i18n/i18n-provider";
 import { buttonClass } from "@/components/ui/button";
 import { LanguageSwitcher } from "./language-switcher";
@@ -14,7 +14,6 @@ type NavKey = "auctions" | "howItWorks" | "sports" | "faq" | "contact";
 const navItems: { href: string; key: NavKey }[] = [
   { href: "/auctions", key: "auctions" },
   { href: "/how-it-works", key: "howItWorks" },
-  { href: "/sports", key: "sports" },
   { href: "/faq", key: "faq" },
   { href: "/contact", key: "contact" },
 ];
@@ -42,11 +41,11 @@ export function SiteHeader({ brand }: { brand: string }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--surface)_100%,transparent)]">
-      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface shadow-[inset_0_2px_0_var(--accent)]">
+      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
-          <LogoMark className="size-10 shrink-0" />
-          {brand ? <span className="truncate display text-xl font-black text-gold md:text-2xl">{brand}</span> : null}
+          <LogoMark className="size-9 shrink-0" />
+          {brand ? <Wordmark brand={brand} className="truncate text-[1.35rem] md:text-[1.6rem]" /> : null}
         </Link>
 
         <nav aria-label={t("nav.primary")} className="ml-6 hidden lg:block">
@@ -56,7 +55,7 @@ export function SiteHeader({ brand }: { brand: string }) {
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-[0.95rem] font-semibold uppercase tracking-wider text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
+                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-[0.8rem] font-bold uppercase tracking-[0.14em] text-muted hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
                 >
                   {t(`nav.${item.key}`)}
                 </Link>

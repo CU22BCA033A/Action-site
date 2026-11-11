@@ -47,7 +47,7 @@ export function SoldMoment({ snapshot, size = "page", onDismiss }: { snapshot: S
     <div
       role="alert"
       onClick={onDismiss}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[var(--overlay)] px-4 py-8 text-center"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-bg px-4 py-8 text-center"
     >
       <div className="sold-reveal flex max-w-full flex-col items-center gap-6 sm:gap-8">
         <span className="relative inline-flex">

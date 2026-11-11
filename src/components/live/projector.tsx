@@ -1,61 +1,17 @@
 "use client";
 
 import { Gavel, Maximize, Minimize, Volume2, VolumeX } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { PlayerAvatar, RoleChip, TeamMark } from "@/components/auction/identity";
 import { formatStat } from "@/lib/format";
 import { ConnectionIndicator, PhaseBadge, Price, roleInfo, teamById } from "./bits";
 import { useLive } from "./live-provider";
+import { playSold, readSound, useSaleSound } from "./sale-sound";
 import { SoldMoment, useSoldMoment } from "./sold-moment";
 import { useCountdown } from "./use-live-auction";
 
 const SOLD_MOMENT_MS = 7000;
-
-/** A short gavel knock made with Web Audio. Only plays when switched on. */
-function knock() {
-  try {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
-    [0, 0.16].forEach((offset) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(180, ctx.currentTime + offset);
-      osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + offset + 0.12);
-      gain.gain.setValueAtTime(0.5, ctx.currentTime + offset);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.14);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(ctx.currentTime + offset);
-      osc.stop(ctx.currentTime + offset + 0.15);
-    });
-    setTimeout(() => void ctx.close(), 600);
-  } catch {
-    /* audio not available */
-  }
-}
-
-const SOUND_KEY = "screen-sound";
-const SOUND_EVENT = "screen-sound-change";
-/** Fallback when browser storage is blocked: the choice lasts for this page. */
-let soundInMemory = false;
-
-function readSound(): boolean {
-  try {
-    return localStorage.getItem(SOUND_KEY) === "on";
-  } catch {
-    return soundInMemory;
-  }
-}
-
-function subscribeSound(onChange: () => void) {
-  window.addEventListener(SOUND_EVENT, onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    window.removeEventListener(SOUND_EVENT, onChange);
-    window.removeEventListener("storage", onChange);
-  };
-}
 
 export function ProjectorScreen() {
   const { snapshot, connection, serverNow } = useLive();
@@ -66,10 +22,10 @@ export function ProjectorScreen() {
   const unit = a.pointsUnitLabel;
   const leader = teamById(snapshot, f.leadingTeamId);
   const left = useCountdown(f.phase === "live" ? f.timerEndsAt : null, serverNow);
-  const sound = useSyncExternalStore(subscribeSound, readSound, () => false);
+  const [sound, toggleSound] = useSaleSound();
   const [full, setFull] = useState(false);
   const { active: moment } = useSoldMoment(snapshot, SOLD_MOMENT_MS, () => {
-    if (readSound()) knock();
+    if (readSound()) playSold();
   });
 
   useEffect(() => {
@@ -77,17 +33,6 @@ export function ProjectorScreen() {
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
-
-  const toggleSound = () => {
-    const next = !sound;
-    soundInMemory = next;
-    try {
-      localStorage.setItem(SOUND_KEY, next ? "on" : "off");
-    } catch {
-      /* storage blocked: kept in memory */
-    }
-    window.dispatchEvent(new Event(SOUND_EVENT));
-  };
 
   const buyer = teamById(snapshot, f.lastResultTeamId);
   const standings = [...snapshot.teams].sort((x, y) => y.purseLeft - x.purseLeft);

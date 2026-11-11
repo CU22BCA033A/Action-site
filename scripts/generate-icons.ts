@@ -21,10 +21,15 @@ function padded(size: number, padRatio: number) {
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${Math.round(size * 0.18)}" fill="${BG}"/>${mark}</svg>`);
 }
 
-async function png(size: number, padRatio = 0.12, square = false) {
-  let svg = padded(size, padRatio);
-  if (square) svg = Buffer.from(svg.toString().replace(/rx="\d+"/, 'rx="0"'));
-  return sharp(svg).png({ compressionLevel: 9 }).toBuffer();
+/** The gold tile fills the icon; small sizes stay legible. */
+async function png(size: number) {
+  return sharp(Buffer.from(logoSvg(ACCENT, INK)), { density: 72 * (size / 32) * 2 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+}
+
+/** Opaque square for platforms that add their own mask (Android, iOS). */
+async function opaque(size: number, padRatio: number) {
+  const svg = padded(size, padRatio).toString().replace(/rx="\d+"/, 'rx="0"');
+  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 
 /** ICO container holding PNG images (supported by every current browser). */
@@ -49,11 +54,11 @@ function ico(images: { size: number; data: Buffer }[]) {
 }
 
 async function main() {
-  writeFileSync(join(pub, "icon.svg"), padded(64, 0.1));
+  writeFileSync(join(pub, "icon.svg"), logoSvg(ACCENT, INK));
   for (const s of [32, 192, 512]) writeFileSync(join(pub, "brand", `icon-${s}.png`), await png(s));
-  writeFileSync(join(pub, "brand", "icon-maskable-512.png"), await png(512, 0.22, true));
-  writeFileSync(join(pub, "apple-icon.png"), await png(180, 0.14, true));
-  writeFileSync(join(pub, "favicon.ico"), ico([{ size: 16, data: await png(16, 0.06) }, { size: 32, data: await png(32, 0.08) }, { size: 48, data: await png(48, 0.1) }]));
+  writeFileSync(join(pub, "brand", "icon-maskable-512.png"), await opaque(512, 0.2));
+  writeFileSync(join(pub, "apple-icon.png"), await opaque(180, 0.08));
+  writeFileSync(join(pub, "favicon.ico"), ico([{ size: 16, data: await png(16) }, { size: 32, data: await png(32) }, { size: 48, data: await png(48) }]));
   console.log("icons written to public/");
 }
 

@@ -22,12 +22,11 @@ export default async function OpengraphImage() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "72px 88px", background: "linear-gradient(180deg, #0b111e, #05080f)", color: "#fff9e6", fontFamily: "Rajdhani" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logo} width={112} height={112} alt="" />
           <div style={{ fontFamily: "Orbitron", fontSize: 92, color: "#ffbf00", letterSpacing: 4 }}>{brand}</div>
         </div>
         <div style={{ marginTop: 40, fontSize: 52, lineHeight: 1.2 }}>Live player auctions for local leagues</div>
-        <div style={{ marginTop: 24, fontSize: 34, color: "#9aa5be" }}>Cricket · Kabaddi · Football · Volleyball</div>
+        <div style={{ marginTop: 24, fontSize: 34, color: "#9aa5be" }}>Team owners bid from their phones. Everyone watches live.</div>
         <div style={{ marginTop: 56, height: 6, width: 220, background: "#ffbf00" }} />
       </div>
     ),

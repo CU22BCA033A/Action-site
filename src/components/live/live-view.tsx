@@ -9,23 +9,23 @@ import type { Snapshot } from "@/lib/live/types";
 import { Meter, Price, teamById } from "./bits";
 import { PlayerSpotlight } from "./player-spotlight";
 import { useLive } from "./live-provider";
+import { playSold, readSound } from "./sale-sound";
 import { SoldMoment, useSoldMoment } from "./sold-moment";
 import { useCountdown } from "./use-live-auction";
 
 export function LiveView() {
   const { snapshot } = useLive();
-  const sold = useSoldMoment(snapshot, 2300);
+  const sold = useSoldMoment(snapshot, 2300, () => {
+    if (readSound()) playSold();
+  });
   return (
     <>
       {sold.active ? <SoldMoment snapshot={snapshot} onDismiss={sold.dismiss} /> : null}
-      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)_minmax(0,1fr)] lg:py-8">
-        <div className="order-2 lg:order-1">
+      {/* First screen: only the player on the floor. Sales and standings are below, reached by scrolling. */}
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:py-6">
+        <FloorPanel />
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
           <RecentSales snapshot={snapshot} />
-        </div>
-        <div className="order-1 min-w-0 lg:order-2">
-          <FloorPanel />
-        </div>
-        <div className="order-3">
           <TeamStandings snapshot={snapshot} />
         </div>
       </div>
@@ -35,9 +35,9 @@ export function LiveView() {
 
 function Panel({ title, icon, children, action }: { title: string; icon?: React.ReactNode; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <section className="card" aria-label={title}>
-      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <h2 className="flex items-center gap-2 text-base font-bold">
+    <section className="card overflow-hidden" aria-label={title}>
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5">
+        <h2 className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.18em] text-muted">
           {icon}
           {title}
         </h2>
@@ -61,7 +61,7 @@ export function FloorPanel() {
 
   if (!p) {
     return (
-      <section aria-live="polite" className="card-gold flex min-h-96 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+      <section aria-live="polite" className="card-gold flex min-h-96 flex-col lg:h-[max(32rem,calc(100dvh-19rem))] items-center justify-center gap-4 px-6 py-16 text-center">
         <span className="inline-flex size-24 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--surface-3)_60%,transparent)] text-muted">
           <Radio className="size-11" aria-hidden="true" />
         </span>
@@ -79,7 +79,7 @@ export function FloorPanel() {
   return (
     <section aria-label={t("live.tab.live")} className="flex flex-col gap-4">
       <p className="sr-only" aria-live="polite" aria-atomic="true">{announce}</p>
-      <PlayerSpotlight snapshot={snapshot} timerLeft={left} />
+      <PlayerSpotlight snapshot={snapshot} timerLeft={left} wide />
       {f.phase === "rtm_pending" && rtmTeam ? (
         <p className="card border-paused px-4 py-3 text-sm font-semibold">
           {t(`live.rtm.${f.rtmStage ?? "offered"}`, { label: snapshot.auction.rtmLabel, team: rtmTeam.name, leader: leader?.name ?? "" })}
@@ -92,16 +92,16 @@ export function FloorPanel() {
 function RecentSales({ snapshot }: { snapshot: Snapshot }) {
   const { t } = useI18n();
   return (
-    <Panel title={t("live.recentSales")} icon={<Gavel className="size-5 text-accent-text" aria-hidden="true" />}>
+    <Panel title={t("live.recentSales")} icon={<Gavel className="size-4 text-accent-text" aria-hidden="true" />}>
       {snapshot.recentSales.length === 0 ? (
         <p className="px-4 py-6 text-sm text-muted">{t("live.noSales")}</p>
       ) : (
-        <ol className="flex max-h-[34rem] flex-col gap-2 overflow-y-auto p-3 scrollbar-thin">
+        <ol className="-mb-px -mr-px grid grid-cols-[minmax(0,1fr)] sm:grid-cols-2">
           {snapshot.recentSales.map((s) => {
             const team = teamById(snapshot, s.teamId);
             return (
-              <li key={s.auctionPlayerId} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] px-3 py-2.5">
-                <PlayerAvatar name={s.fullName} photoPath={s.photoPath} size={48} className="rounded-[var(--radius-sm)]" />
+              <li key={s.auctionPlayerId} className="flex min-w-0 items-center gap-3 border-b border-r border-line px-4 py-3 hover:bg-surface-2">
+                <PlayerAvatar name={s.fullName} photoPath={s.photoPath} size={44} className="rounded-[var(--radius-sm)]" />
                 <div className="min-w-0 flex-1">
                   <Link href={`/players/${s.playerId}`} className="block truncate font-bold hover:underline">
                     {s.fullName}
@@ -126,21 +126,21 @@ export function TeamStandings({ snapshot, limit }: { snapshot: Snapshot; limit?:
   const unit = snapshot.auction.pointsUnitLabel;
   const ranked = [...snapshot.teams].sort((a, b) => b.purseLeft - a.purseLeft || a.name.localeCompare(b.name)).slice(0, limit);
   return (
-    <Panel title={t("live.standings")} icon={<Users className="size-5 text-accent-text" aria-hidden="true" />}>
+    <Panel title={t("live.standings")} icon={<Users className="size-4 text-accent-text" aria-hidden="true" />}>
       {ranked.length === 0 ? (
         <p className="px-4 py-6 text-sm text-muted">{t("live.noTeams")}</p>
       ) : (
-        <ol className="flex flex-col gap-2 p-3">
+        <ol className="divide-y divide-line">
           {ranked.map((team, i) => (
             <li key={team.id}>
-              <Link href={`/teams/${team.id}`} className={`block rounded-[var(--radius-md)] border bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] p-3 transition-shadow duration-300 hover:border-line-strong ${snapshot.floor.leadingTeamId === team.id && snapshot.floor.phase === "live" ? "glow-gold border-[color-mix(in_srgb,var(--accent)_50%,transparent)]" : "border-line"}`}>
+              <Link href={`/teams/${team.id}`} className={`block border-l-2 px-4 py-3 hover:bg-surface-2 ${snapshot.floor.leadingTeamId === team.id && snapshot.floor.phase === "live" ? "border-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]" : "border-transparent"}`}>
                 <div className="flex items-center gap-3">
-                  <span className={`num inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${rankClass(i)}`} aria-label={t("live.rank", { n: i + 1 })}>
+                  <span className={`num inline-flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${rankClass(i)}`} aria-label={t("live.rank", { n: i + 1 })}>
                     {i + 1}
                   </span>
                   <TeamMark team={team} size={40} className="rounded-[var(--radius-sm)]" />
                   <div className="min-w-0 flex-1">
-                    <p className="display truncate text-sm font-bold uppercase leading-tight tracking-wide" title={team.name}>{team.name}</p>
+                    <p className="truncate text-[0.95rem] font-bold uppercase leading-tight tracking-wide" title={team.name}>{team.name}</p>
                     <p className="sr-only">{t("live.squadLine", { n: team.squadCount, max: snapshot.auction.squadMax, o: team.overseasCount })}</p>
                     <p aria-hidden="true" className="num mt-1 flex items-center gap-2.5 text-xs font-semibold text-muted">
                       <span className="inline-flex items-center gap-1"><Users className="size-3.5" />{team.squadCount}/{snapshot.auction.squadMax}</span>

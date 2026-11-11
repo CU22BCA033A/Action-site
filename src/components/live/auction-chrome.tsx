@@ -1,6 +1,6 @@
 "use client";
 
-import { Projector } from "lucide-react";
+import { Projector, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/components/i18n/i18n-provider";
@@ -8,6 +8,7 @@ import { Badge, statusTone } from "@/components/ui/badges";
 import { formatDate, formatTime } from "@/lib/format";
 import { ConnectionBanner, ConnectionIndicator, Price } from "./bits";
 import { useLive } from "./live-provider";
+import { useSaleSound } from "./sale-sound";
 
 /** Auction header: name, totals in the style of a broadcast scoreboard, status. */
 export function AuctionTopBar() {
@@ -94,14 +95,36 @@ export function AuctionTabs({ slug }: { slug: string }) {
             })}
           </ul>
         </nav>
-        <Link
-          href={`${base}/screen`}
-          className="hidden h-9 shrink-0 items-center gap-2 rounded-[var(--radius-sm)] border border-line-strong px-3 text-sm font-semibold text-muted hover:border-text hover:text-text md:inline-flex"
-        >
-          <Projector className="size-4" aria-hidden="true" />
-          {t("live.projector")}
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <SoundToggle />
+          <Link
+            href={`${base}/screen`}
+            className="hidden h-11 shrink-0 items-center gap-2 rounded-[var(--radius-sm)] border border-line-strong px-3 text-sm font-semibold text-muted hover:border-text hover:text-text md:inline-flex"
+          >
+            <Projector className="size-4" aria-hidden="true" />
+            {t("live.projector")}
+          </Link>
+        </div>
       </div>
     </div>
+  );
+}
+
+/** Gavel sound on each sale, off until the viewer turns it on (browsers block sound before a tap). */
+function SoundToggle() {
+  const { t } = useI18n();
+  const [on, toggle] = useSaleSound();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={on}
+      aria-label={on ? t("screen.soundOn") : t("screen.soundOff")}
+      title={on ? t("screen.soundOn") : t("screen.soundOff")}
+      className={`inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-sm)] border text-sm font-semibold lg:w-auto lg:px-3 ${on ? "border-accent text-accent-text" : "border-line-strong text-muted hover:border-text hover:text-text"}`}
+    >
+      {on ? <Volume2 className="size-4" aria-hidden="true" /> : <VolumeX className="size-4" aria-hidden="true" />}
+      <span className="hidden lg:inline" aria-hidden="true">{on ? t("screen.soundOn") : t("screen.soundOff")}</span>
+    </button>
   );
 }

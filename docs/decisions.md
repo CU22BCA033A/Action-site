@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first.
 
+## Live page: the player owns the first screen
+On desktop the live page opens on one card sized to the screen: the player's photo fills the left half and the name, stats, base price, current bid and leading team sit large on the right. Recent sales and team standings start below it, so they are reached by scrolling. The owner asked for the photo and stats to be big and clear. On phones the photo comes first and the same order follows.
+
+## Sale sound is the CPL gavel, off until switched on
+The gavel hit is the Web Audio synth from the owner's CPL site (a low-passed thud plus a short noise burst), played twice on each sale. No sound file is shipped. Browsers refuse to play sound before a tap, so it is off until the viewer presses "Sale sound"; the choice is remembered in the browser and shared by the live page and the projector screen.
+
+## Public pages show only the sport being auctioned
+The organiser creates an auction for one sport (almost always cricket). The header, footer, home page and sitemap no longer list every sport; the home page names only the sports of published auctions, and `/sports` redirects to `/auctions`. The other sports still exist for the admin.
+
+## Premium look within the owner's bans
+Deep navy surfaces, a less orange gold (#ffd666 to #f0a400), and silver used only in the AuctionX wordmark, after the owner's logo. Headings are uppercase Orbitron with slight tracking (its lowercase looks quirky in mixed case); body text is Rajdhani; every number is Oxanium. Panels have flat dividers instead of cards inside cards, section labels are small tracked capitals led by a gold rule, buttons lift 1px with a soft glow instead of scaling, and colour and border changes ease over 160 ms. The header carries a thin gold top rule; the footer ends in a link bar.
+
+## The owner's logo file is still needed
+The owner shared an AuctionX logo image in chat, but no file reached the repository. Until it is added (for example as `public/brand/auctionx-logo.png`), the site uses an in-house gavel mark and a typeset AuctionX wordmark.
+
 ## Brand name is AuctionX
 The owner named the product AuctionX. It is set once in `site.config.ts` (`brandName`) and flows into the header, footer, page titles, the share image and the web manifest.
 
