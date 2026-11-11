@@ -59,7 +59,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
   return (
     <article
       aria-labelledby="stage-name"
-      className="@container relative flex flex-col overflow-hidden rounded-[2rem] border border-line bg-surface"
+      className="@container relative flex flex-col overflow-hidden rounded-[2rem] border border-line bg-surface xl:min-h-0 xl:flex-1"
       style={{ backgroundImage: `radial-gradient(90% 70% at 18% 0%, ${glow}26, transparent 62%), radial-gradient(70% 60% at 100% 100%, ${glow}12, transparent 60%)` }}
     >
       {/* Phones have no room header row, so base price and bidder sit here. */}
@@ -78,15 +78,15 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
         <div className="h-full rounded-r-full bg-[#22c55e] transition-[width] duration-300 ease-linear" style={{ width: `${barPct}%` }} />
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 @[36rem]:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @[36rem]:px-8 @[42rem]:grid-cols-[minmax(0,19.5rem)_minmax(0,1fr)] @[48rem]:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12 @[60rem]:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 xl:min-h-0 xl:flex-1 xl:items-stretch @[36rem]:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @[36rem]:px-8 @[42rem]:grid-cols-[minmax(0,19.5rem)_minmax(0,1fr)] @[48rem]:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12 @[60rem]:grid-cols-[minmax(0,27rem)_minmax(0,1fr)] @[52rem]:py-10">
         {/* Photo in a frame lit in the colour of the team that is bidding (gold before any bid, green once sold). */}
-        <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none">
+        <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none xl:flex xl:h-full xl:min-h-[24rem]">
           <div
-            className="rounded-[2rem] p-[3px]"
+            className="rounded-[2rem] p-[3px] xl:flex xl:w-full xl:flex-col"
             style={{ background: `linear-gradient(160deg, ${glow}, ${glow}33 38%, #2f2f2f 60%, ${glow}66)`, boxShadow: `0 24px 60px -24px ${glow}88` }}
           >
-            <div className="relative overflow-hidden rounded-[calc(2rem-3px)]" style={{ background: `radial-gradient(85% 65% at 50% 100%, ${glow}55, #161616 70%)` }}>
-              <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 416px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent" />
+            <div className="relative overflow-hidden rounded-[calc(2rem-3px)] xl:flex-1" style={{ background: `radial-gradient(85% 65% at 50% 100%, ${glow}55, #161616 70%)` }}>
+              <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 432px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent xl:!aspect-auto xl:absolute xl:inset-0 xl:h-full" />
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,transparent,rgb(0_0_0/0.75))]" />
               <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-2">
                 <span className="num rounded-full border border-white/15 bg-black/55 px-3 py-1 text-sm font-extrabold text-white">#{p.lotNo}</span>
@@ -102,7 +102,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col">
+        <div className="flex min-w-0 flex-col xl:justify-center">
           <ul className="flex flex-wrap gap-2" aria-label={t("register.role")}>
             <li className="rounded-full border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#60a5fa]">
               {role.label}
@@ -112,6 +112,9 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
               {t(`nationality.${p.nationalityGroup}`)}
             </li>
             {p.category ? <li className="rounded-full border border-line-strong px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-muted">{p.category}</li> : null}
+            <li className="rounded-full border border-[#ffbf00]/35 bg-[#ffbf00]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#ffd34d]">
+              {t("live.basePrice")} {formatPoints(p.basePrice)}
+            </li>
           </ul>
 
           <h2 id="stage-name" className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-[-0.035em] @[52rem]:text-[3.5rem] @[60rem]:text-[4rem]">
@@ -121,21 +124,24 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
           {stats.length ? (
             <dl className="mt-8 grid grid-cols-2 overflow-hidden rounded-[1.25rem] border border-line bg-[#141414] py-1 @[46rem]:grid-cols-4">
               {stats.map((s, i) => (
-                <div key={s.key} className={`flex flex-col items-center px-2 py-4 text-center ${i % 2 === 1 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line @[46rem]:border-t-0" : ""} ${i === 2 ? "@[46rem]:border-l" : ""}`}>
-                  <dt className="order-1 max-w-full truncate text-[0.625rem] font-extrabold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
+                <div key={s.key} className={`relative flex flex-col items-center px-2 py-4 text-center before:absolute before:left-1/2 before:top-0 before:h-[3px] before:w-8 before:-translate-x-1/2 before:rounded-b-full before:bg-current before:opacity-70 ${STAT_TONES[i % STAT_TONES.length]} ${i % 2 === 1 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line @[46rem]:border-t-0" : ""} ${i === 2 ? "@[46rem]:border-l" : ""}`}>
+                  <dt className="order-1 mt-1 max-w-full truncate text-[0.625rem] font-extrabold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
                   <dd className={`num order-2 mt-2 whitespace-nowrap text-[1.75rem] font-bold leading-none ${STAT_TONES[i % STAT_TONES.length]}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
                 </div>
               ))}
             </dl>
           ) : null}
 
-          <div className="mt-10 flex items-end justify-between gap-4">
+          <div
+            className="mt-8 flex items-center justify-between gap-4 rounded-[1.5rem] border p-5 @[52rem]:p-6"
+            style={{ borderColor: `${glow}55`, background: `linear-gradient(135deg, ${glow}26, ${glow}08 55%, transparent)` }}
+          >
             <div className="min-w-0">
               <p className={LABEL}>{sold ? t("live.soldFor") : t("live.currentBid")}</p>
               {sold || leader ? (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <p className={`flex items-baseline gap-2 ${sold ? "text-[#22c55e]" : "text-text"}`}>
-                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-[2.5rem] font-extrabold leading-none tracking-[-0.02em]" />
+                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-[2.75rem] font-extrabold leading-none tracking-[-0.02em] @[52rem]:text-[3.25rem]" />
                     <span className="text-xl font-extrabold">{unit}</span>
                   </p>
                   {shownTeam ? (
