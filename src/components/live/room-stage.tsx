@@ -78,15 +78,15 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
         <div className="h-full rounded-r-full bg-[#22c55e] transition-[width] duration-300 ease-linear" style={{ width: `${barPct}%` }} />
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 xl:min-h-0 xl:flex-1 xl:items-stretch @[36rem]:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @[36rem]:px-8 @[42rem]:grid-cols-[minmax(0,19.5rem)_minmax(0,1fr)] @[48rem]:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12 @[60rem]:grid-cols-[minmax(0,27rem)_minmax(0,1fr)] @[52rem]:py-10">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 px-6 py-8 xl:min-h-0 xl:flex-1 xl:items-stretch @[36rem]:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @[36rem]:px-8 @[42rem]:grid-cols-[minmax(0,19.5rem)_minmax(0,1fr)] @[48rem]:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] @[52rem]:gap-12 @[52rem]:px-12 @[52rem]:py-12 @[60rem]:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @[52rem]:py-10">
         {/* Photo in a frame lit in the colour of the team that is bidding (gold before any bid, green once sold). */}
-        <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none xl:flex xl:h-full xl:min-h-[24rem]">
+        <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none xl:flex xl:h-full xl:max-h-[30rem] xl:self-center 2xl:max-h-[34rem]">
           <div
             className="rounded-[2rem] p-[3px] xl:flex xl:w-full xl:flex-col"
             style={{ background: `linear-gradient(160deg, ${glow}, ${glow}33 38%, #2f2f2f 60%, ${glow}66)`, boxShadow: `0 24px 60px -24px ${glow}88` }}
           >
             <div className="relative overflow-hidden rounded-[calc(2rem-3px)] xl:flex-1" style={{ background: `radial-gradient(85% 65% at 50% 100%, ${glow}55, #161616 70%)` }}>
-              <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 432px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent xl:!aspect-auto xl:absolute xl:inset-0 xl:h-full" />
+              <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 400px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent xl:!aspect-auto xl:absolute xl:inset-0 xl:h-full" />
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,transparent,rgb(0_0_0/0.75))]" />
               <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-2">
                 <span className="num rounded-full border border-white/15 bg-black/55 px-3 py-1 text-sm font-extrabold text-white">#{p.lotNo}</span>
