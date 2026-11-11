@@ -50,7 +50,7 @@ export function PlayerSpotlight({
         {sold ? t("phase.sold") : unsold ? t("phase.unsold") : (p.category ?? p.setName ?? snapshot.auction.sportName)}
       </p>
 
-      <div className={wide ? "md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:min-h-0 lg:flex-1" : ""}>
+      <div className={wide ? "md:grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:min-h-0 lg:flex-1" : ""}>
       <div className={`relative bg-[color-mix(in_srgb,var(--surface-2)_70%,transparent)] ${lg ? "p-5" : "p-4 sm:p-5"} ${wide ? "md:border-r md:border-line lg:h-full lg:min-h-0" : ""}`}>
         <PlayerPhoto
           name={p.fullName}
@@ -80,20 +80,20 @@ export function PlayerSpotlight({
         ) : null}
       </div>
 
-      <div className={`flex flex-col gap-3 ${lg ? "p-5" : "p-4 sm:p-5"} ${wide ? "md:justify-center md:gap-6 md:p-8 lg:overflow-y-auto" : ""}`}>
+      <div className={`flex flex-col gap-3 ${lg ? "p-5" : "p-4 sm:p-5"} ${wide ? "md:justify-center md:gap-5 md:p-6 lg:overflow-y-auto" : ""}`}>
         <div>
-          <h2 id="spotlight-name" className={`${wide ? "text-3xl sm:text-4xl xl:text-5xl" : `truncate ${lg ? "text-3xl xl:text-4xl" : "text-2xl"}`}`}>{p.fullName}</h2>
+          <h2 id="spotlight-name" className={`${wide ? "text-3xl sm:text-4xl xl:text-[2.6rem]" : `truncate ${lg ? "text-3xl xl:text-4xl" : "text-2xl"}`}`}>{p.fullName}</h2>
           <p className="mt-1 text-sm text-muted">
             {[p.category, t(`nationality.${p.nationalityGroup}`)].filter(Boolean).join(" / ")}
           </p>
         </div>
 
         {statFields.length ? (
-          <dl className={wide ? "grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-2 xl:grid-cols-4" : "grid grid-cols-4 gap-2 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--surface-3)_45%,transparent)] px-2 py-2"}>
+          <dl className={wide ? "grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-2" : "grid grid-cols-4 gap-2 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--surface-3)_45%,transparent)] px-2 py-2"}>
             {statFields.map((s) => (
               <div key={s.key} className={`flex min-w-0 flex-col ${wide ? "rounded-[var(--radius-sm)] border border-line bg-surface-2 px-3 py-3" : "text-center"}`}>
                 <dt className={`order-2 truncate text-muted ${wide ? "mt-1 text-xs font-bold uppercase tracking-[0.14em]" : "text-xs"}`}>{s.label}</dt>
-                <dd className={`num order-1 font-bold ${wide ? "text-3xl" : "text-lg"}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
+                <dd className={`num order-1 font-bold ${wide ? "text-2xl xl:text-3xl" : "text-lg"}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
               </div>
             ))}
           </dl>

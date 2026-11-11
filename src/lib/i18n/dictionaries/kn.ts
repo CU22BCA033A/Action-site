@@ -217,6 +217,9 @@ const kn: Dictionary = {
     purseUsed: "{team} ತನ್ನ ಪರ್ಸ್‌ನ {pct}% ಬಳಸಿದೆ",
     bidHistory: "ಈ ಆಟಗಾರನ ಬಿಡ್‌ಗಳು",
     upNext: "ಮುಂದಿನವರು",
+    activity: "ನೇರ ಚಟುವಟಿಕೆ",
+    auctionTeams: "ಹರಾಜಿನ ತಂಡಗಳು",
+    soldTo: "{team} ಗೆ ಮಾರಾಟ",
   },
   meta: {
     screen: "ದೊಡ್ಡ ಪರದೆಗಾಗಿ {name} ನ ಪ್ರೊಜೆಕ್ಟರ್ ನೋಟ: ವೇದಿಕೆಯ ಆಟಗಾರ, ಈಗಿನ ಬಿಡ್, ತಂಡಗಳ ಪರ್ಸ್ ಮತ್ತು ಪ್ರತಿ ಮಾರಾಟ.",

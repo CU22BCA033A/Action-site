@@ -2,8 +2,11 @@
 
 Non-obvious choices, newest first.
 
-## Live page: the player owns the first screen
-On desktop the live page opens on one card sized to the screen: the player's photo fills the left half and the name, stats, base price, current bid and leading team sit large on the right. Recent sales and team standings start below it, so they are reached by scrolling. The owner asked for the photo and stats to be big and clear. On phones the photo comes first and the same order follows.
+## Live page is an auction room on one screen
+From 1280 px wide the live page is three columns that fit the screen: auction teams with purse left, squad and overseas counts on the left; the player on the floor in the middle (large photo, name, stats, base price, current bid, leading team); live activity on the right (bids on this player, then recent sales). Each side column scrolls on its own, so purses stay visible at all times. The owner first asked for sales below the fold, then pointed out that team purses must stay in view, using a crickauction.in room screenshot as the reference. On phones the order is player, teams, activity.
+
+## Unsold waits for the timer; sold and unsold are always the admin's call
+Nothing sells or unsells a player automatically. `mark_unsold` (migration 0006) refuses with TIMER_RUNNING while the bid timer still has time left, live or paused, so a player is never dropped while owners may still bid. With no timer set, the admin decides. The console disables Unsold and shows the seconds left.
 
 ## Sale sound is the CPL gavel, off until switched on
 The gavel hit is the Web Audio synth from the owner's CPL site (a low-passed thud plus a short noise burst), played twice on each sale. No sound file is shipped. Browsers refuse to play sound before a tap, so it is off until the viewer presses "Sale sound"; the choice is remembered in the browser and shared by the live page and the projector screen.

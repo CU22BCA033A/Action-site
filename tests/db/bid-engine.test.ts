@@ -156,7 +156,10 @@ describe("floor controls", () => {
     expect(back.ok).toBe(true);
     const voided = await sql`select count(*)::int c from app.bids where auction_player_id = ${players[0]!.id} and voided`;
     expect(voided[0]!.c).toBe(1);
-    const f2 = await openPlayer(sql, auctionId, players[1]!.id);
+    await openPlayer(sql, auctionId, players[1]!.id);
+    // The timer must have run out before an unsold call is accepted.
+    await sql`update app.floor_state set timer_ends_at = null where auction_id = ${auctionId}`;
+    const f2 = await floor(sql, auctionId);
     expect((await call(sql, "mark_unsold", [auctionId, f2.version, "test"])).ok).toBe(true);
   });
 
@@ -397,5 +400,39 @@ describe("access control", () => {
     await sql`update app.team_access_codes set active = true where id = ${code[0]!.id}`;
     await sql`update app.team_sessions set revoked_at = now() where id = ${sid}`;
     expect((await managerBid(own, b.floor.version)).code).toBe("NOT_AUTHORISED");
+  });
+});
+
+describe("mark_unsold waits for the timer", () => {
+  it("refuses while time is left, allows once it runs out", async () => {
+    const { auctionId, players } = await liveAuction(sql);
+    await openPlayer(sql, auctionId, players[0]!.id);
+    await sql`update app.floor_state set timer_ends_at = clock_timestamp() + interval '20 seconds' where auction_id = ${auctionId}`;
+    let f = await floor(sql, auctionId);
+    const early = await call(sql, "mark_unsold", [auctionId, f.version, "test"]);
+    expect(early.ok).toBe(false);
+    expect(early.code).toBe("TIMER_RUNNING");
+    const ap = await sql`select status from app.auction_players where id = ${players[0]!.id}`;
+    expect(ap[0]!.status).toBe("on_floor");
+
+    await sql`update app.floor_state set timer_ends_at = clock_timestamp() - interval '1 second' where auction_id = ${auctionId}`;
+    f = await floor(sql, auctionId);
+    expect((await call(sql, "mark_unsold", [auctionId, f.version, "test"])).ok).toBe(true);
+  });
+
+  it("refuses while paused with time left", async () => {
+    const { auctionId, players } = await liveAuction(sql);
+    await openPlayer(sql, auctionId, players[0]!.id);
+    await sql`update app.floor_state set phase = 'paused', timer_ends_at = null, paused_remaining_ms = 9000 where auction_id = ${auctionId}`;
+    const f = await floor(sql, auctionId);
+    expect((await call(sql, "mark_unsold", [auctionId, f.version, "test"])).code).toBe("TIMER_RUNNING");
+  });
+
+  it("is the admin's call when the auction has no timer", async () => {
+    const { auctionId, players } = await liveAuction(sql);
+    await openPlayer(sql, auctionId, players[0]!.id);
+    await sql`update app.floor_state set timer_ends_at = null where auction_id = ${auctionId}`;
+    const f = await floor(sql, auctionId);
+    expect((await call(sql, "mark_unsold", [auctionId, f.version, "test"])).ok).toBe(true);
   });
 });

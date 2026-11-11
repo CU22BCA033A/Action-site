@@ -43,6 +43,8 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
   const leader = teamById(snapshot, f.leadingTeamId);
   const rtmTeam = teamById(snapshot, f.rtmTeamId);
   const left = useCountdown(f.phase === "live" ? f.timerEndsAt : null, serverNow);
+  // Unsold waits for the timer: the engine refuses it while time is left (migration 0006).
+  const timerRunning = (f.phase === "live" && left !== null && left > 0) || (f.phase === "paused" && (f.pausedRemainingMs ?? 0) > 0);
   const auctionRunning = f.auctionStatus === "live";
   const floorBusy = f.phase === "live" || f.phase === "paused" || f.phase === "rtm_pending";
   const unsoldCount = snapshot.counts.unsold;
@@ -242,13 +244,18 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
                 {moreOpen ? <MoreActions disabled={busy} onReturn={() => confirm({ title: `Take ${p.fullName} off the floor?`, consequences: ["The player goes back to the list without a result.", leader ? "All bids on this player are voided and kept in the history." : "There are no bids to void."], confirmLabel: "Take off the floor", danger: true, input: () => ({ action: "return_to_pool", auctionId, auctionPlayerId: p.auctionPlayerId, expectedVersion: v }) })} onAssign={() => setAssignOpen(true)} /> : null}
 
                 <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
-                  <Button variant="danger" size="xl" disabled={busy || Boolean(leader)} icon={<X className="size-5" aria-hidden="true" />} onClick={() => confirm({ title: `Mark ${p.fullName} unsold?`, consequences: ["Nobody has bid. The player goes to the unsold list and can be auctioned again later."], confirmLabel: "Mark unsold", input: () => ({ action: "mark_unsold", auctionId, expectedVersion: v }) })}>
+                  <Button variant="danger" size="xl" disabled={busy || Boolean(leader) || timerRunning} aria-describedby={timerRunning && !leader ? "unsold-wait" : undefined} icon={<X className="size-5" aria-hidden="true" />} onClick={() => confirm({ title: `Mark ${p.fullName} unsold?`, consequences: ["Nobody has bid. The player goes to the unsold list and can be auctioned again later."], confirmLabel: "Mark unsold", input: () => ({ action: "mark_unsold", auctionId, expectedVersion: v }) })}>
                     Unsold
                   </Button>
                   <Button variant="sold" size="xl" disabled={busy || !leader} icon={<Check className="size-5" aria-hidden="true" />} onClick={() => leader && confirm({ title: `Sell ${p.fullName} to ${leader.name}?`, consequences: [`${leader.name} buys ${p.fullName} for ${formatPoints(f.currentPrice)} ${unit}.`, `${leader.name}'s purse goes down by ${formatPoints(f.currentPrice)}.`], confirmLabel: `Sold to ${leader.shortName}`, input: () => ({ action: "mark_sold", auctionId, expectedVersion: v }) })}>
                     Sold
                   </Button>
                 </div>
+                {timerRunning && !leader ? (
+                  <p id="unsold-wait" className="text-sm text-muted">
+                    No bids yet. Unsold unlocks when the timer runs out{f.phase === "live" && left !== null ? ` (${left}s)` : ""}.
+                  </p>
+                ) : null}
                 {leader ? <p className="-mt-3 text-xs text-muted">Unsold is available only while nobody has bid. Use Undo last bid first if needed.</p> : null}
               </>
             ) : null}

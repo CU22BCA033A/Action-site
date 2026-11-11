@@ -53,7 +53,8 @@ export async function GET() {
         checks.database = { ok: true, detail: "Connected to the database." };
         const [m] = await sql<{ tables: boolean; latest: boolean; sports: number }[]>`
           select to_regclass('app.auctions') is not null as tables,
-                 to_regprocedure('app.admin_delete_team(uuid,uuid,text)') is not null as latest,
+                 coalesce((select p.prosrc like '%TIMER_RUNNING%' from pg_proc p
+                   where p.oid = to_regprocedure('app.mark_unsold(uuid,bigint,text)')), false) as latest,
                  case when to_regclass('app.sports') is not null then (select count(*)::int from app.sports) else 0 end as sports`;
         checks.migrations = !m?.tables
           ? { ok: false, detail: "The tables are not there. Run npm run db:migrate from your computer with this DATABASE_URL." }
