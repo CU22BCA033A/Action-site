@@ -153,7 +153,7 @@ export function ManagerConsole({ initial }: { initial: ManagerSnapshot }) {
 
   return (
     <div className="flex min-h-dvh flex-col pb-44">
-      <header className="sticky top-0 z-30 border-b border-line bg-[color-mix(in_srgb,var(--surface)_90%,transparent)] shadow-[var(--card-shadow)] backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-line bg-[color-mix(in_srgb,var(--surface)_100%,transparent)]">
         <div className="mx-auto flex max-w-xl items-center gap-3 px-4 py-2.5">
           <TeamMark team={me} size={44} className="rounded-[var(--radius-sm)] border-2 border-[color-mix(in_srgb,var(--accent)_40%,transparent)]" />
           <div className="min-w-0 flex-1">
@@ -251,7 +251,7 @@ export function ManagerConsole({ initial }: { initial: ManagerSnapshot }) {
         </div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-[color-mix(in_srgb,var(--surface)_94%,transparent)] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-[color-mix(in_srgb,var(--surface)_100%,transparent)] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
         <div className="mx-auto max-w-xl">
           <button
             type="button"

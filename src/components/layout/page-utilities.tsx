@@ -2,6 +2,7 @@
 
 import { ArrowUp, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useT } from "@/components/i18n/i18n-provider";
 
@@ -64,13 +65,16 @@ export function BackToTop() {
 /** Public pages only. Never rendered in the admin or team consoles. */
 export function FloatingContact() {
   const t = useT();
+  const pathname = usePathname();
+  if (pathname === "/contact") return null;
   return (
     <Link
       href="/contact"
-      className="no-print fixed bottom-4 right-4 z-30 inline-flex h-12 items-center gap-2 rounded-[var(--radius-sm)] border border-accent-edge bg-accent px-4 font-semibold text-accent-ink hover:bg-accent-hover sm:right-6"
+      aria-label={t("nav.contact")}
+      className="no-print fixed bottom-4 right-4 z-30 inline-flex size-12 items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-accent-edge bg-accent font-semibold text-accent-ink hover:bg-accent-hover sm:right-6 sm:w-auto sm:px-4"
     >
       <MessageSquare className="size-5" aria-hidden="true" />
-      <span>{t("nav.contact")}</span>
+      <span className="hidden sm:inline" aria-hidden="true">{t("nav.contact")}</span>
     </Link>
   );
 }

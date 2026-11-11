@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { TeamStatsCard } from "@/components/home/team-stats-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badges";
+import { TeamMark } from "@/components/auction/identity";
 import { listPublicAuctions, listSports } from "@/lib/data/public";
 import { formatPoints } from "@/lib/format";
 import { getT } from "@/lib/i18n/server";
@@ -33,114 +34,153 @@ export default async function HomePage() {
 
   const isLive = snapshot && (snapshot.auction.status === "live" || snapshot.auction.status === "paused");
   const isDone = snapshot?.auction.status === "completed";
-  const nameWords = snapshot?.auction.name.split(/\s+/) ?? [];
-  const first = nameWords[0] ?? "";
-  const rest = nameWords.slice(1).join(" ");
+
+  const teamById = new Map(snapshot?.teams.map((tm) => [tm.id, tm]) ?? []);
+  const signings = (snapshot?.recentSales ?? []).filter((s) => s.status === "sold").slice(0, 6);
+  const steps = [
+    { icon: SlidersHorizontal, title: t("home.step1Title"), body: t("home.step1Body") },
+    { icon: KeyRound, title: t("home.step2Title"), body: t("home.step2Body") },
+    { icon: MonitorPlay, title: t("home.step3Title"), body: t("home.step3Body") },
+  ];
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-line">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 top-10 size-72 rounded-full bg-royal opacity-20 blur-3xl sm:left-[10%] sm:size-96" />
-          <div className="absolute -right-24 bottom-0 size-72 rounded-full bg-accent opacity-10 blur-3xl sm:right-[10%] sm:size-96" />
-        </div>
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center px-4 pb-16 pt-14 text-center sm:px-6 sm:pt-20">
-          <span className="float relative inline-flex">
-            <span aria-hidden="true" className="absolute inset-0 rounded-full bg-accent opacity-30 blur-2xl" />
-            <Trophy className="relative size-20 text-accent-text sm:size-24" strokeWidth={1.75} aria-hidden="true" />
-          </span>
-          <ul className="mt-6 flex flex-wrap justify-center gap-2" aria-label={t("nav.sports")}>
-            {sports.map((s) => (
-              <li key={s.id} className="rounded-full border border-line bg-[color-mix(in_srgb,var(--surface)_60%,transparent)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted">
-                {s.name}
-              </li>
-            ))}
-          </ul>
-          <h1 className="mt-6 uppercase">
-            <span className="block pb-1 text-[clamp(2.4rem,8vw,4.5rem)] font-black tracking-wide text-gold">{t("home.titleTop")}</span>
-            <span className="mt-1 block text-[clamp(1.75rem,5.6vw,3rem)] font-bold tracking-wide text-text">{t("home.titleBottom")}</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted">{t("home.lead")}</p>
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <ButtonLink href="/auctions" variant="primary" size="xl" className="sm:min-w-[200px]" icon={<Gavel className="size-5" aria-hidden="true" />}>
-              {t("home.ctaWatch")}
-            </ButtonLink>
-            <ButtonLink href="/join" variant="royal" size="xl" className="sm:min-w-[200px]" icon={<KeyRound className="size-5" aria-hidden="true" />}>
-              {t("home.ctaJoin")}
-            </ButtonLink>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="text-center lg:text-left">
+            <ul className="flex flex-wrap justify-center gap-2 lg:justify-start" aria-label={t("nav.sports")}>
+              {sports.map((s) => (
+                <li key={s.id} className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted">
+                  {s.name}
+                </li>
+              ))}
+            </ul>
+            <h1 className="mt-6 uppercase">
+              <span className="block pb-1 text-[clamp(2.4rem,8vw,4.5rem)] font-black tracking-wide text-gold">{t("home.titleTop")}</span>
+              <span className="mt-1 block text-[clamp(1.75rem,5.6vw,3rem)] font-bold tracking-wide text-text">{t("home.titleBottom")}</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted lg:mx-0">{t("home.lead")}</p>
+            <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+              <ButtonLink href="/auctions" variant="primary" size="xl" className="sm:min-w-[200px]" icon={<Gavel className="size-5" aria-hidden="true" />}>
+                {t("home.ctaWatch")}
+              </ButtonLink>
+              <ButtonLink href="/join" variant="royal" size="xl" className="sm:min-w-[200px]" icon={<KeyRound className="size-5" aria-hidden="true" />}>
+                {t("home.ctaJoin")}
+              </ButtonLink>
+            </div>
+            <ol className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-wider text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
+              {steps.map((s, i) => (
+                <li key={s.title} className="inline-flex items-center gap-2">
+                  <span className="num inline-flex size-6 items-center justify-center rounded-full border border-line-strong text-xs text-text">{i + 1}</span>
+                  {t(`home.stepShort${i + 1}` as "home.stepShort1")}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="card-gold overflow-hidden">
+            {snapshot ? (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted">{snapshot.auction.sportName}</p>
+                    <p className="display truncate text-lg font-bold uppercase text-gold">{snapshot.auction.name}</p>
+                  </div>
+                  <Badge tone={isLive ? "live" : isDone ? "sold" : "accent"}>
+                    {isLive ? t("home.featuredLive") : isDone ? t("home.featuredDone") : t("home.featuredNext")}
+                  </Badge>
+                </div>
+                <dl className="grid grid-cols-3 divide-x divide-line border-b border-line text-center">
+                  <div className="px-2 py-4">
+                    <dd className="num text-xl font-bold text-accent-text sm:text-2xl">{formatPoints(snapshot.totals.spent)}</dd>
+                    <dt className="mt-1 text-xs text-muted">{t("home.spent")}</dt>
+                  </div>
+                  <div className="px-2 py-4">
+                    <dd className="num text-xl font-bold text-royal-light sm:text-2xl">{formatPoints(snapshot.totals.remaining)}</dd>
+                    <dt className="mt-1 text-xs text-muted">{t("home.remaining")}</dt>
+                  </div>
+                  <div className="px-2 py-4">
+                    <dd className="num text-xl font-bold text-remaining sm:text-2xl">{formatPoints(snapshot.counts.sold)}</dd>
+                    <dt className="mt-1 text-xs text-muted">{t("home.playersSold")}</dt>
+                  </div>
+                </dl>
+                <div className="px-5 py-4">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-muted">{t("home.signingsTitle")}</h2>
+                  {signings.length ? (
+                    <ul className="mt-2 divide-y divide-line">
+                      {signings.map((s) => {
+                        const team = teamById.get(s.teamId);
+                        return (
+                          <li key={s.auctionPlayerId} className="flex items-center gap-3 py-2.5">
+                            {team ? <TeamMark team={team} size={28} /> : null}
+                            <p className="min-w-0 flex-1 truncate">
+                              <span className="font-bold">{team?.shortName ?? ""}</span>{" "}
+                              <span className="text-muted">{t("home.signed")}</span> <span className="font-semibold">{s.fullName}</span>
+                            </p>
+                            <span className="num font-bold text-accent-text">{formatPoints(s.price)}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-muted">{t("home.noSignings")}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 border-t border-line p-4 sm:flex-row">
+                  <ButtonLink href={`/auctions/${snapshot.auction.slug}${isDone ? "/results" : ""}`} variant="primary" className="flex-1" icon={<ArrowRight className="size-4" aria-hidden="true" />}>
+                    {isDone ? t("home.viewResults") : t("home.watch")}
+                  </ButtonLink>
+                  <ButtonLink href={`/auctions/${snapshot.auction.slug}/teams`} variant="glass" className="flex-1" icon={<Users className="size-4" aria-hidden="true" />}>
+                    {t("live.tab.teams")}
+                  </ButtonLink>
+                  <ButtonLink href={`/auctions/${snapshot.auction.slug}/stats`} variant="secondary" className="flex-1" icon={<BarChart3 className="size-4" aria-hidden="true" />}>
+                    {t("live.tab.stats")}
+                  </ButtonLink>
+                </div>
+              </>
+            ) : (
+              <div className="p-8 text-center">
+                <Trophy className="mx-auto size-14 text-accent-text" strokeWidth={1.75} aria-hidden="true" />
+                <p className="mt-4 display text-lg font-bold uppercase">{t("home.noAuctionTitle")}</p>
+                <p className="mt-2 text-muted">{t("home.noAuctionBody")}</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {snapshot ? (
+      {snapshot && snapshot.teams.length ? (
         <section className="border-b border-line">
-          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-14 text-center sm:px-6">
-            <Badge tone={isLive ? "live" : isDone ? "sold" : "accent"} className="h-8 px-3 text-sm">
-              {isLive ? t("home.featuredLive") : isDone ? t("home.featuredDone") : t("home.featuredNext")}
-            </Badge>
-            <h2 className="mt-5 uppercase">
-              <span className="block pb-1 text-[clamp(2.2rem,7vw,4.5rem)] font-black text-gold">{first}</span>
-              {rest ? <span className="mt-1 block text-[clamp(1.6rem,5vw,3.2rem)] text-text">{rest}</span> : null}
-            </h2>
-            <p className="mt-3 text-lg text-muted">{snapshot.auction.sportName}</p>
-            <dl className="mt-8 grid w-full grid-cols-3 gap-2 sm:gap-3">
-              <div className="card px-2 py-4 sm:px-4">
-                <dd className="num text-xl min-[400px]:text-2xl sm:text-3xl font-bold text-accent-text">{formatPoints(snapshot.totals.spent)}</dd>
-                <dt className="mt-1 text-xs text-muted">{t("home.spent")}</dt>
-              </div>
-              <div className="card px-2 py-4 sm:px-4">
-                <dd className="num text-xl min-[400px]:text-2xl sm:text-3xl font-bold text-royal-light">{formatPoints(snapshot.totals.remaining)}</dd>
-                <dt className="mt-1 text-xs text-muted">{t("home.remaining")}</dt>
-              </div>
-              <div className="card px-2 py-4 sm:px-4">
-                <dd className="num text-xl min-[400px]:text-2xl sm:text-3xl font-bold text-remaining">{formatPoints(snapshot.counts.sold)}</dd>
-                <dt className="mt-1 text-xs text-muted">{t("home.playersSold")}</dt>
-              </div>
-            </dl>
-            <div className="mt-6 w-full text-left">
-              <TeamStatsCard teams={snapshot.teams} />
-            </div>
-            <div className="mt-8 flex w-full flex-col flex-wrap justify-center gap-3 sm:flex-row">
-              <ButtonLink href={`/auctions/${snapshot.auction.slug}${isDone ? "/results" : ""}`} variant="primary" size="xl" className="sm:min-w-[200px]" icon={<ArrowRight className="size-5" aria-hidden="true" />}>
-                {isDone ? t("home.viewResults") : t("home.watch")}
-              </ButtonLink>
-              <ButtonLink href={`/auctions/${snapshot.auction.slug}/teams`} variant="glass" size="xl" className="sm:min-w-[200px]" icon={<Users className="size-5" aria-hidden="true" />}>
-                {t("live.tab.teams")}
-              </ButtonLink>
-              <ButtonLink href={`/auctions/${snapshot.auction.slug}/stats`} variant="secondary" size="xl" className="sm:min-w-[200px]" icon={<BarChart3 className="size-5" aria-hidden="true" />}>
-                {t("live.tab.stats")}
-              </ButtonLink>
-            </div>
+          <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
+            <TeamStatsCard teams={snapshot.teams} />
           </div>
         </section>
       ) : null}
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <h2 className="text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
-        <ol className="mt-8 grid gap-4 md:grid-cols-3">
-          {[
-            { icon: SlidersHorizontal, title: t("home.step1Title"), body: t("home.step1Body") },
-            { icon: KeyRound, title: t("home.step2Title"), body: t("home.step2Body") },
-            { icon: MonitorPlay, title: t("home.step3Title"), body: t("home.step3Body") },
-          ].map((s, i) => (
-            <li key={s.title} className="card p-6">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex size-12 items-center justify-center rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-accent-text">
-                  <s.icon className="size-6" aria-hidden="true" />
-                </span>
-                <span className="num text-sm font-bold text-faint">0{i + 1}</span>
+      <section className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <div>
+          <h2 className="text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
+          <p className="mt-4">
+            <Link href="/how-it-works" className="link inline-flex items-center gap-2 font-semibold text-accent-text">
+              {t("home.howLink")}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+        <ol className="divide-y divide-line border-y border-line">
+          {steps.map((s, i) => (
+            <li key={s.title} className="flex gap-4 py-6">
+              <span className="num w-10 shrink-0 text-3xl font-bold text-accent-text">{i + 1}</span>
+              <div className="min-w-0">
+                <h3 className="flex items-center gap-2 text-lg">
+                  <s.icon className="size-5 shrink-0 text-royal-light" aria-hidden="true" />
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-muted">{s.body}</p>
               </div>
-              <h3 className="mt-4 text-lg">{s.title}</h3>
-              <p className="mt-2 text-muted">{s.body}</p>
             </li>
           ))}
         </ol>
-        <p className="mt-6">
-          <Link href="/how-it-works" className="link inline-flex items-center gap-2 font-semibold text-accent-text">
-            {t("home.howLink")}
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </p>
       </section>
 
       {shots.length ? (

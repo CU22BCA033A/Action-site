@@ -23,7 +23,7 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  brandName: "",
+  brandName: "AuctionX",
   productionDomain: "",
   contactEmail: "",
   contactPhone: "",
@@ -40,7 +40,7 @@ export const siteConfig: SiteConfig = {
   useCustomDomain: false,
 
   /** Date shown as "Last updated" on every legal page (YYYY-MM-DD). */
-  legalLastUpdated: "2026-10-23",
+  legalLastUpdated: "2026-11-10",
 };
 
 /** Keys that are allowed to stay empty at launch. */

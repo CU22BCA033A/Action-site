@@ -130,7 +130,7 @@ export function ProjectorScreen() {
         </div>
       </header>
 
-      <main className="grid flex-1 gap-6 p-6 xl:grid-cols-[minmax(0,1fr)_26rem] xl:p-10">
+      <main className="grid flex-1 grid-cols-[minmax(0,1fr)] gap-6 p-3 sm:p-6 xl:grid-cols-[minmax(0,1fr)_26rem] xl:p-10">
         {p ? (
           <section className={`flex flex-col overflow-hidden ${f.phase === "live" ? "card-gold pulse-gold" : "card"} ${f.phase === "sold" ? "!border-sold" : ""}`} aria-live="polite">
             <div className="flex items-center justify-between border-b border-line px-8 py-4">
@@ -143,7 +143,7 @@ export function ProjectorScreen() {
                 <span className={`num text-5xl font-bold ${left <= 5 ? "text-live" : "text-text"}`}>{left === 0 ? t("time.timeUp") : `${left}s`}</span>
               ) : null}
             </div>
-            <div className="grid flex-1 items-center gap-8 p-8 lg:grid-cols-[auto_1fr]">
+            <div className="grid flex-1 grid-cols-[minmax(0,1fr)] items-center gap-8 p-4 sm:p-8 lg:grid-cols-[auto_1fr]">
               <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={300} priority className="rounded-[var(--radius-md)] border border-line" />
               <div className="min-w-0">
                 <h2 className="text-5xl leading-tight xl:text-6xl">{p.fullName}</h2>
@@ -186,10 +186,10 @@ export function ProjectorScreen() {
             </div>
           </section>
         ) : (
-          <section className="card-gold flex flex-col items-center justify-center gap-6 p-10 text-center">
+          <section className="card-gold flex flex-col items-center justify-center gap-6 p-5 text-center sm:p-10">
             <Gavel className="size-24 text-accent-text" aria-hidden="true" />
-            <h2 className="text-5xl">{t("live.waitingTitle")}</h2>
-            <p className="text-2xl text-muted">{t("live.waitingBody")}</p>
+            <h2 className="text-3xl sm:text-5xl">{t("live.waitingTitle")}</h2>
+            <p className="text-lg text-muted sm:text-2xl">{t("live.waitingBody")}</p>
           </section>
         )}
 

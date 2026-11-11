@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first.
 
+## Brand name is AuctionX
+The owner named the product AuctionX. It is set once in `site.config.ts` (`brandName`) and flows into the header, footer, page titles, the share image and the web manifest.
+
+## The owner's design guidelines tighten the CPL look
+The owner's own list bans radial orbs, liquid glass, soft corner radius, drop shadows on everything and three feature cards in a row. So: the glow orbs behind the hero and the SOLD card are gone, the sticky headers are solid instead of blurred, corners are 4/6/8 px instead of 6/8/12 px, plain `.card` panels have no shadow (only `.card-gold`, the live spotlight, keeps its shadow and glow), and "how an auction runs" is a numbered list instead of three cards.
+
+## Home page borrows the workflow of crickauction.in, not its look
+That site (an IPL auction game) pairs its hero with a live panel of recent signings and a numbered "create, invite, bid" strip, and has a rulebook page with an "On this page" list. Those ideas are used here. Its look (Inter, orange, emoji, glow orbs) is not, because the owner banned all of those.
+
+## Legal pages are in English only
+Privacy, terms, refund and cookie pages are written in English, with a translated note at the top for Kannada and Hindi readers saying the English text applies. Legal wording that changes meaning in translation is a risk, and every statement in them is checked against what the code does (`src/lib/legal/content.ts`). Empty business details read "To be filled in by the organiser" and `npm run launch-check` fails until they are filled.
+
+## Launch gate
+`npm run launch-check` fails until the business details in `site.config.ts` are filled and a custom domain is connected (`useCustomDomain: true`). It also checks env names against `.env.example`, committed secrets, required pages and icons, page titles and descriptions, em dashes, emoji and "made with" builder tags.
+
 ## Visual style matches the original CPL site
 The owner asked for the look of their earlier auction site (cpl-2megaaction): deep navy background with a vertical fade, gold (#FFBF00) as the main accent, royal blue (#4169E1) as the second, warm off-white text, Orbitron headings, Rajdhani body text, 12px corners, translucent cards with a soft shadow, gold glows on the live player and the leading team, gold gradient wordmarks and gold/royal gradient buttons. This overrides the original spec's ban on gradients and glows, but only in those places.
 

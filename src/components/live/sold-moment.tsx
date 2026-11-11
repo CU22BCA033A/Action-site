@@ -47,11 +47,10 @@ export function SoldMoment({ snapshot, size = "page", onDismiss }: { snapshot: S
     <div
       role="alert"
       onClick={onDismiss}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[var(--overlay)] px-4 py-8 text-center backdrop-blur-xl"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[var(--overlay)] px-4 py-8 text-center"
     >
       <div className="sold-reveal flex max-w-full flex-col items-center gap-6 sm:gap-8">
         <span className="relative inline-flex">
-          <span aria-hidden="true" className="absolute inset-0 rounded-full bg-accent opacity-30 blur-3xl" />
           <Gavel className={`gavel-strike relative text-accent-text ${big ? "size-36" : "size-24 sm:size-32"}`} aria-hidden="true" />
         </span>
         <p className={`display pb-2 font-black leading-none text-gold ${big ? "text-[clamp(7rem,15vw,13rem)]" : "text-[clamp(4rem,16vw,8rem)]"}`}>

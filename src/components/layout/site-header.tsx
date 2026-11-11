@@ -42,13 +42,10 @@ export function SiteHeader({ brand }: { brand: string }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] shadow-[var(--card-shadow)] backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--surface)_100%,transparent)]">
       <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
-          <span className="relative shrink-0">
-            <span aria-hidden="true" className="absolute inset-0 rounded-full bg-royal opacity-30 blur-md" />
-            <LogoMark className="relative size-10" />
-          </span>
+          <LogoMark className="size-10 shrink-0" />
           {brand ? <span className="truncate display text-xl font-black text-gold md:text-2xl">{brand}</span> : null}
         </Link>
 

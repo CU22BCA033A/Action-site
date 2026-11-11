@@ -8,6 +8,7 @@ export async function SiteFooter() {
   const { t } = await getT();
   const year = new Date().getFullYear();
   const entity = siteConfig.legalEntityName || siteConfig.brandName;
+  const hasDetails = Boolean(siteConfig.legalEntityName || siteConfig.registeredAddress || siteConfig.contactEmail || siteConfig.contactPhone || siteConfig.grievanceOfficerName || siteConfig.grievanceOfficerEmail);
   const phoneHref = siteConfig.contactPhone ? `tel:${siteConfig.contactPhone.replace(/[^+\d]/g, "")}` : null;
 
   const product = [
@@ -70,6 +71,7 @@ export async function SiteFooter() {
           </ul>
         </nav>
 
+        {hasDetails ? (
         <div>
           <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-widest text-text">{t("footer.company")}</h2>
           <dl className="flex flex-col gap-3 text-sm">
@@ -123,6 +125,7 @@ export async function SiteFooter() {
             ) : null}
           </dl>
         </div>
+        ) : null}
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm text-faint sm:px-6">
