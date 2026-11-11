@@ -222,6 +222,9 @@ const en = {
     activity: "Live activity",
     auctionTeams: "Auction teams",
     soldTo: "Sold to {team}",
+    bidder: "Bidder",
+    spectator: "Spectator view (read only)",
+    available: "Available",
   },
   meta: {
     screen: "Projector view of {name} for a big screen: the player on the floor, the current bid, team purses and each sale.",

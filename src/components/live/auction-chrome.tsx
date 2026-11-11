@@ -21,33 +21,31 @@ export function AuctionTopBar() {
       {a.rehearsal ? (
         <p className="border-b border-paused bg-info-surface px-4 py-2 text-center text-sm font-semibold text-text">{t("common.rehearsalNote")}</p>
       ) : null}
-      <div className="border-b border-line bg-[color-mix(in_srgb,var(--surface)_70%,transparent)] shadow-[var(--card-shadow)]">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:px-6 lg:grid-cols-[1fr_auto_auto] lg:items-center">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+      <div className="border-b border-line bg-surface">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
+          <div className="min-w-0 basis-full sm:basis-auto sm:flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-faint">
               {a.sportName}
-              {a.startsAt ? <span className="text-faint">{` / ${formatDate(a.startsAt, locale)}`}</span> : null}
+              {a.startsAt ? <span>{` / ${formatDate(a.startsAt, locale)}`}</span> : null}
             </p>
-            <h1 className="mt-1 pb-0.5 text-2xl font-black uppercase tracking-wide text-gold sm:text-3xl">{a.name}</h1>
+            <h1 className="truncate text-xl font-extrabold text-text sm:text-2xl">{a.name}</h1>
           </div>
-          <dl className="card grid grid-cols-2 divide-x divide-line">
-            <div className="px-4 py-2.5 text-center sm:px-6">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.totalSpent")}</dt>
-              <dd className="display mt-0.5 text-xl font-bold text-spent sm:text-2xl">
+          <dl className="flex items-center gap-5 text-sm">
+            <div>
+              <dt className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-faint">{t("live.totalSpent")}</dt>
+              <dd className="num text-lg font-bold text-spent">
                 <Price value={snapshot.totals.spent} />
               </dd>
             </div>
-            <div className="px-4 py-2.5 text-center sm:px-6">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{t("live.remaining")}</dt>
-              <dd className="display mt-0.5 text-xl font-bold text-remaining sm:text-2xl">
+            <div>
+              <dt className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-faint">{t("live.remaining")}</dt>
+              <dd className="num text-lg font-bold text-remaining">
                 <Price value={snapshot.totals.remaining} />
               </dd>
             </div>
           </dl>
-          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <Badge tone={statusTone(a.status)} className="h-9 px-4 text-sm">
-              {t(`status.${a.status}`)}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <Badge tone={statusTone(a.status)}>{t(`status.${a.status}`)}</Badge>
             <ConnectionIndicator state={connection} compact />
           </div>
         </div>
@@ -86,7 +84,7 @@ export function AuctionTabs({ slug }: { slug: string }) {
                   <Link
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className="inline-flex h-12 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-sm font-bold uppercase tracking-wider text-muted hover:border-line-strong hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text sm:px-4"
+                    className="inline-flex h-11 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-sm font-semibold text-muted hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text sm:px-4"
                   >
                     {t(`live.tab.${tab.key}`)}
                   </Link>

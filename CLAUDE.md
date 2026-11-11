@@ -10,7 +10,7 @@
 - Live rule edits apply forward only, run a conflict check first, and are audited.
 - Sports are data in `sports.config`. Never hardcode a sport's roles in components.
 - All business details come from site.config.ts. Never type them inline.
-- Visual style follows the owner's original CPL site (deep navy, gold, royal blue, warm off-white, Orbitron and Rajdhani, 12px corners, soft card shadows, gold glows). Gradients only where that site used them: the page background fade, gold wordmark text (`.text-gold`) and the gold, royal and sold buttons. Use the `.card` and `.card-gold` utilities for panels.
+- Visual style: clean auction-room look (owner's crickauction.in reference). Charcoal surfaces, gold accent, royal blue and green as supporting colours, Archivo for all Latin text (heavy weights for headings, mixed case), Noto Sans Kannada and Devanagari for those scripts, rounded panels (10 to 24px), flat panels without glows. Gradients only for the page background fade, gold and silver wordmark text and the gold, royal and sold buttons. Use the `.card` utility for panels.
 - Hard design bans: emoji icons, em dashes, cursor effects, scroll animations, autoplay carousels, stock or AI images, fake reviews, fake metrics, fake counters.
 - Accessibility: WCAG 2.2 AA. Every drag action needs a keyboard path.
 - No horizontal overflow at 320px and up.

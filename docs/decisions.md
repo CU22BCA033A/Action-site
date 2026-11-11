@@ -3,7 +3,7 @@
 Non-obvious choices, newest first.
 
 ## Live page is an auction room on one screen
-From 1280 px wide the live page is three columns that fit the screen: auction teams with purse left, squad and overseas counts on the left; the player on the floor in the middle (large photo, name, stats, base price, current bid, leading team); live activity on the right (bids on this player, then recent sales). Each side column scrolls on its own, so purses stay visible at all times. The owner first asked for sales below the fold, then pointed out that team purses must stay in view, using a crickauction.in room screenshot as the reference. On phones the order is player, teams, activity.
+From 1280 px wide the live page is three full-height columns under one shared header row, modelled on the owner's crickauction.in screenshots: auction teams on the left (rank, logo, name, owner name, purse left, squad count), the player in the middle (base price and bidder in the header row; a card with a timer line along its top edge, portrait photo, role pills, large name, a four-stat strip, current bid with the bidding team's badge, a round countdown, and a read-only spectator bar), and live activity on the right (bids on this player, then each recent sale as a card with team, photo, name, role and price). Each column scrolls on its own, so purses stay visible. Viewers never bid here; the bar says so and links to the results. On phones the order is player, teams, activity, and base price and bidder move into the card.
 
 ## Unsold waits for the timer; sold and unsold are always the admin's call
 Nothing sells or unsells a player automatically. `mark_unsold` (migration 0006) refuses with TIMER_RUNNING while the bid timer still has time left, live or paused, so a player is never dropped while owners may still bid. With no timer set, the admin decides. The console disables Unsold and shows the seconds left.
@@ -14,8 +14,8 @@ The gavel hit is the Web Audio synth from the owner's CPL site (a low-passed thu
 ## Public pages show only the sport being auctioned
 The organiser creates an auction for one sport (almost always cricket). The header, footer, home page and sitemap no longer list every sport; the home page names only the sports of published auctions, and `/sports` redirects to `/auctions`. The other sports still exist for the admin.
 
-## Premium look within the owner's bans
-Deep navy surfaces, a less orange gold (#ffd666 to #f0a400), and silver used only in the AuctionX wordmark, after the owner's logo. Headings are uppercase Orbitron with slight tracking (its lowercase looks quirky in mixed case); body text is Rajdhani; every number is Oxanium. Panels have flat dividers instead of cards inside cards, section labels are small tracked capitals led by a gold rule, buttons lift 1px with a soft glow instead of scaling, and colour and border changes ease over 160 ms. The header carries a thin gold top rule; the footer ends in a link bar.
+## Look follows the owner's crickauction.in reference
+The owner found the navy and Orbitron design crowded and asked for the font and design of a crickauction.in auction-room screenshot. Now: charcoal surfaces (#09090b to #202024), flat panels without glows, rounded corners (10, 16 and 24 px), Archivo for all Latin text with heavy mixed-case headings, and a slim one-row auction header. This supersedes two earlier owner bans (Inter-style fonts, soft corners) because it is the newer instruction; Inter itself is still not used. Gold stays the brand accent; the silver and gold AuctionX wordmark stays.
 
 ## The owner's logo file is still needed
 The owner shared an AuctionX logo image in chat, but no file reached the repository. Until it is added (for example as `public/brand/auctionx-logo.png`), the site uses an in-house gavel mark and a typeset AuctionX wordmark.

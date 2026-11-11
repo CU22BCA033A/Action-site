@@ -9,9 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const fonts = [
-  { name: "Orbitron", use: "Headings", licence: "SIL Open Font License 1.1", file: "/licenses/orbitron-OFL.txt" },
-  { name: "Rajdhani", use: "Body text, Latin and Devanagari", licence: "SIL Open Font License 1.1", file: "/licenses/rajdhani-OFL.txt" },
-  { name: "Oxanium", use: "Prices, timers and counts", licence: "SIL Open Font License 1.1", file: "/licenses/oxanium-OFL.txt" },
+  { name: "Archivo", use: "Headings, text, prices and timers", licence: "SIL Open Font License 1.1", file: "/licenses/archivo-OFL.txt" },
+  { name: "Noto Sans Devanagari", use: "Hindi text", licence: "SIL Open Font License 1.1", file: "/licenses/noto-sans-devanagari-OFL.txt" },
   { name: "Noto Sans Kannada", use: "Kannada text", licence: "SIL Open Font License 1.1", file: "/licenses/noto-sans-kannada-OFL.txt" },
 ];
 

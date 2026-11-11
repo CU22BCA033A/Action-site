@@ -66,7 +66,8 @@ export function BackToTop() {
 export function FloatingContact() {
   const t = useT();
   const pathname = usePathname();
-  if (pathname === "/contact") return null;
+  // Not on the contact page itself, and not on auction pages where it would cover live data.
+  if (pathname === "/contact" || pathname.startsWith("/auctions/")) return null;
   return (
     <Link
       href="/contact"

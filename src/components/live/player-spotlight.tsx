@@ -44,7 +44,7 @@ export function PlayerSpotlight({
   return (
     <article
       aria-labelledby="spotlight-name"
-      className={`relative overflow-hidden ${live ? "card-gold pulse-gold" : "card"} ${sold ? "!border-sold" : unsold ? "!border-unsold" : ""} ${wide ? "lg:flex lg:h-[max(32rem,calc(100dvh-19rem))] lg:flex-col" : ""}`}
+      className={`relative overflow-hidden ${live ? "card-gold" : "card"} ${sold ? "!border-sold" : unsold ? "!border-unsold" : ""} ${wide ? "lg:flex lg:h-[max(32rem,calc(100dvh-19rem))] lg:flex-col" : ""}`}
     >
       <p className={`px-3 py-1.5 text-center text-xs font-bold uppercase tracking-wider ${sold ? "bg-[#15803d] text-white" : "border-b border-line bg-surface-2 text-accent-text tracking-[0.18em]"}`}>
         {sold ? t("phase.sold") : unsold ? t("phase.unsold") : (p.category ?? p.setName ?? snapshot.auction.sportName)}
@@ -60,7 +60,7 @@ export function PlayerSpotlight({
           sizes={wide ? "(min-width: 1024px) 680px, (min-width: 768px) 50vw, 90vw" : lg ? "(min-width: 1280px) 520px, 90vw" : "(min-width: 1024px) 420px, 90vw"}
         />
         {live || f.phase === "paused" ? (
-          <span className={`absolute left-7 top-7 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase ${live ? "bg-live text-live-ink" : "bg-paused text-paused-ink"}`}>
+          <span className={`absolute left-7 top-7 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase ${live ? "bg-[#c81e1e] text-white" : "bg-paused text-paused-ink"}`}>
             <Radio className={`size-3 ${live ? "live-dot" : ""}`} aria-hidden="true" />
             {live ? t("status.live") : t("status.paused")}
           </span>

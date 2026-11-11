@@ -2,7 +2,7 @@
  * AuctionX brand. The mark is a gavel striking its block, drawn in-house as
  * plain shapes so it stays sharp from a 16px favicon to the projector screen.
  * The wordmark echoes the owner's logo: "Auction" in silver, "X" in gold,
- * set in Orbitron with a forward slant.
+ * set in the heavy display face with a forward slant.
  */
 
 const GAVEL = (ink: string) =>
