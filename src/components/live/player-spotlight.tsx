@@ -46,7 +46,7 @@ export function PlayerSpotlight({
       aria-labelledby="spotlight-name"
       className={`relative overflow-hidden ${live ? "card-gold pulse-gold" : "card"} ${sold ? "!border-sold" : unsold ? "!border-unsold" : ""} ${wide ? "lg:flex lg:h-[max(32rem,calc(100dvh-19rem))] lg:flex-col" : ""}`}
     >
-      <p className={`px-3 py-1.5 text-center text-xs font-bold uppercase tracking-wider ${sold ? "bg-sold text-sold-ink" : "border-b border-line bg-surface-2 text-accent-text tracking-[0.18em]"}`}>
+      <p className={`px-3 py-1.5 text-center text-xs font-bold uppercase tracking-wider ${sold ? "bg-[#15803d] text-white" : "border-b border-line bg-surface-2 text-accent-text tracking-[0.18em]"}`}>
         {sold ? t("phase.sold") : unsold ? t("phase.unsold") : (p.category ?? p.setName ?? snapshot.auction.sportName)}
       </p>
 

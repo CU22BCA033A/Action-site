@@ -22,7 +22,7 @@ const variants: Record<Variant, string> = {
   quiet: "bg-transparent normal-case tracking-normal font-semibold text-muted border-transparent underline-offset-4 hover:text-text hover:underline",
   danger:
     "bg-transparent text-danger border-danger hover:shadow-[0_0_0_1px_var(--danger)] active:bg-danger-surface",
-  sold: "border-transparent bg-[linear-gradient(180deg,#22b45a,var(--sold))] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(22_163_73/0.45)]",
+  sold: "border-transparent bg-[linear-gradient(180deg,#15803d,#0f6a32)] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(22_163_73/0.45)]",
 };
 
 const sizes: Record<Size, string> = {
