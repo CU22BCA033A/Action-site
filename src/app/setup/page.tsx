@@ -26,7 +26,7 @@ export default function SetupPage() {
     <main id="main" className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10">
       <LogoMark className="size-10" />
       <div>
-        <h1 className="text-3xl uppercase sm:text-4xl">Finish setting up</h1>
+        <h1 className="text-3xl sm:text-4xl">Finish setting up</h1>
         <p className="mt-2 text-muted">The site is running but is missing its settings. Add them in Vercel under Settings, Environment Variables, then redeploy. This page disappears once everything is set.</p>
       </div>
 

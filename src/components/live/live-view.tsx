@@ -181,7 +181,7 @@ export function FloorPanel() {
       </p>
       <p className="ml-auto flex min-w-0 items-center gap-2 border-l border-line pl-6">
         <span className={label}>{f.phase === "sold" ? t("live.boughtBy") : t("live.bidder")}:</span>
-        <span className="truncate text-base font-extrabold uppercase tracking-wide">{shownTeam ? shownTeam.name : t("live.noBidsYet")}</span>
+        <span className={`truncate ${shownTeam ? "text-base font-extrabold" : "text-sm font-semibold text-muted"}`}>{shownTeam ? shownTeam.name : t("live.noBidsYet")}</span>
       </p>
     </ColumnHeader>
   );
@@ -294,10 +294,10 @@ function ActivityFeed({ snapshot }: { snapshot: Snapshot }) {
                     <div className="mx-auto w-36">
                       <PlayerPhoto name={s.fullName} photoPath={s.photoPath} sizes="144px" className="!aspect-[4/5] !rounded-[1rem]" />
                     </div>
-                    <h4 className="mt-4 px-5 text-center text-[1.75rem] font-black uppercase leading-none tracking-[-0.02em]">{s.fullName}</h4>
+                    <h4 className="mt-4 px-5 text-center text-[1.375rem] font-extrabold uppercase leading-none tracking-[-0.02em]">{s.fullName}</h4>
                     <p className="mt-2 px-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.3em] text-muted">{role.label}</p>
                     <p className="mx-6 mt-5 flex items-baseline justify-center gap-2 rounded-t-[1.25rem] border border-b-0 border-line-strong bg-surface py-3">
-                      <Price value={s.price} tick={false} className="text-[1.75rem] font-black" />
+                      <Price value={s.price} tick={false} className="text-[1.375rem] font-extrabold" />
                       <span className="text-sm font-bold text-muted">{unit}</span>
                     </p>
                   </article>

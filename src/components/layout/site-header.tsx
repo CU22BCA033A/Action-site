@@ -45,7 +45,7 @@ export function SiteHeader({ brand }: { brand: string }) {
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
           <LogoMark className="size-9 shrink-0" />
-          {brand ? <Wordmark brand={brand} className="truncate text-[1.35rem] md:text-[1.6rem]" /> : null}
+          {brand ? <Wordmark brand={brand} className="truncate text-[1.2rem] md:text-[1.35rem]" /> : null}
         </Link>
 
         <nav aria-label={t("nav.primary")} className="ml-6 hidden lg:block">
@@ -55,7 +55,7 @@ export function SiteHeader({ brand }: { brand: string }) {
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-[0.8rem] font-bold uppercase tracking-[0.14em] text-muted hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
+                  className="inline-flex h-11 items-center border-b-2 border-transparent px-3 text-sm font-semibold text-muted hover:text-text aria-[current=page]:border-accent aria-[current=page]:text-text"
                 >
                   {t(`nav.${item.key}`)}
                 </Link>

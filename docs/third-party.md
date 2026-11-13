@@ -16,11 +16,11 @@ No other service is contacted. There is no analytics, advertising, email, SMS, C
 
 | Font | Used for | Licence |
 | --- | --- | --- |
-| Inter | All Latin text, prices and timers | SIL Open Font License 1.1 (`public/licenses/inter-OFL.txt`) |
+| Plus Jakarta Sans | All Latin text, prices and timers | SIL Open Font License 1.1 (`public/licenses/plus-jakarta-sans-OFL.txt`) |
 | Noto Sans Kannada | Kannada text | SIL Open Font License 1.1 (`public/licenses/noto-sans-kannada-OFL.txt`) |
 | Noto Sans Devanagari | Hindi text | SIL Open Font License 1.1 (`public/licenses/noto-sans-devanagari-OFL.txt`) |
 
-The font files come from the `@fontsource` packages and live in `src/fonts` (site) and `src/assets/card` (player card images). The public `/licenses` page links each licence.
+The font files were copied from the `@fontsource` packages and live in `src/fonts` (site) and `src/assets/card` (player card images). The public `/licenses` page links each licence.
 
 ## Icons and images
 - **Lucide** icons, ISC License (`public/licenses/lucide-ISC.txt`).

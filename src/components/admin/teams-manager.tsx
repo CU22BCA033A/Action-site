@@ -77,7 +77,7 @@ function TeamCard({ team, ctx, now, onEdit }: { team: AdminTeam; ctx: Ctx; now: 
       <div className="flex items-center gap-3 border-b border-line p-4">
         <TeamMark team={team} size={52} className="rounded-[var(--radius-sm)]" />
         <div className="min-w-0 flex-1">
-          <h2 id={`team-${team.id}`} className="truncate text-lg uppercase">
+          <h2 id={`team-${team.id}`} className="truncate text-lg">
             {team.name}
           </h2>
           <p className="truncate text-sm text-muted">{team.ownerDisplayName ? `Owner: ${team.ownerDisplayName}` : "No owner name"}</p>

@@ -23,7 +23,7 @@ function TimerRing({ left }: { left: number }) {
       aria-label={left === 0 ? t("time.timeUp") : t("time.secondsLeft", { s: left })}
       className={`flex size-[5rem] shrink-0 flex-col items-center justify-center rounded-full border-2 leading-none ${tone}`}
     >
-      <span aria-hidden="true" className="num text-[1.75rem] font-extrabold">{left}</span>
+      <span aria-hidden="true" className="num text-[1.5rem] font-extrabold">{left}</span>
       <span aria-hidden="true" className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.14em]">sec</span>
     </div>
   );
@@ -117,7 +117,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
             </li>
           </ul>
 
-          <h2 id="stage-name" className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-[-0.035em] @[52rem]:text-[3.5rem] @[60rem]:text-[4rem]">
+          <h2 id="stage-name" className="mt-5 text-[1.875rem] font-extrabold leading-[1.08] tracking-[-0.025em] @[52rem]:text-[2.5rem] @[60rem]:text-[2.875rem]">
             {p.fullName}
           </h2>
 
@@ -126,7 +126,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
               {stats.map((s, i) => (
                 <div key={s.key} className={`relative flex flex-col items-center px-2 py-4 text-center before:absolute before:left-1/2 before:top-0 before:h-[3px] before:w-8 before:-translate-x-1/2 before:rounded-b-full before:bg-current before:opacity-70 ${STAT_TONES[i % STAT_TONES.length]} ${i % 2 === 1 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line @[46rem]:border-t-0" : ""} ${i === 2 ? "@[46rem]:border-l" : ""}`}>
                   <dt className="order-1 mt-1 max-w-full truncate text-[0.625rem] font-extrabold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
-                  <dd className={`num order-2 mt-2 whitespace-nowrap text-[1.75rem] font-bold leading-none ${STAT_TONES[i % STAT_TONES.length]}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
+                  <dd className={`num order-2 mt-2 whitespace-nowrap text-[1.375rem] font-bold leading-none ${STAT_TONES[i % STAT_TONES.length]}`}>{formatStat(p.stats[s.key]) || "0"}</dd>
                 </div>
               ))}
             </dl>
@@ -141,7 +141,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
               {sold || leader ? (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <p className={`flex items-baseline gap-2 ${sold ? "text-[#22c55e]" : "text-text"}`}>
-                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-[2.75rem] font-extrabold leading-none tracking-[-0.02em] @[52rem]:text-[3.25rem]" />
+                    <Price value={sold ? f.lastResultPrice : f.currentPrice} className="text-[2.125rem] font-extrabold leading-none tracking-[-0.02em] @[52rem]:text-[2.5rem]" />
                     <span className="text-xl font-extrabold">{unit}</span>
                   </p>
                   {shownTeam ? (
@@ -153,7 +153,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
                 </div>
               ) : (
                 <p className="mt-2 flex items-baseline gap-2">
-                  <span className="num text-[2.5rem] font-extrabold leading-none tracking-[-0.02em]">{unsold ? "-" : "0"}</span>
+                  <span className="num text-[2.125rem] font-extrabold leading-none tracking-[-0.02em]">{unsold ? "-" : "0"}</span>
                   <span className="text-xl font-extrabold">{unsold ? t("phase.unsold") : unit}</span>
                 </p>
               )}
@@ -164,7 +164,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
       </div>
 
       <div className="flex gap-4 border-t border-line p-5 @[36rem]:gap-5 @[36rem]:px-8 @[36rem]:py-6">
-        <p className="flex min-h-[4.5rem] flex-1 items-center justify-center gap-3 rounded-[1.25rem] border border-line bg-[#141414] px-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-faint @[36rem]:min-h-[5.5rem] @[36rem]:text-lg">
+        <p className="flex min-h-[4.5rem] flex-1 items-center justify-center gap-3 rounded-[1.25rem] border border-line bg-[#141414] px-4 text-center text-sm font-semibold text-faint @[36rem]:min-h-[4.5rem] @[36rem]:text-base">
           <Eye className="size-5 shrink-0" aria-hidden="true" />
           {t("live.spectator")}
         </p>

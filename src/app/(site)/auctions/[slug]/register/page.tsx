@@ -32,7 +32,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ slug:
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
       <p className="text-sm font-semibold uppercase tracking-wider text-muted">{a.sportName}</p>
-      <h1 className="mt-1 text-4xl uppercase sm:text-5xl">{t("register.title")}</h1>
+      <h1 className="mt-1 text-4xl sm:text-5xl">{t("register.title")}</h1>
       {a.open ? (
         <>
           <p className="mt-3 text-lg text-muted">{t("register.intro", { name: a.name })}</p>

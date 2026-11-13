@@ -23,7 +23,7 @@ export function ObsOverlay() {
   const ticker = snapshot.bids.filter((b) => b.auctionPlayerId === p?.auctionPlayerId).slice(0, 5);
 
   return (
-    <div className="obs-overlay fixed inset-x-0 bottom-0 p-8" data-theme-lock="dark">
+    <div className="screen-type obs-overlay fixed inset-x-0 bottom-0 p-8" data-theme-lock="dark">
       {p ? (
         <div className="flex max-w-[1600px] items-stretch overflow-hidden rounded-[var(--radius-md)] border-2 border-accent-edge bg-[#070b14] text-[#eef2f8]">
           <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={150} className="shrink-0" />

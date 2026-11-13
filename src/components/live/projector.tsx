@@ -38,7 +38,7 @@ export function ProjectorScreen() {
   const standings = [...snapshot.teams].sort((x, y) => y.purseLeft - x.purseLeft);
 
   return (
-    <div className="relative flex min-h-dvh flex-col text-text">
+    <div className="screen-type relative flex min-h-dvh flex-col text-text">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-[color-mix(in_srgb,var(--surface)_70%,transparent)] px-6 py-4 shadow-[var(--card-shadow)] xl:px-10">
         <div className="min-w-0">
           <p className="text-sm font-semibold uppercase tracking-widest text-muted">{a.sportName}</p>

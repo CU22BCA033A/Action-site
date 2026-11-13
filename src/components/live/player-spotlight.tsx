@@ -82,7 +82,7 @@ export function PlayerSpotlight({
 
       <div className={`flex flex-col gap-3 ${lg ? "p-5" : "p-4 sm:p-5"} ${wide ? "md:justify-center md:gap-5 md:p-6 lg:overflow-y-auto" : ""}`}>
         <div>
-          <h2 id="spotlight-name" className={`${wide ? "text-3xl sm:text-4xl xl:text-[2.6rem]" : `truncate ${lg ? "text-3xl xl:text-4xl" : "text-2xl"}`}`}>{p.fullName}</h2>
+          <h2 id="spotlight-name" className={`${wide ? "text-3xl sm:text-4xl xl:text-[2.25rem]" : `truncate ${lg ? "text-3xl xl:text-4xl" : "text-2xl"}`}`}>{p.fullName}</h2>
           <p className="mt-1 text-sm text-muted">
             {[p.category, t(`nationality.${p.nationalityGroup}`)].filter(Boolean).join(" / ")}
           </p>

@@ -73,7 +73,7 @@ export function AuctionAdminHeader({
               {!auction.isPublic ? <Badge>Private</Badge> : null}
               <span className="text-sm text-muted">{auction.sportName}</span>
             </div>
-            <h1 className="mt-2 text-2xl uppercase sm:text-3xl">{auction.name}</h1>
+            <h1 className="mt-2 text-2xl sm:text-3xl">{auction.name}</h1>
           </div>
           <div className="flex flex-wrap gap-2">
             {moves[auction.status].map((m) => (

@@ -143,7 +143,7 @@ export function PlayerPhoto({ name, photoPath, sizes, priority = false, classNam
             <circle cx="32" cy="22" r="12" fill="currentColor" />
             <path d="M8 64c2-14 12-22 24-22s22 8 24 22z" fill="currentColor" />
           </svg>
-          <span className="display relative mb-[8%] text-[clamp(2rem,9cqw,4rem)] font-black text-text">{initials(name)}</span>
+          <span className="display relative mb-[8%] text-[clamp(1.5rem,8cqw,3rem)] font-black text-text">{initials(name)}</span>
         </span>
       )}
     </div>

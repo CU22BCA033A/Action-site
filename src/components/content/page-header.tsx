@@ -6,7 +6,7 @@ export function PageHeader({ eyebrow, title, intro, meta }: { eyebrow?: string; 
     <header className="border-b border-line">
       <div className="mx-auto max-w-5xl px-4 pb-8 pt-10 sm:px-6 sm:pt-14">
         {eyebrow ? <p className="text-sm font-semibold uppercase tracking-wider text-muted">{eyebrow}</p> : null}
-        <h1 className="mt-1 text-4xl uppercase text-gold sm:text-5xl">{title}</h1>
+        <h1 className="mt-1 text-4xl text-gold sm:text-5xl">{title}</h1>
         {intro ? <p className="mt-4 max-w-3xl text-lg text-muted">{intro}</p> : null}
         {meta ? <p className="mt-3 text-sm text-faint">{meta}</p> : null}
       </div>

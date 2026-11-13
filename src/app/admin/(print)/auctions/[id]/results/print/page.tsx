@@ -17,7 +17,7 @@ export default async function PrintResults({ params }: { params: Promise<{ id: s
       <div className="no-print mb-6 flex justify-end">
         <PrintButton />
       </div>
-      <h1 className="text-3xl uppercase">{a.name}</h1>
+      <h1 className="text-3xl">{a.name}</h1>
       <p className="mt-1 text-sm text-muted">
         {a.sportName}
         {a.startsAt ? `, ${formatDate(a.startsAt)}` : ""}. Amounts are in {a.pointsUnitLabel}. Generated {formatDateTime(new Date())}.
@@ -27,7 +27,7 @@ export default async function PrintResults({ params }: { params: Promise<{ id: s
         const squad = players.filter((p) => p.soldToTeamId === t.id && (p.status === "sold" || p.status === "retained"));
         return (
           <section key={t.id} className="mt-8 break-inside-avoid">
-            <h2 className="text-xl uppercase">{t.name}</h2>
+            <h2 className="text-xl">{t.name}</h2>
             <p className="text-sm text-muted">
               {squad.length} players. Spent {formatPoints(t.purseSpent)} of {formatPoints(t.purseTotal)}, {formatPoints(t.purseTotal - t.purseSpent)} left.
               {t.ownerDisplayName ? ` Owner: ${t.ownerDisplayName}.` : ""}
@@ -64,7 +64,7 @@ export default async function PrintResults({ params }: { params: Promise<{ id: s
       })}
       {unsold.length ? (
         <section className="mt-8">
-          <h2 className="text-xl uppercase">Unsold</h2>
+          <h2 className="text-xl">Unsold</h2>
           <p className="mt-1 text-sm">{unsold.map((p) => `${p.lotNo} ${p.fullName}`).join(", ")}</p>
         </section>
       ) : null}

@@ -42,9 +42,9 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="text-center lg:text-left">
             {sportNames.length ? <p className="eyebrow">{sportNames.join(" · ")}</p> : null}
-            <h1 className="mt-6 uppercase">
-              <span className="block pb-1 text-[clamp(2.4rem,8vw,4.5rem)] font-black tracking-wide text-gold">{t("home.titleTop")}</span>
-              <span className="mt-1 block text-[clamp(1.75rem,5.6vw,3rem)] font-bold tracking-wide text-text">{t("home.titleBottom")}</span>
+            <h1 className="mt-6">
+              <span className="block pb-1 text-[clamp(2rem,6.5vw,3.5rem)] font-extrabold tracking-[-0.025em] text-gold">{t("home.titleTop")}</span>
+              <span className="mt-1 block text-[clamp(1.375rem,4.4vw,2.25rem)] font-bold tracking-[-0.02em] text-text">{t("home.titleBottom")}</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted lg:mx-0">{t("home.lead")}</p>
             <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">

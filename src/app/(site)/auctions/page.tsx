@@ -32,7 +32,7 @@ export default async function AuctionsPage() {
           <span className="text-sm font-semibold uppercase tracking-wider text-muted">{a.sportName}</span>
           <Badge tone={statusTone(a.status)}>{t(`status.${a.status as "live"}`)}</Badge>
         </div>
-        <h3 className="text-2xl uppercase text-accent-text">{a.name}</h3>
+        <h3 className="text-2xl text-accent-text">{a.name}</h3>
         {a.startsAt ? <p className="text-sm text-muted">{formatDate(a.startsAt, locale)}</p> : null}
         <p className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-muted">
           <span className="inline-flex items-center gap-1.5">

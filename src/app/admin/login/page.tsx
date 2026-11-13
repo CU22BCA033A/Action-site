@@ -20,7 +20,7 @@ export default async function AdminLoginPage() {
       <Link href="/" className="mb-8 inline-flex w-fit items-center gap-2" aria-label="Home">
         <LogoMark className="size-10" />
       </Link>
-      <h1 className="text-4xl uppercase">Admin sign in</h1>
+      <h1 className="text-4xl">Admin sign in</h1>
       <p className="mt-2 text-muted">For the person running the auction. Team owners use the join page with their access code.</p>
       <div className="mt-8 rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
         <AdminLoginForm />

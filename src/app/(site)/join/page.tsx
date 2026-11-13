@@ -18,7 +18,7 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
   if (await getTeamSession()) redirect("/manager");
   return (
     <div className="mx-auto flex max-w-lg flex-col px-4 py-12 sm:py-20">
-      <h1 className="text-4xl uppercase sm:text-5xl">{t("join.title")}</h1>
+      <h1 className="text-4xl sm:text-5xl">{t("join.title")}</h1>
       <p className="mt-3 text-lg text-muted">{t("join.intro")}</p>
       <div className="mt-8 rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
         <JoinForm ended={ended === "1"} />

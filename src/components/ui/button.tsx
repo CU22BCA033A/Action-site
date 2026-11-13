@@ -6,7 +6,7 @@ type Variant = "primary" | "royal" | "glass" | "secondary" | "ghost" | "danger" 
 type Size = "sm" | "md" | "lg" | "xl";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-bold uppercase tracking-wider select-none whitespace-nowrap rounded-[var(--radius-sm)] border transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-200 ease-out motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
+  "inline-flex items-center justify-center gap-2 font-semibold select-none whitespace-nowrap rounded-[var(--radius-sm)] border transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-200 ease-out motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
 
 /** Variants from the original CPL site: gold, royal, glass and outline. */
 const variants: Record<Variant, string> = {
@@ -19,17 +19,17 @@ const variants: Record<Variant, string> = {
   secondary:
     "bg-transparent text-text border-line-strong hover:border-text active:bg-surface-2",
   ghost: "bg-transparent text-text border-transparent hover:border-line-strong active:bg-surface-2",
-  quiet: "bg-transparent normal-case tracking-normal font-semibold text-muted border-transparent underline-offset-4 hover:text-text hover:underline",
+  quiet: "bg-transparent font-semibold text-muted border-transparent underline-offset-4 hover:text-text hover:underline",
   danger:
     "bg-transparent text-danger border-danger hover:shadow-[0_0_0_1px_var(--danger)] active:bg-danger-surface",
   sold: "border-transparent bg-[linear-gradient(180deg,#15803d,#0f6a32)] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(22_163_73/0.45)]",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 rounded-[var(--radius-xs)] px-3 text-xs",
+  sm: "h-9 rounded-[var(--radius-xs)] px-3 text-sm",
   md: "h-11 px-4 text-sm",
   lg: "h-12 px-5 text-base",
-  xl: "min-h-14 rounded-[var(--radius-md)] px-8 text-lg sm:px-10",
+  xl: "min-h-12 rounded-[var(--radius-sm)] px-6 text-base sm:px-7",
 };
 
 export function buttonClass(variant: Variant = "secondary", size: Size = "md", extra = "") {
