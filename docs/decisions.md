@@ -2,6 +2,18 @@
 
 Non-obvious choices, newest first.
 
+## No demo data in the product
+The owner wants the site ready for real use with no demo data. The home page no longer shows demo screenshots (with no public auction it says so plainly), the screenshot files are gone, `db:seed` adds only the sports and their presets, and the admin's "Rehearsal on demo data" option is removed: every auction starts empty. To practise, the admin creates a private test auction and deletes it. The demo-data module (`src/lib/demo`, `src/lib/domain/demo.ts`) stays only for the end-to-end tests, which create their own private auctions and hide them afterwards.
+
+## Admin inbox and deletion requests
+`/admin/inbox` lists contact messages (mark read, archive, delete) and `/admin/deletion-requests` lists data deletion requests with the matching player registration and a status and note that the requester sees on `/data-deletion/status`. Both list everything by default with open items first, so a card stays on screen after a change and shows its confirmation. Every change is written to the audit log.
+
+## Console keyboard shortcuts
+In the admin console S opens the Sold confirmation, U the Unsold confirmation and P pauses or resumes. They are ignored while typing, with a modifier key held, or while a dialog is open, and the keys are shown on the buttons and exposed through `aria-keyshortcuts`.
+
+## Scroll areas contain absolutely positioned children
+A global `:where(.overflow-x-auto, .overflow-auto)` rule makes scroll areas `position: relative`. Without it, screen-reader-only labels inside wide tables were laid out against the page and widened it on phones.
+
 ## Live page is an auction room on one screen
 From 1280 px wide the live page is three full-height columns under one shared header row, modelled on the owner's crickauction.in screenshots: auction teams on the left (rank, logo, name, owner name, purse left, squad count), the player in the middle (base price and bidder in the header row; a card with a timer line along its top edge, portrait photo, role pills, large name, a four-stat strip, current bid with the bidding team's badge, a round countdown, and a read-only spectator bar), and live activity on the right (bids on this player, then each recent sale as a card with team, photo, name, role and price). Each column scrolls on its own, so purses stay visible. Viewers never bid here; the bar says so and links to the results. On phones the order is player, teams, activity, and base price and bidder move into the card.
 

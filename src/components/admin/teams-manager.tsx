@@ -36,7 +36,7 @@ export function TeamsManager({ teams, ctx }: { teams: AdminTeam[]; ctx: Ctx }) {
           Add team
         </Button>
       </div>
-      <ul className="mt-5 grid gap-4 lg:grid-cols-2">
+      <ul className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
         {teams.map((t) => (
           <li key={t.id}>
             <TeamCard team={t} ctx={ctx} now={now} onEdit={() => setEditing(t)} />

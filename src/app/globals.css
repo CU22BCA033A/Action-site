@@ -81,7 +81,7 @@
   --accent-edge: #7a5600;
   --spent: #c0262d;
   --remaining: #0f7a3e;
-  --live: #c0262d;
+  --live: #9f1c22;
   --live-ink: #ffffff;
   --sold: #0f7a3e;
   --sold-ink: #ffffff;
@@ -164,6 +164,12 @@
 }
 
 @layer base {
+  /* Scroll areas contain their absolutely positioned children (for example
+     screen-reader-only labels in table cells), so those cannot widen the page.
+     :where() keeps this weaker than any position utility on the same element. */
+  :where(.overflow-x-auto, .overflow-auto, .overflow-x-scroll) {
+    position: relative;
+  }
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
   }

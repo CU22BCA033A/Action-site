@@ -14,7 +14,6 @@
     "e2e": "playwright test",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:seed:demo": "tsx scripts/seed.ts --demo",
     "hash-password": "tsx scripts/hash-password.ts",
     "icons": "tsx scripts/generate-icons.ts",
     "launch-check": "tsx scripts/launch-check.ts"

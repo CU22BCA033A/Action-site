@@ -32,7 +32,6 @@ export function NewAuctionForm({ sports, presets }: { sports: Sport[]; presets: 
   const [slugEdited, setSlugEdited] = useState(false);
   const [startsAt, setStartsAt] = useState("");
   const [isPublic, setIsPublic] = useState(true);
-  const [rehearsal, setRehearsal] = useState(false);
   const { run, pending, result, fieldErrors } = useAdminAction(createAuctionAction);
 
   const sportPresets = useMemo(() => presets.filter((p) => p.sportId === sportId), [presets, sportId]);
@@ -45,7 +44,7 @@ export function NewAuctionForm({ sports, presets }: { sports: Sport[]; presets: 
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        run({ sportId, presetId, name, slug, startsAt: startsAt || undefined, isPublic: rehearsal ? false : isPublic, rehearsal });
+        run({ sportId, presetId, name, slug, startsAt: startsAt || undefined, isPublic, rehearsal: false });
       }}
     >
       {result && !result.ok ? (
@@ -127,18 +126,9 @@ export function NewAuctionForm({ sports, presets }: { sports: Sport[]; presets: 
 
       <div className="flex flex-col gap-4 rounded-[var(--radius-md)] border border-line bg-surface p-4">
         <Checkbox
-          id="f-rehearsal"
-          name="rehearsal"
-          checked={rehearsal}
-          onChange={(e) => setRehearsal(e.target.checked)}
-          label="Rehearsal on demo data"
-          hint="Adds eight invented teams and 48 invented players so you can practise. Rehearsals are never listed publicly and never mixed with real results."
-        />
-        <Checkbox
           id="f-public"
           name="public"
-          checked={rehearsal ? false : isPublic}
-          disabled={rehearsal}
+          checked={isPublic}
           onChange={(e) => setIsPublic(e.target.checked)}
           label="List on the public auctions page"
           hint="Private auctions are still visible to anyone who has the link once you publish them."

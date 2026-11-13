@@ -81,7 +81,7 @@ export default async function StatsPage({ params }: Props) {
               const team = teams.get(p.teamId);
               return (
                 <li key={p.auctionPlayerId} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2 sm:gap-4 sm:px-6">
-                  <span className={`num w-12 shrink-0 whitespace-nowrap text-2xl font-bold ${i === 0 ? "text-accent-text" : i === 1 ? "text-[#9ca3af]" : i === 2 ? "text-[#d97706]" : "text-muted"}`}>#{i + 1}</span>
+                  <span className={`num w-12 shrink-0 whitespace-nowrap text-2xl font-bold ${i === 0 ? "text-accent-text" : i === 1 ? "text-muted" : i === 2 ? "text-[#d97706]" : "text-muted"}`}>#{i + 1}</span>
                   <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={52} className="rounded-[var(--radius-sm)]" />
                   <div className="min-w-0 flex-1">
                     <Link href={`/players/${p.playerId}`} className="block truncate font-bold hover:underline">

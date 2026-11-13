@@ -226,7 +226,7 @@ const kn: Dictionary = {
     spectating: "ವೀಕ್ಷಿಸುತ್ತಿದ್ದೀರಿ",
     copyLink: "ಲಿಂಕ್ ನಕಲಿಸಿ",
     viewSquad: "ತಂಡ ನೋಡಿ",
-    teamDetails: "{team} ವಿವರಗಳು",
+    teamDetails: "ವಿವರ ತೋರಿಸಿ:",
     secondsAgo: "{n} ಸೆ. ಹಿಂದೆ",
     minutesAgo: "{n} ನಿ. ಹಿಂದೆ",
     hoursAgo: "{n} ಗಂ. ಹಿಂದೆ",

@@ -226,7 +226,7 @@ const hi: Dictionary = {
     spectating: "देख रहे हैं",
     copyLink: "लिंक कॉपी करें",
     viewSquad: "दल देखें",
-    teamDetails: "{team} का विवरण",
+    teamDetails: "विवरण दिखाएं:",
     secondsAgo: "{n} से. पहले",
     minutesAgo: "{n} मि. पहले",
     hoursAgo: "{n} घं. पहले",

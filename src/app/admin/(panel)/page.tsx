@@ -25,7 +25,7 @@ export default async function AdminDashboard() {
         {auctions.length === 0 ? (
           <div className="rounded-[var(--radius-md)] border border-line bg-surface p-6">
             <h2 className="text-2xl">No auctions yet</h2>
-            <p className="mt-2 text-muted">Create your first auction. You can also create a rehearsal on invented demo data to practise before the real event.</p>
+            <p className="mt-2 text-muted">Create your first auction, then add its teams and players. To practise first, create a private test auction and delete it afterwards.</p>
           </div>
         ) : (
           <ul className="grid gap-3">

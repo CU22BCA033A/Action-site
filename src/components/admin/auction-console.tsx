@@ -84,6 +84,40 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
   const shownTeam = f.phase === "sold" ? soldTeam : leader;
   const bids = snapshot.bids.filter((b) => b.auctionPlayerId === p?.auctionPlayerId).slice(0, 5);
 
+  // Sold, Unsold and Pause/Resume, shared by the buttons and the S, U and P keys.
+  const canSell = Boolean(p && leader && floorBusy && !busy);
+  const canUnsell = Boolean(p && !leader && floorBusy && !timerRunning && !busy);
+  const canPauseResume = !busy && (f.phase === "live" || (f.phase === "paused" && auctionRunning));
+  const sell = () => {
+    if (!p || !leader || !canSell) return;
+    confirm({ title: `Sell ${p.fullName} to ${leader.name}?`, consequences: [`${leader.name} buys ${p.fullName} for ${formatPoints(f.currentPrice)} ${unit}.`, `${leader.name}'s purse goes down by ${formatPoints(f.currentPrice)}.`], confirmLabel: `Sold to ${leader.shortName}`, input: () => ({ action: "mark_sold", auctionId, expectedVersion: v }) });
+  };
+  const unsell = () => {
+    if (!p || !canUnsell) return;
+    confirm({ title: `Mark ${p.fullName} unsold?`, consequences: ["Nobody has bid. The player goes to the unsold list and can be auctioned again later."], confirmLabel: "Mark unsold", input: () => ({ action: "mark_unsold", auctionId, expectedVersion: v }) });
+  };
+  const pauseResume = () => {
+    if (!canPauseResume) return;
+    if (f.phase === "live") void run({ action: "pause_floor", auctionId, expectedVersion: v }, "Bidding paused.");
+    else void run({ action: "resume_floor", auctionId, expectedVersion: v }, "Bidding resumed.");
+  };
+
+  // Keyboard shortcuts. Ignored while typing, with a modifier key held, or while a dialog is open.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))) return;
+      if (pending || assignOpen || document.querySelector("dialog[open]")) return;
+      const k = e.key.toLowerCase();
+      if (k === "s" && canSell) { e.preventDefault(); sell(); }
+      else if (k === "u" && canUnsell) { e.preventDefault(); unsell(); }
+      else if (k === "p" && canPauseResume) { e.preventDefault(); pauseResume(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   return (
     <>
       <ConnectionBanner state={connection} />
@@ -226,9 +260,9 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
 
                 <div className="flex flex-wrap gap-2">
                   {f.phase === "live" ? (
-                    <Button disabled={busy} icon={<Pause className="size-4" aria-hidden="true" />} onClick={() => run({ action: "pause_floor", auctionId, expectedVersion: v }, "Bidding paused.")}>Pause</Button>
+                    <Button disabled={!canPauseResume} aria-keyshortcuts="P" icon={<Pause className="size-4" aria-hidden="true" />} onClick={pauseResume}>Pause <Kbd>P</Kbd></Button>
                   ) : (
-                    <Button variant="primary" disabled={busy || !auctionRunning} icon={<Play className="size-4" aria-hidden="true" />} onClick={() => run({ action: "resume_floor", auctionId, expectedVersion: v }, "Bidding resumed.")}>Resume</Button>
+                    <Button variant="primary" disabled={!canPauseResume} aria-keyshortcuts="P" icon={<Play className="size-4" aria-hidden="true" />} onClick={pauseResume}>Resume <Kbd>P</Kbd></Button>
                   )}
                   {leader ? (
                     <Button disabled={busy} icon={<Undo2 className="size-4" aria-hidden="true" />} onClick={() => confirm({ title: "Undo the last bid?", consequences: [`The bid of ${formatPoints(f.currentPrice)} from ${leader.name} is voided and kept in the history as undone.`, "The price and leader go back to the bid before it."], confirmLabel: "Undo last bid", danger: true, input: () => ({ action: "undo_last_bid", auctionId, expectedVersion: v }) })}>Undo last bid</Button>
@@ -244,11 +278,11 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
                 {moreOpen ? <MoreActions disabled={busy} onReturn={() => confirm({ title: `Take ${p.fullName} off the floor?`, consequences: ["The player goes back to the list without a result.", leader ? "All bids on this player are voided and kept in the history." : "There are no bids to void."], confirmLabel: "Take off the floor", danger: true, input: () => ({ action: "return_to_pool", auctionId, auctionPlayerId: p.auctionPlayerId, expectedVersion: v }) })} onAssign={() => setAssignOpen(true)} /> : null}
 
                 <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
-                  <Button variant="danger" size="xl" disabled={busy || Boolean(leader) || timerRunning} aria-describedby={timerRunning && !leader ? "unsold-wait" : undefined} icon={<X className="size-5" aria-hidden="true" />} onClick={() => confirm({ title: `Mark ${p.fullName} unsold?`, consequences: ["Nobody has bid. The player goes to the unsold list and can be auctioned again later."], confirmLabel: "Mark unsold", input: () => ({ action: "mark_unsold", auctionId, expectedVersion: v }) })}>
-                    Unsold
+                  <Button variant="danger" size="xl" disabled={!canUnsell} aria-keyshortcuts="U" aria-describedby={timerRunning && !leader ? "unsold-wait" : undefined} icon={<X className="size-5" aria-hidden="true" />} onClick={unsell}>
+                    Unsold <Kbd>U</Kbd>
                   </Button>
-                  <Button variant="sold" size="xl" disabled={busy || !leader} icon={<Check className="size-5" aria-hidden="true" />} onClick={() => leader && confirm({ title: `Sell ${p.fullName} to ${leader.name}?`, consequences: [`${leader.name} buys ${p.fullName} for ${formatPoints(f.currentPrice)} ${unit}.`, `${leader.name}'s purse goes down by ${formatPoints(f.currentPrice)}.`], confirmLabel: `Sold to ${leader.shortName}`, input: () => ({ action: "mark_sold", auctionId, expectedVersion: v }) })}>
-                    Sold
+                  <Button variant="sold" size="xl" disabled={!canSell} aria-keyshortcuts="S" icon={<Check className="size-5" aria-hidden="true" />} onClick={sell}>
+                    Sold <Kbd>S</Kbd>
                   </Button>
                 </div>
                 {timerRunning && !leader ? (
@@ -480,5 +514,14 @@ function AssignDialog({ snapshot, playerName, onClose, onAssign, busy }: { snaps
       </div>
       {price === "" ? <FormStatus kind="error">Enter a price.</FormStatus> : null}
     </ConfirmDialog>
+  );
+}
+
+/** Key hint shown on a button; hidden from screen readers, which get aria-keyshortcuts instead. */
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd aria-hidden="true" className="ml-1 inline-flex min-w-6 items-center justify-center rounded-[0.35rem] border border-current/40 px-1.5 font-sans text-[0.7rem] font-bold leading-5 opacity-80">
+      {children}
+    </kbd>
   );
 }

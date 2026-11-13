@@ -228,7 +228,7 @@ const en = {
     spectating: "Spectating",
     copyLink: "Copy link",
     viewSquad: "View squad",
-    teamDetails: "Details for {team}",
+    teamDetails: "Show details:",
     secondsAgo: "{n}s ago",
     minutesAgo: "{n}m ago",
     hoursAgo: "{n}h ago",

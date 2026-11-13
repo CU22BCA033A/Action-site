@@ -87,7 +87,7 @@ function RoomTopBar() {
       <h1 className="min-w-0 truncate text-sm font-extrabold uppercase tracking-[0.14em] sm:text-base">{a.name}</h1>
       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--royal)_55%,transparent)] bg-[color-mix(in_srgb,var(--royal)_14%,transparent)] px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-royal-light">
         <Eye className="size-3.5" aria-hidden="true" />
-        {t("live.spectating")}
+        <span className="max-sm:sr-only">{t("live.spectating")}</span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.12em]">
         <span aria-hidden="true" className={`size-1.5 rounded-full ${live ? "live-dot bg-remaining" : "bg-muted"}`} />
@@ -102,7 +102,7 @@ function RoomTopBar() {
       <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
       <button
         type="button"
-        className={iconBtn}
+        className={`${iconBtn} max-sm:hidden`}
         aria-label={copied ? t("common.copied") : t("live.copyLink")}
         title={t("live.copyLink")}
         onClick={async () => {
@@ -118,9 +118,9 @@ function RoomTopBar() {
         {copied ? <span className="text-xs font-bold text-remaining">OK</span> : <CopyGlyph />}
       </button>
 
-      <nav aria-label={t("live.tabsLabel")} className="ml-auto flex items-center gap-1.5">
+      <nav aria-label={t("live.tabsLabel")} className="ml-auto flex items-center gap-1 sm:gap-1.5">
         {links.map((l) => (
-          <Link key={l.href} href={l.href} className="inline-flex h-10 items-center gap-2 rounded-[0.7rem] border border-transparent px-2.5 text-sm font-semibold text-muted hover:border-line hover:text-text">
+          <Link key={l.href} href={l.href} className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-[0.7rem] border border-transparent px-2 text-sm font-semibold text-muted hover:border-line hover:text-text sm:px-2.5">
             <l.icon className="size-4" aria-hidden="true" />
             <span className="hidden 2xl:inline">{l.label}</span>
             <span className="sr-only 2xl:hidden">{l.label}</span>
@@ -131,7 +131,7 @@ function RoomTopBar() {
         <Link href={`${base}/screen`} className={`${iconBtn} max-sm:hidden`} aria-label={t("live.projector")} title={t("live.projector")}>
           <Projector className="size-4" aria-hidden="true" />
         </Link>
-        <Link href="/" className={iconBtn} aria-label={t("nav.home")} title={t("nav.home")}>
+        <Link href="/" className={`${iconBtn} max-sm:hidden`} aria-label={t("nav.home")} title={t("nav.home")}>
           <Home className="size-4" aria-hidden="true" />
         </Link>
       </nav>
@@ -343,10 +343,11 @@ export function TeamsRail({ snapshot }: { snapshot: Snapshot }) {
                   type="button"
                   aria-expanded={isOpen}
                   aria-controls={`team-${team.id}`}
-                  aria-label={t("live.teamDetails", { team: team.name })}
                   onClick={() => setOpen(isOpen ? null : team.id)}
                   className="flex w-full items-center gap-3 px-3 py-4 text-left"
                 >
+                  {/* The visible text forms the button's name (WCAG 2.5.3); the hidden prefix says what it does. */}
+                  <span className="sr-only">{t("live.teamDetails")} </span>
                   <span className="num w-5 shrink-0 text-center text-sm font-semibold text-faint">{i + 1}</span>
                   <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-[0.8rem] border border-line bg-surface-2">
                     <TeamMark team={team} size={32} className="rounded-[0.55rem]" />

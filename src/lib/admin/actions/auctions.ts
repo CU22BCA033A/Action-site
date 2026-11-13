@@ -6,7 +6,6 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { db } from "@/lib/db";
 import { insertAuction } from "@/lib/domain/auctions";
-import { createDemoAuction } from "@/lib/domain/demo";
 import { bumpAndRefresh, callEngine, getFloor } from "@/lib/live/engine";
 import { validateSlabs } from "@/lib/rules/slabs";
 import { auctionDefaultsSchema, sportConfigSchema } from "@/lib/sports/config";
@@ -54,12 +53,10 @@ export async function createAuctionAction(input: z.input<typeof createSchema>): 
   }
 
   const id = await sql.begin(async (tx) => {
-    const newId = d.rehearsal
-      ? await createDemoAuction(tx as never, { sportKey: sport.key, name: d.name, slug: d.slug, defaults })
-      : await insertAuction(tx as never, { sportId: sport.id, name: d.name, slug: d.slug, startsAt, isPublic: d.isPublic, rehearsal: false, defaults });
-    if (d.rehearsal && startsAt) await tx`update app.auctions set starts_at = ${startsAt} where id = ${newId}`;
+    // Auctions always start empty: the admin adds real teams and players. No demo data.
+    const newId = await insertAuction(tx as never, { sportId: sport.id, name: d.name, slug: d.slug, startsAt, isPublic: d.isPublic, rehearsal: false, defaults });
     await tx`select app._audit(${newId}, 'admin', ${admin.actorId}, 'auction.create', 'auction', ${newId}, null,
-      ${tx.json({ name: d.name, slug: d.slug, rehearsal: d.rehearsal, preset: d.presetId })}, null)`;
+      ${tx.json({ name: d.name, slug: d.slug, preset: d.presetId })}, null)`;
     return newId;
   });
   redirect(`/admin/auctions/${id}`);

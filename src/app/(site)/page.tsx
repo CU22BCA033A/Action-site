@@ -1,9 +1,6 @@
 import { ArrowRight, BarChart3, Gavel, KeyRound, MonitorPlay, SlidersHorizontal, Trophy, Users, Wallet } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { TeamStatsCard } from "@/components/home/team-stats-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badges";
@@ -19,11 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMeta({ title: t("home.metaTitle"), description: t("home.metaDescription"), path: "/" });
 }
 
-const screens = [
-  { file: "live", key: "shotLive" as const, w: 1440, h: 900 },
-  { file: "stats", key: "shotStats" as const, w: 1440, h: 900 },
-  { file: "sold", key: "shotSold" as const, w: 1920, h: 1080 },
-];
 
 export default async function HomePage() {
   const { t } = await getT();
@@ -32,14 +24,10 @@ export default async function HomePage() {
   const sportNames = [...new Set(auctions.map((a) => a.sportName))];
   const featured = auctions[0];
   const snapshot = featured ? await getSnapshot(featured.id) : null;
-  const shots = screens.filter((s) => existsSync(join(process.cwd(), "public", "screens", `${s.file}.webp`)));
 
   const isLive = snapshot && (snapshot.auction.status === "live" || snapshot.auction.status === "paused");
   const isDone = snapshot?.auction.status === "completed";
 
-  const liveShot = shots.find((s) => s.file === "live");
-  // With no public auction the hero already shows the live view, so the gallery skips it.
-  const gallery = snapshot ? shots : shots.filter((s) => s.file !== "live");
   const teamById = new Map(snapshot?.teams.map((tm) => [tm.id, tm]) ?? []);
   const signings = (snapshot?.recentSales ?? []).filter((s) => s.status === "sold").slice(0, 6);
   const steps = [
@@ -137,15 +125,6 @@ export default async function HomePage() {
                   </ButtonLink>
                 </div>
               </>
-            ) : liveShot ? (
-              <figure>
-                <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
-                  <figcaption className="text-xs font-bold uppercase tracking-[0.18em] text-muted">{t("home.screensTitle")}</figcaption>
-                  <Badge tone="accent">{t("common.demoData")}</Badge>
-                </div>
-                <Image src="/screens/live.webp" alt={t("home.shotLive")} width={liveShot.w} height={liveShot.h} priority sizes="(min-width: 1024px) 560px, 100vw" className="h-auto w-full" />
-                <p className="border-t border-line px-5 py-3 text-sm text-muted">{t("home.noAuctionBody")}</p>
-              </figure>
             ) : (
               <div className="p-8 text-center">
                 <Trophy className="mx-auto size-14 text-accent-text" strokeWidth={1.75} aria-hidden="true" />
@@ -192,34 +171,6 @@ export default async function HomePage() {
         </ol>
       </section>
 
-      {gallery.length ? (
-        <section className="border-y border-line bg-[color-mix(in_srgb,var(--bg-sunken)_60%,transparent)]">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="eyebrow">{t("common.demoData")}</p>
-                <h2 className="mt-3 text-3xl sm:text-4xl">{t("home.screensTitle")}</h2>
-              </div>
-            </div>
-            <p className="mt-2 text-muted">{t("home.screensNote")}</p>
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              {gallery.map((s, i) => (
-                <figure key={s.file} className={i === 0 && gallery.length === 3 ? "lg:col-span-2" : ""}>
-                  <Image
-                    src={`/screens/${s.file}.webp`}
-                    alt={t(`home.${s.key}`)}
-                    width={s.w}
-                    height={s.h}
-                    sizes={i === 0 ? "(min-width: 1280px) 1216px, 100vw" : "(min-width: 1024px) 600px, 100vw"}
-                    className="h-auto w-full rounded-[var(--radius-md)] border border-line-strong"
-                  />
-                  <figcaption className="mt-2 text-sm text-muted">{t(`home.${s.key}`)}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <div className="card-gold flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
