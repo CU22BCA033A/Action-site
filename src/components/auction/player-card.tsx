@@ -46,7 +46,7 @@ export function PlayerCard({
           <span className="num rounded-[var(--radius-xs)] bg-info-surface px-1.5 py-0.5 text-xs font-bold text-info">#{String(player.lotNo).padStart(3, "0")}</span>
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-          <RoleChip size="sm" label={roleLabel} index={roleIndex} subRole={player.subRole} />
+          <RoleChip size="sm" label={roleLabel} index={roleIndex} icon={config.roles[roleIndex]?.icon} subRole={player.subRole} />
           {player.category ? <span className="text-xs font-semibold text-muted">{player.category}</span> : null}
           {statusLabel ? <span className="text-xs font-semibold text-muted">{statusLabel}</span> : null}
         </div>

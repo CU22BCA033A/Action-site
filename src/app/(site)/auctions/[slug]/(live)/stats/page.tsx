@@ -88,7 +88,7 @@ export default async function StatsPage({ params }: Props) {
                       {p.fullName}
                     </Link>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      <RoleChip size="sm" label={roleLabel(p.roleKey)} index={roleIndex(p.roleKey)} subRole={p.subRole} />
+                      <RoleChip size="sm" label={roleLabel(p.roleKey)} index={roleIndex(p.roleKey)} icon={config.roles[roleIndex(p.roleKey)]?.icon} subRole={p.subRole} />
                       {p.category ? <span className="text-xs text-muted">{p.category}</span> : null}
                     </div>
                   </div>

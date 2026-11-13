@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { LogoMark } from "@/components/brand/logo";
 import { PlayerPhoto, TeamMark } from "@/components/auction/identity";
+import { RoleIcon } from "@/components/auction/role-icon";
 import { formatPoints } from "@/lib/format";
 import type { Snapshot } from "@/lib/live/types";
 import { ConnectionBanner, Price, roleInfo, teamById } from "./bits";
@@ -295,7 +296,7 @@ function ActivityFeed({ snapshot }: { snapshot: Snapshot }) {
                       <PlayerPhoto name={s.fullName} photoPath={s.photoPath} sizes="144px" className="!aspect-[4/5] !rounded-[1rem]" />
                     </div>
                     <h4 className="mt-4 px-5 text-center text-[1.375rem] font-extrabold uppercase leading-none tracking-[-0.02em]">{s.fullName}</h4>
-                    <p className="mt-2 px-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.3em] text-muted">{role.label}</p>
+                    <p className="mt-2 flex items-center justify-center gap-1.5 px-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.3em] text-muted">{role.icon ? <RoleIcon icon={role.icon} className="size-4" /> : null}{role.label}</p>
                     <p className="mx-6 mt-5 flex items-baseline justify-center gap-2 rounded-t-[1.25rem] border border-b-0 border-line-strong bg-surface py-3">
                       <Price value={s.price} tick={false} className="text-[1.375rem] font-extrabold" />
                       <span className="text-sm font-bold text-muted">{unit}</span>

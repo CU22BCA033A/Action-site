@@ -117,7 +117,7 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
         groups.map((g) => (
           <section key={g.role.key} className="mt-6" aria-labelledby={`role-${g.role.key}`}>
             <h2 id={`role-${g.role.key}`} className="flex items-center gap-2 text-lg">
-              <RoleChip label={g.role.label} index={g.index} />
+              <RoleChip label={g.role.label} index={g.index} icon={g.role.icon} />
               <span className="num text-sm text-muted">({g.items.length})</span>
             </h2>
             <ul className="mt-2 divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface">

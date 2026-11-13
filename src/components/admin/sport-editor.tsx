@@ -10,7 +10,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Checkbox, Field, FormErrorSummary, FormStatus, Input, Select, SelectWrap, Textarea } from "@/components/ui/field";
 import { deletePresetAction, duplicatePresetAction, savePresetAction, saveSportAction } from "@/lib/admin/actions/sports";
 import { formatStat } from "@/lib/format";
-import type { AuctionDefaults, SportConfig, SportRole, StatField } from "@/lib/sports/config";
+import { ROLE_ICON_LABELS, ROLE_ICONS, type AuctionDefaults, type RoleIconKey, type SportConfig, type SportRole, type StatField } from "@/lib/sports/config";
+import { RoleIcon } from "@/components/auction/role-icon";
 import { AdminSection } from "./admin-shell";
 import { fromDraft, SlabEditor, toDraft, type SlabDraft } from "./slab-editor";
 import { useAdminAction } from "./use-admin-action";
@@ -51,7 +52,7 @@ export function SportEditor({ sport, presets, usage }: { sport: { id: string; ke
   const config = (): SportConfig => {
     const cats = list(categories).map((c) => c.toUpperCase());
     return {
-      roles: roles.map((r) => ({ key: r.key, label: r.label, subRoles: r.subRoles, hidden: r.hidden })),
+      roles: roles.map((r) => ({ key: r.key, label: r.label, subRoles: r.subRoles, hidden: r.hidden, ...(r.icon ? { icon: r.icon } : {}) })),
       categories: cats,
       tags: list(tags),
       statFields: stats.map((s) => ({ key: s.key, label: s.label, kind: s.kind, showOnCard: s.showOnCard })),
@@ -87,6 +88,19 @@ export function SportEditor({ sport, presets, usage }: { sport: { id: string; ke
                       <Input id={`f-rolekey-${i}`} value={r.key} readOnly className="num text-muted" aria-describedby={`f-rolekey-${i}-hint`} />
                     </Field>
                   </div>
+                  <Field name={`roleicon-${i}`} label="Icon" optional className="mt-3">
+                    <div className="flex items-center gap-3">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-[var(--radius-xs)] border border-line bg-surface-2">
+                        {r.icon ? <RoleIcon icon={r.icon} className="size-6" /> : <span className="text-xs text-faint">None</span>}
+                      </span>
+                      <SelectWrap>
+                        <Select id={`f-roleicon-${i}`} value={r.icon ?? ""} onChange={(e) => setRoles(roles.map((x, j) => (j === i ? { ...x, icon: (e.target.value || undefined) as RoleIconKey | undefined } : x)))}>
+                          <option value="">No icon (plain shape)</option>
+                          {ROLE_ICONS.map((k) => <option key={k} value={k}>{ROLE_ICON_LABELS[k]}</option>)}
+                        </Select>
+                      </SelectWrap>
+                    </div>
+                  </Field>
                   <Field name={`sub-${i}`} label="Sub-roles" optional hint="Separate with commas." className="mt-3">
                     <Input id={`f-sub-${i}`} value={r.subRoles.join(", ")} onChange={(e) => setRoles(roles.map((x, j) => (j === i ? { ...x, subRoles: e.target.value.split(",").map((s) => s.trimStart()).filter((s, k, all) => s || k === all.length - 1) } : x)))} onBlur={() => setRoles(roles.map((x, j) => (j === i ? { ...x, subRoles: x.subRoles.map((s) => s.trim()).filter(Boolean) } : x)))} aria-describedby={`f-sub-${i}-hint`} />
                   </Field>
@@ -244,7 +258,7 @@ export function SportEditor({ sport, presets, usage }: { sport: { id: string; ke
                 <PlayerAvatar name="Sample Player" photoPath={null} size={52} className="rounded-[var(--radius-sm)]" />
                 <div>
                   <p className="font-semibold">Sample Player</p>
-                  <RoleChip size="sm" label={previewRole.label || "Role"} index={roles.indexOf(previewRole)} subRole={previewRole.subRoles[0]} />
+                  <RoleChip size="sm" label={previewRole.label || "Role"} index={roles.indexOf(previewRole)} icon={previewRole.icon} subRole={previewRole.subRoles[0]} />
                 </div>
               </div>
               <dl className="mt-3 grid grid-cols-3 gap-1.5">
@@ -258,7 +272,7 @@ export function SportEditor({ sport, presets, usage }: { sport: { id: string; ke
             </div>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {roles.filter((r) => !r.hidden).map((r, i) => <RoleChip key={r.key} size="sm" label={r.label || "Role"} index={i} />)}
+            {roles.filter((r) => !r.hidden).map((r, i) => <RoleChip key={r.key} size="sm" label={r.label || "Role"} index={i} icon={r.icon} />)}
           </div>
         </AdminSection>
       </aside>

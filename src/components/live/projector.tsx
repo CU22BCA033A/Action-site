@@ -93,7 +93,7 @@ export function ProjectorScreen() {
               <div className="min-w-0">
                 <h2 className="text-5xl leading-tight xl:text-6xl">{p.fullName}</h2>
                 <div className="mt-4 flex flex-wrap items-center gap-3 text-lg">
-                  <RoleChip label={roleInfo(snapshot, p.roleKey).label} index={roleInfo(snapshot, p.roleKey).index} subRole={p.subRole} />
+                  <RoleChip label={roleInfo(snapshot, p.roleKey).label} index={roleInfo(snapshot, p.roleKey).index} icon={roleInfo(snapshot, p.roleKey).icon} subRole={p.subRole} />
                   {p.category ? <span className="font-semibold">{t("live.category", { c: p.category })}</span> : null}
                   <span className="text-muted">{t(`nationality.${p.nationalityGroup}`)}</span>
                 </div>

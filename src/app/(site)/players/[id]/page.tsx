@@ -38,7 +38,7 @@ export default async function PlayerPage({ params }: Props) {
           <p className="text-sm font-semibold text-muted">{p.sportName}</p>
           <h1 className="mt-1 text-3xl sm:text-4xl">{p.fullName}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <RoleChip label={config.roles[ri]?.label ?? p.roleKey} index={ri} subRole={p.subRole} />
+            <RoleChip label={config.roles[ri]?.label ?? p.roleKey} index={ri} icon={config.roles[ri]?.icon} subRole={p.subRole} />
             {p.category ? <Badge>{t("live.category", { c: p.category })}</Badge> : null}
             <Badge>{t(`nationality.${p.nationalityGroup}`)}</Badge>
             {p.ageGroup ? <Badge>{t(`ageGroup.${p.ageGroup as "18_23"}`)}</Badge> : null}

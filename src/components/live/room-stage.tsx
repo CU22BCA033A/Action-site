@@ -4,6 +4,7 @@ import { Eye, ListOrdered } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { PlayerPhoto, TeamMark } from "@/components/auction/identity";
+import { RoleIcon } from "@/components/auction/role-icon";
 import { formatPoints, formatStat } from "@/lib/format";
 import type { Snapshot } from "@/lib/live/types";
 import { Price, roleInfo, teamById } from "./bits";
@@ -104,7 +105,8 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
 
         <div className="flex min-w-0 flex-col xl:justify-center">
           <ul className="flex flex-wrap gap-2" aria-label={t("register.role")}>
-            <li className="rounded-full border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#60a5fa]">
+            <li className="rounded-full border border-[#3b82f6]/40 bg-[#3b82f6]/10 inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#60a5fa]">
+              {role.icon ? <RoleIcon icon={role.icon} className="size-5 -my-1" /> : null}
               {role.label}
               {p.subRole ? ` · ${p.subRole}` : ""}
             </li>

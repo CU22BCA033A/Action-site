@@ -152,7 +152,7 @@ export function AuctionConsole({ initial, auctionId }: { initial: ConsoleSnapsho
                   <div className="min-w-0 flex-1">
                     <p className="display text-2xl font-bold">{p.fullName}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <RoleChip label={a.sportConfig.roles.find((r) => r.key === p.roleKey)?.label ?? p.roleKey} index={Math.max(0, a.sportConfig.roles.findIndex((r) => r.key === p.roleKey))} subRole={p.subRole} />
+                      <RoleChip label={a.sportConfig.roles.find((r) => r.key === p.roleKey)?.label ?? p.roleKey} index={Math.max(0, a.sportConfig.roles.findIndex((r) => r.key === p.roleKey))} icon={a.sportConfig.roles.find((r) => r.key === p.roleKey)?.icon} subRole={p.subRole} />
                       {p.category ? <Badge>{p.category}</Badge> : null}
                       {p.nationalityGroup === "overseas" ? <Badge tone="accent">Overseas</Badge> : null}
                     </div>

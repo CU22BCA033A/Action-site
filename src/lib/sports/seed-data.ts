@@ -43,10 +43,10 @@ export const seedSports: SeedSport[] = [
     sortOrder: 1,
     config: {
       roles: [
-        { key: "batter", label: "Batter", subRoles: [], hidden: false },
-        { key: "bowler", label: "Bowler", subRoles: ["Pace", "Spin"], hidden: false },
-        { key: "all_rounder", label: "All-rounder", subRoles: [], hidden: false },
-        { key: "wicketkeeper", label: "Wicketkeeper", subRoles: [], hidden: false },
+        { key: "batter", label: "Batter", subRoles: [], hidden: false, icon: "bat" },
+        { key: "bowler", label: "Bowler", subRoles: ["Pace", "Spin"], hidden: false, icon: "ball" },
+        { key: "all_rounder", label: "All-rounder", subRoles: [], hidden: false, icon: "all_rounder" },
+        { key: "wicketkeeper", label: "Wicketkeeper", subRoles: [], hidden: false, icon: "gloves" },
       ],
       categories: [],
       tags: ["Capped", "Uncapped", "Overseas"],

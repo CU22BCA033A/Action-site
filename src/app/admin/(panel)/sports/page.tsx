@@ -16,7 +16,7 @@ export default async function SportsAdminPage() {
             <Link href={`/admin/sports/${s.key}`} className="flex h-full flex-col gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-5 hover:border-line-strong">
               <span className="display text-2xl font-bold uppercase">{s.name}</span>
               <span className="flex flex-wrap gap-1.5">
-                {s.config.roles.filter((r) => !r.hidden).map((r, i) => <RoleChip key={r.key} size="sm" label={r.label} index={i} />)}
+                {s.config.roles.filter((r) => !r.hidden).map((r, i) => <RoleChip key={r.key} size="sm" label={r.label} index={i} icon={r.icon} />)}
               </span>
               <span className="text-sm text-muted">{s.config.statFields.length} stat fields, {s.config.categories.length ? `categories ${s.config.categories.join(", ")}` : "no categories"}, used by {s.auctionCount} auctions</span>
             </Link>

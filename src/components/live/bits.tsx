@@ -69,7 +69,7 @@ export function teamById(snapshot: Snapshot, id: string | null | undefined): Pub
 export function roleInfo(snapshot: Snapshot, key: string) {
   const roles = snapshot.auction.sportConfig.roles;
   const index = roles.findIndex((r) => r.key === key);
-  return { label: roles[index]?.label ?? key, index: Math.max(index, 0) };
+  return { label: roles[index]?.label ?? key, index: Math.max(index, 0), icon: roles[index]?.icon };
 }
 
 /** Solid progress bar with a text value elsewhere; never colour alone. */

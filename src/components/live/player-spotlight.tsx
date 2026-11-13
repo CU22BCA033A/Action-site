@@ -67,7 +67,7 @@ export function PlayerSpotlight({
         ) : null}
         <span className="num absolute right-7 top-7 rounded-[var(--radius-sm)] border border-line bg-[color-mix(in_srgb,var(--surface)_85%,transparent)] px-2 py-1 text-sm font-bold">#{p.lotNo}</span>
         <span className="absolute bottom-7 right-7">
-          <RoleChip label={role.label} index={role.index} subRole={p.subRole} />
+          <RoleChip label={role.label} index={role.index} icon={role.icon} subRole={p.subRole} />
         </span>
         {live && timerLeft !== null ? (
           <span

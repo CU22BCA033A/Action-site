@@ -69,7 +69,7 @@ export default async function TeamPage({ params }: Props) {
               return (
                 <section key={r.key} aria-labelledby={`r-${r.key}`}>
                   <h2 id={`r-${r.key}`} className="mb-3 flex items-center gap-3 text-lg">
-                    <RoleChip label={r.label} index={r.index} />
+                    <RoleChip label={r.label} index={r.index} icon={r.icon} />
                     <span className="num text-sm text-muted">({items.length})</span>
                   </h2>
                   <ul className="flex flex-col gap-3">

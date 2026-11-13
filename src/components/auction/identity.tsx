@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { initials } from "@/lib/format";
 import { mediaUrl, readableOn } from "@/lib/media";
+import type { RoleIconKey } from "@/lib/sports/config";
+import { RoleIcon } from "./role-icon";
 
 /** Role chip: a distinct shape per role position plus the text label. */
 const shapes = ["circle", "square", "triangle", "diamond", "hexagon", "cross", "bar"] as const;
@@ -21,14 +23,18 @@ function RoleShape({ index }: { index: number }) {
   );
 }
 
-export function RoleChip({ label, index, subRole, size = "md" }: { label: string; index: number; subRole?: string | null; size?: "sm" | "md" }) {
+export function RoleChip({ label, index, subRole, icon, size = "md" }: { label: string; index: number; subRole?: string | null; icon?: RoleIconKey; size?: "sm" | "md" }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-xs)] border border-line-strong bg-surface-2 font-semibold text-text ${size === "sm" ? "h-6 px-1.5 text-xs" : "h-7 px-2 text-sm"}`}
     >
-      <span className="text-accent-text">
-        <RoleShape index={index} />
-      </span>
+      {icon ? (
+        <RoleIcon icon={icon} className={size === "sm" ? "size-4" : "size-5"} />
+      ) : (
+        <span className="text-accent-text">
+          <RoleShape index={index} />
+        </span>
+      )}
       <span>{label}</span>
       {subRole ? <span className="font-normal text-muted">{subRole}</span> : null}
     </span>

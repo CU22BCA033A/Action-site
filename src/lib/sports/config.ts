@@ -13,11 +13,17 @@ export const keySchema = z
 
 const label = z.string().trim().min(1, "Enter a label.").max(40, "Keep labels under 40 characters.");
 
+/** Role icons the site can draw (src/components/auction/role-icon.tsx). */
+export const ROLE_ICONS = ["bat", "ball", "all_rounder", "gloves"] as const;
+export type RoleIconKey = (typeof ROLE_ICONS)[number];
+export const ROLE_ICON_LABELS: Record<RoleIconKey, string> = { bat: "Bat", ball: "Ball", all_rounder: "Bat and ball", gloves: "Keeping gloves" };
+
 export const roleSchema = z.object({
   key: keySchema,
   label,
   subRoles: z.array(label).max(12).default([]),
   hidden: z.boolean().default(false),
+  icon: z.enum(ROLE_ICONS).optional(),
 });
 export type SportRole = z.infer<typeof roleSchema>;
 

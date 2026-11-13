@@ -121,7 +121,7 @@ export default async function SquadsPage({ params, searchParams }: Props) {
           {groups.map((g) => (
             <section key={g.role.key} aria-labelledby={`role-${g.role.key}`} className="flex flex-col gap-3">
               <h3 id={`role-${g.role.key}`} className="flex items-center gap-2 text-lg">
-                <RoleChip label={g.role.label} index={g.index} />
+                <RoleChip label={g.role.label} index={g.index} icon={g.role.icon} />
                 <span className="num text-sm font-normal text-muted">({g.players.length})</span>
               </h3>
               {g.players.length === 0 ? <p className="text-sm text-muted">{t("auction.noneInRole")}</p> : null}

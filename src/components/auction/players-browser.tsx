@@ -132,7 +132,7 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
           {groups.map((g) => (
             <section key={g.role.key} aria-labelledby={`role-${g.role.key}`}>
               <h3 id={`role-${g.role.key}`} className="mb-3 flex items-center gap-3 text-lg">
-                <RoleChip label={g.role.label} index={g.index} />
+                <RoleChip label={g.role.label} index={g.index} icon={g.role.icon} />
                 <span className="num text-sm text-muted">({g.items.length})</span>
               </h3>
               <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 xl:grid-cols-3">
