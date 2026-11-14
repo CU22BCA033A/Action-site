@@ -41,7 +41,7 @@ export function SiteHeader({ brand }: { brand: string }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface shadow-[inset_0_2px_0_var(--accent)]">
+    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--surface)_86%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--accent-edge)_70%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center gap-2 px-4 sm:px-6">
         <Link href="/" className="-ml-1 flex min-w-0 items-center gap-2.5 rounded-[var(--radius-sm)] px-1 py-1" aria-label={brand ? `${brand}, ${t("nav.home")}` : t("nav.home")}>
           <LogoMark className="size-9 shrink-0" />

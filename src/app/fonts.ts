@@ -2,7 +2,8 @@ import localFont from "next/font/local";
 
 /**
  * Self-hosted, SIL Open Font License faces. Licences: /licenses
- * Plus Jakarta Sans for everything Latin: bold weights for headings, regular for text,
+ * Unbounded for headings and big display text (owner request: a more distinctive, premium face),
+ * Plus Jakarta Sans for body text,
  * tabular figures for prices and timers (same files, so they load once).
  * Noto Sans Devanagari for Hindi and Noto Sans Kannada for Kannada load only
  * when those characters appear.
@@ -12,9 +13,9 @@ export const displayFace = localFont({
   variable: "--font-display-face",
   display: "swap",
   src: [
-    { path: "../fonts/plus-jakarta-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
-    { path: "../fonts/plus-jakarta-sans-latin-700-normal.woff2", weight: "700", style: "normal" },
-    { path: "../fonts/plus-jakarta-sans-latin-800-normal.woff2", weight: "800", style: "normal" },
+    { path: "../fonts/unbounded-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/unbounded-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/unbounded-latin-700-normal.woff2", weight: "700", style: "normal" },
   ],
   fallback: ["system-ui", "Segoe UI", "Roboto", "sans-serif"],
 });

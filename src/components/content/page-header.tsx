@@ -5,9 +5,10 @@ export function PageHeader({ eyebrow, title, intro, meta }: { eyebrow?: string; 
   return (
     <header className="border-b border-line">
       <div className="mx-auto max-w-5xl px-4 pb-8 pt-10 sm:px-6 sm:pt-14">
-        {eyebrow ? <p className="text-sm font-semibold uppercase tracking-wider text-muted">{eyebrow}</p> : null}
-        <h1 className="mt-1 text-4xl text-gold sm:text-5xl">{title}</h1>
-        {intro ? <p className="mt-4 max-w-3xl text-lg text-muted">{intro}</p> : null}
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+        <h1 className="mt-3 text-4xl tracking-[-0.025em] [text-wrap:balance] sm:text-5xl">{title}</h1>
+        <hr className="rule-gold mt-5 w-14" />
+        {intro ? <p className="mt-5 max-w-3xl text-lg leading-relaxed text-muted">{intro}</p> : null}
         {meta ? <p className="mt-3 text-sm text-faint">{meta}</p> : null}
       </div>
     </header>

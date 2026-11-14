@@ -19,7 +19,7 @@ test("a wrong team code is refused with a clear message", async ({ page }) => {
 });
 
 test("the contact form shows field errors, then a success message with a reference", async ({ page }) => {
-  await page.goto("/contact");
+  await page.goto("/contact", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /send message/i }).click();
   await expect(page.getByText("Enter your name, up to 80 characters.").first()).toBeVisible();
 

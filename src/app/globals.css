@@ -12,32 +12,32 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   /* CPL palette: deep navy, gold, royal blue, warm off-white text. */
-  --bg: #0a0a0a;
-  --bg-sunken: #070707;
-  --bg-top: #0a0a0a;
-  --bg-bottom: #0a0a0a;
-  --surface: #111111;
-  --surface-2: #171717;
-  --surface-3: #1f1f1f;
-  --line: #222222;
-  --line-strong: #2f2f2f;
-  --silver-from: #f6f6f7;
-  --silver-to: #b3b5bd;
-  --text: #fafafa;
-  --text-muted: #a3a3a3;
-  --text-faint: #8a8a8a;
-  --accent: #ffbf00;
-  --accent-hover: #ffd966;
-  --accent-press: #e6ac00;
-  --accent-ink: #0b1220;
-  --accent-text: #ffbf00;
-  --accent-edge: #ffbf00;
-  --gold-from: #ffd666;
-  --gold-to: #f0a400;
-  --gold-dark: #b38600;
-  --royal: #3b82f6;
-  --royal-light: #60a5fa;
-  --royal-dark: #2c4fb8;
+  --bg: #08080a;
+  --bg-sunken: #050506;
+  --bg-top: #0d0d12;
+  --bg-bottom: #08080a;
+  --surface: #101014;
+  --surface-2: #16161c;
+  --surface-3: #1e1e26;
+  --line: #25252e;
+  --line-strong: #3a3a46;
+  --silver-from: #ffffff;
+  --silver-to: #b8b8c4;
+  --text: #f7f4ee;
+  --text-muted: #b2aea6;
+  --text-faint: #928e86;
+  --accent: #f5a524;
+  --accent-hover: #ffbf4d;
+  --accent-press: #dc8a12;
+  --accent-ink: #1a0d00;
+  --accent-text: #f8b648;
+  --accent-edge: #e8962a;
+  --gold-from: #ffdc85;
+  --gold-to: #ee7a14;
+  --gold-dark: #8f4c08;
+  --royal: #2f5be0;
+  --royal-light: #7b9bff;
+  --royal-dark: #1b3597;
   --royal-ink: #ffffff;
   --glow-gold: rgb(255 191 0 / 0.18);
   --glow-royal: rgb(65 105 225 / 0.22);
@@ -59,26 +59,29 @@
   --info-surface: #121c3a;
   --focus: #ffd966;
   --overlay: rgb(0 0 0 / 0.85);
+  --bg-glow: rgb(245 165 36 / 0.08);
+  --bg-glow-royal: rgb(47 91 224 / 0.1);
+  --edge-light: rgb(255 244 220 / 0.04);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #eef1f6;
-  --bg-sunken: #e3e8f0;
-  --surface: #fbfaf6;
-  --surface-2: #f5f7fb;
-  --surface-3: #e9eef6;
-  --line: #cfd6e2;
-  --line-strong: #8a97ad;
-  --text: #0b1222;
-  --text-muted: #3d4a62;
-  --text-faint: #55627a;
-  --accent: #ffbf00;
-  --accent-hover: #ffd24f;
-  --accent-press: #f0b000;
-  --accent-ink: #0b1220;
-  --accent-text: #7a5600;
-  --accent-edge: #7a5600;
+  --bg: #f6f4ef;
+  --bg-sunken: #ece9e1;
+  --surface: #ffffff;
+  --surface-2: #f8f6f1;
+  --surface-3: #efece4;
+  --line: #e2ded3;
+  --line-strong: #8c877b;
+  --text: #121218;
+  --text-muted: #46443f;
+  --text-faint: #5c5a53;
+  --accent: #f5a524;
+  --accent-hover: #ffbf4d;
+  --accent-press: #dc8a12;
+  --accent-ink: #1a0d00;
+  --accent-text: #8a4600;
+  --accent-edge: #b86a0e;
   --spent: #c0262d;
   --remaining: #0f7a3e;
   --live: #9f1c22;
@@ -94,16 +97,19 @@
   --success-surface: #e5f5ec;
   --info-surface: #e6efff;
   --focus: #1d5fb8;
-  --overlay: rgb(11 18 34 / 0.6);
-  --bg-top: #f3f5fa;
-  --bg-bottom: #e6eaf2;
-  --gold-from: #ffcc33;
-  --gold-to: #ff9500;
+  --overlay: rgb(23 19 12 / 0.55);
+  --bg-glow: rgb(245 165 36 / 0.12);
+  --bg-glow-royal: rgb(35 70 184 / 0.08);
+  --edge-light: rgb(255 255 255 / 0.8);
+  --bg-top: #fbfaf6;
+  --bg-bottom: #f1eee6;
+  --gold-from: #ffd27a;
+  --gold-to: #ee7a14;
   --gold-dark: #7a5600;
-  --silver-from: #2a3448;
-  --silver-to: #0b1222;
-  --royal: #2c4fb8;
-  --royal-light: #2c4fb8;
+  --silver-from: #2a2a36;
+  --silver-to: #121218;
+  --royal: #2346b8;
+  --royal-light: #2346b8;
   --royal-dark: #233f94;
   --royal-ink: #ffffff;
   --glow-gold: rgb(255 191 0 / 0.16);
@@ -210,7 +216,11 @@
   }
   body {
     background-color: var(--bg);
-    background-image: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    /* Page background fade: a faint warm light from the top over deep warm black. */
+    background-image:
+      radial-gradient(56rem 26rem at 85% -8rem, var(--bg-glow), transparent 70%),
+      radial-gradient(56rem 26rem at 10% -10rem, var(--bg-glow-royal), transparent 70%),
+      linear-gradient(180deg, var(--bg-top), var(--bg-bottom) 36rem);
     background-attachment: fixed;
     min-height: 100dvh;
     color: var(--text);
@@ -228,10 +238,9 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.005em;
-    word-spacing: 0.06em;
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
     overflow-wrap: normal;
     word-break: normal;
   }
@@ -266,15 +275,29 @@
 
 @layer utilities {
   /* CPL cards: a translucent navy panel with a soft drop and a top highlight. */
+  /* Flat panels with a hairline edge and a faint top highlight. */
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
+    box-shadow: inset 0 1px 0 var(--edge-light);
   }
   .card-gold {
     background: var(--surface);
-    border: 1px solid var(--line-strong);
+    border: 1px solid color-mix(in srgb, var(--accent-edge) 38%, var(--line));
     border-radius: var(--radius-md);
+    box-shadow: inset 0 1px 0 var(--edge-light);
+  }
+  /* A second gold hairline inside a panel, like a framed certificate. */
+  .frame-gold {
+    outline: 1px solid color-mix(in srgb, var(--accent-edge) 30%, transparent);
+    outline-offset: -7px;
+  }
+  /* Thin gold rule used between sections and under headings. */
+  .rule-gold {
+    height: 1px;
+    border: 0;
+    background: color-mix(in srgb, var(--accent-edge) 45%, transparent);
   }
   .glow-gold {
     box-shadow: 0 0 20px var(--glow-gold), 0 0 40px var(--glow-gold);

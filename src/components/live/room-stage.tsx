@@ -10,7 +10,7 @@ import type { Snapshot } from "@/lib/live/types";
 import { Price, roleInfo, teamById } from "./bits";
 
 /** Stat values in the reference's order: white, green, cyan, amber. */
-const STAT_TONES = ["text-[#fafafa]", "text-[#22c55e]", "text-[#22d3ee]", "text-[#f59e0b]"];
+const STAT_TONES = ["text-text", "text-[#22c55e]", "text-[#22d3ee]", "text-[#f59e0b]"];
 
 const LABEL = "text-[0.6875rem] font-extrabold uppercase tracking-[0.14em] text-faint";
 
@@ -84,7 +84,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
         <div className="relative mx-auto w-full max-w-[22rem] @[36rem]:max-w-none xl:flex xl:h-full xl:max-h-[30rem] xl:self-center 2xl:max-h-[34rem]">
           <div
             className="rounded-[2rem] p-[3px] xl:flex xl:w-full xl:flex-col"
-            style={{ background: `linear-gradient(160deg, ${glow}, ${glow}33 38%, #2f2f2f 60%, ${glow}66)`, boxShadow: `0 24px 60px -24px ${glow}88` }}
+            style={{ background: `linear-gradient(160deg, ${glow}, ${glow}33 38%, var(--line-strong) 60%, ${glow}66)`, boxShadow: `0 24px 60px -24px ${glow}88` }}
           >
             <div className="relative overflow-hidden rounded-[calc(2rem-3px)] xl:flex-1" style={{ background: `radial-gradient(85% 65% at 50% 100%, ${glow}55, #161616 70%)` }}>
               <PlayerPhoto name={p.fullName} photoPath={p.photoPath} priority sizes="(min-width: 1536px) 400px, (min-width: 768px) 340px, 90vw" className="!aspect-[4/5] !rounded-none !bg-transparent xl:!aspect-auto xl:absolute xl:inset-0 xl:h-full" />
@@ -124,7 +124,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
           </h2>
 
           {stats.length ? (
-            <dl className="mt-8 grid grid-cols-2 overflow-hidden rounded-[1.25rem] border border-line bg-[#141414] py-1 @[46rem]:grid-cols-4">
+            <dl className="mt-8 grid grid-cols-2 overflow-hidden rounded-[1.25rem] border border-line bg-surface-2 py-1 @[46rem]:grid-cols-4">
               {stats.map((s, i) => (
                 <div key={s.key} className={`relative flex flex-col items-center px-2 py-4 text-center before:absolute before:left-1/2 before:top-0 before:h-[3px] before:w-8 before:-translate-x-1/2 before:rounded-b-full before:bg-current before:opacity-70 ${STAT_TONES[i % STAT_TONES.length]} ${i % 2 === 1 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line @[46rem]:border-t-0" : ""} ${i === 2 ? "@[46rem]:border-l" : ""}`}>
                   <dt className="order-1 mt-1 max-w-full truncate text-[0.625rem] font-extrabold uppercase tracking-[0.12em] text-faint">{s.label}</dt>
@@ -166,7 +166,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
       </div>
 
       <div className="flex gap-4 border-t border-line p-5 @[36rem]:gap-5 @[36rem]:px-8 @[36rem]:py-6">
-        <p className="flex min-h-[4.5rem] flex-1 items-center justify-center gap-3 rounded-[1.25rem] border border-line bg-[#141414] px-4 text-center text-sm font-semibold text-faint @[36rem]:min-h-[4.5rem] @[36rem]:text-base">
+        <p className="flex min-h-[4.5rem] flex-1 items-center justify-center gap-3 rounded-[1.25rem] border border-line bg-surface-2 px-4 text-center text-sm font-semibold text-faint @[36rem]:min-h-[4.5rem] @[36rem]:text-base">
           <Eye className="size-5 shrink-0" aria-hidden="true" />
           {t("live.spectator")}
         </p>
@@ -174,7 +174,7 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
           href={`/auctions/${a.slug}/results`}
           aria-label={t("live.tab.results")}
           title={t("live.tab.results")}
-          className="inline-flex size-[4.5rem] shrink-0 items-center justify-center rounded-[1.25rem] @[36rem]:size-[5.5rem] border border-line bg-[#141414] text-muted hover:border-line-strong hover:text-text"
+          className="inline-flex size-[4.5rem] shrink-0 items-center justify-center rounded-[1.25rem] @[36rem]:size-[5.5rem] border border-line bg-surface-2 text-muted hover:border-line-strong hover:text-text"
         >
           <ListOrdered className="size-6" aria-hidden="true" />
         </Link>

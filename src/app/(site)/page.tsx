@@ -39,15 +39,16 @@ export default async function HomePage() {
   return (
     <>
       <section className="border-b border-line">
-        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-24 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="text-center lg:text-left">
             {sportNames.length ? <p className="eyebrow">{sportNames.join(" · ")}</p> : null}
-            <h1 className="mt-6">
-              <span className="block pb-1 text-[clamp(2rem,6.5vw,3.5rem)] font-extrabold tracking-[-0.025em] text-gold">{t("home.titleTop")}</span>
-              <span className="mt-1 block text-[clamp(1.375rem,4.4vw,2.25rem)] font-bold tracking-[-0.02em] text-text">{t("home.titleBottom")}</span>
+            <h1 className="mt-6 text-[clamp(1.875rem,5.4vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] [text-wrap:balance]">
+              <span className="text-text">{t("home.titleTop")}</span>{" "}
+              <span className="text-gold">{t("home.titleBottom")}</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted lg:mx-0">{t("home.lead")}</p>
-            <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <hr className="rule-gold mx-auto mt-7 w-16 lg:mx-0" />
+            <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted lg:mx-0">{t("home.lead")}</p>
+            <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <ButtonLink href="/auctions" variant="primary" size="xl" className="sm:min-w-[200px]" icon={<Gavel className="size-5" aria-hidden="true" />}>
                 {t("home.ctaWatch")}
               </ButtonLink>
@@ -55,17 +56,17 @@ export default async function HomePage() {
                 {t("home.ctaJoin")}
               </ButtonLink>
             </div>
-            <ol className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-wider text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
+            <ol className="mt-10 flex flex-wrap justify-center gap-x-7 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
               {steps.map((s, i) => (
                 <li key={s.title} className="inline-flex items-center gap-2">
-                  <span className="num inline-flex size-6 items-center justify-center rounded-full border border-line-strong text-xs text-text">{i + 1}</span>
+                  <span className="num inline-flex size-6 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--accent-edge)_55%,transparent)] text-[0.7rem] text-accent-text">{i + 1}</span>
                   {t(`home.stepShort${i + 1}` as "home.stepShort1")}
                 </li>
               ))}
             </ol>
           </div>
 
-          <div className="card-gold overflow-hidden">
+          <div className="card-gold frame-gold overflow-hidden">
             {snapshot ? (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
@@ -126,10 +127,13 @@ export default async function HomePage() {
                 </div>
               </>
             ) : (
-              <div className="p-8 text-center">
-                <Trophy className="mx-auto size-14 text-accent-text" strokeWidth={1.75} aria-hidden="true" />
-                <p className="mt-4 display text-lg font-bold uppercase">{t("home.noAuctionTitle")}</p>
-                <p className="mt-2 text-muted">{t("home.noAuctionBody")}</p>
+              <div className="px-8 py-14 text-center sm:px-12 sm:py-16">
+                <span className="mx-auto grid size-20 place-items-center rounded-full border border-[color-mix(in_srgb,var(--accent-edge)_50%,transparent)] bg-surface-2">
+                  <Trophy className="size-9 text-accent-text" strokeWidth={1.5} aria-hidden="true" />
+                </span>
+                <p className="mt-6 text-xl font-bold tracking-[-0.01em]">{t("home.noAuctionTitle")}</p>
+                <hr className="rule-gold mx-auto mt-4 w-10" />
+                <p className="mx-auto mt-4 max-w-sm text-muted">{t("home.noAuctionBody")}</p>
               </div>
             )}
           </div>
@@ -161,7 +165,7 @@ export default async function HomePage() {
               <span className="num w-10 shrink-0 text-3xl font-bold text-accent-text">{i + 1}</span>
               <div className="min-w-0">
                 <h3 className="flex items-center gap-2 text-lg">
-                  <s.icon className="size-5 shrink-0 text-royal-light" aria-hidden="true" />
+                  <s.icon className="size-5 shrink-0 text-accent-text" aria-hidden="true" />
                   {s.title}
                 </h3>
                 <p className="mt-2 text-muted">{s.body}</p>
@@ -174,7 +178,7 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <div className="card-gold flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
-          <Wallet className="size-10 shrink-0 text-remaining" aria-hidden="true" />
+          <Wallet className="size-10 shrink-0 text-accent-text" strokeWidth={1.5} aria-hidden="true" />
           <div>
             <h2 className="text-2xl">{t("home.freeTitle")}</h2>
             <p className="mt-2 max-w-3xl text-muted">{t("home.freeBody")}</p>

@@ -10,7 +10,7 @@
 - Live rule edits apply forward only, run a conflict check first, and are audited.
 - Sports are data in `sports.config`. Never hardcode a sport's roles in components.
 - All business details come from site.config.ts. Never type them inline.
-- Visual style: clean auction-room look (owner's crickauction.in reference). Charcoal surfaces, gold accent, royal blue and green as supporting colours, Plus Jakarta Sans for all Latin text (bold weights for headings, mixed case, compact type scale), Noto Sans Kannada and Devanagari for those scripts, rounded panels (10 to 24px), flat panels without glows. Gradients only for the page background fade, gold and silver wordmark text and the gold, royal and sold buttons. Use the `.card` utility for panels.
+- Visual style: clean auction-room look (owner's crickauction.in reference). Royal black surfaces, gold-to-orange accent with thin gold hairlines, royal blue (with gold edges) as the second colour, green for sold, Unbounded for headings and Plus Jakarta Sans for body text (mixed case, compact type scale), pill-shaped polished buttons, Noto Sans Kannada and Devanagari for those scripts, rounded panels (10 to 24px), flat panels without glows. Gradients only for the page background fade, gold and silver wordmark text and the gold, royal and sold buttons. Use the `.card` utility for panels.
 - Hard design bans: emoji icons, em dashes, cursor effects, scroll animations, autoplay carousels, stock or AI images, fake reviews, fake metrics, fake counters.
 - Accessibility: WCAG 2.2 AA. Every drag action needs a keyboard path.
 - No horizontal overflow at 320px and up.

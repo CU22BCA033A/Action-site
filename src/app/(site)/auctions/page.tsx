@@ -52,7 +52,8 @@ export default async function AuctionsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <h1 className="text-4xl sm:text-5xl">{t("auctionsPage.title")}</h1>
+      <h1 className="text-4xl tracking-[-0.025em] sm:text-5xl">{t("auctionsPage.title")}</h1>
+      <hr className="rule-gold mt-5 w-14" />
       <p className="mt-3 max-w-2xl text-lg text-muted">{t("auctionsPage.intro")}</p>
       {groups.length === 0 ? (
         <p className="mt-10 rounded-[var(--radius-md)] border border-line bg-surface p-6 text-muted">{t("auctionsPage.empty")}</p>

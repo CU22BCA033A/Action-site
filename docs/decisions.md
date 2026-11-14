@@ -89,3 +89,11 @@ The owner found the text too big next to other auction sites and asked for a dif
 
 ## Role icons are data on the role
 The owner asked for icons next to Batter, Bowler, All-rounder and Wicketkeeper. Each role in a sport's config has an optional `icon` (`bat`, `ball`, `all_rounder`, `gloves`), chosen by the admin in Admin > Sports; components never decide an icon from a role's name. A role without an icon keeps the plain shape marker. The icons are small flat SVGs drawn for this site in `src/components/auction/role-icon.tsx`, not the clip art the owner sent as a reference, because stock images are banned. Migration 0007 gives the built-in cricket roles their icons on databases set up before this change.
+
+## Royal black, gold-orange and royal blue (premium look)
+The owner asked for a premium, luxurious look in "royal black and orange, royal blue and gold", and found the buttons and fonts too ordinary. Within the existing rules (flat panels, no glows, gradients only for the page fade and the gold, royal and sold buttons):
+- **Colours:** near-black surfaces with a faint cool tint, ivory text, a gold-to-orange accent (`#f5a524`, gradient `#ffdc85` to `#ee7a14`) and royal blue (`#2f5be0`). The page fade adds a faint orange light at the top right and a royal one at the top left.
+- **Fonts:** headings use Unbounded (SIL OFL, self-hosted), a wide modern display face; body text stays Plus Jakarta Sans for readability. Prices and timers keep tabular figures.
+- **Buttons:** pill-shaped and polished: gold-to-orange with a top highlight and bottom shade, royal blue with a gold edge, and dark glass with a gold hairline. Large buttons use small spaced capitals.
+- **Detail:** thin gold rules under page titles (`.rule-gold`), a second inset gold hairline on featured panels (`.frame-gold`), a translucent header with a 1px gold edge.
+The light theme uses ivory and warm greys with a darker orange for text. All text colours were rechecked for WCAG AA by the axe tests.

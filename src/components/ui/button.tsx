@@ -6,30 +6,34 @@ type Variant = "primary" | "royal" | "glass" | "secondary" | "ghost" | "danger" 
 type Size = "sm" | "md" | "lg" | "xl";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-semibold select-none whitespace-nowrap rounded-[var(--radius-sm)] border transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-200 ease-out motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
+  "inline-flex items-center justify-center gap-2 font-semibold tracking-[0.01em] select-none whitespace-nowrap border transition-[transform,box-shadow,border-color,background-color,color,opacity,filter] duration-200 ease-out motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-55";
 
-/** Variants from the original CPL site: gold, royal, glass and outline. */
+/**
+ * Premium buttons: polished gold-to-orange, royal blue with a gold edge, and
+ * dark glass with a gold hairline. Each has a top highlight and a bottom shade
+ * so it reads as a solid, pressable object.
+ */
 const variants: Record<Variant, string> = {
   primary:
-    "border-[color-mix(in_srgb,var(--gold-dark)_70%,transparent)] bg-[linear-gradient(180deg,var(--gold-from),var(--gold-to))] text-accent-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.45),0_1px_2px_rgb(0_0_0/0.3)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.55),0_10px_28px_-8px_var(--glow-gold)] motion-safe:hover:-translate-y-px disabled:hover:translate-y-0 disabled:hover:shadow-none",
+    "border-[color-mix(in_srgb,var(--gold-from)_60%,transparent)] bg-[linear-gradient(180deg,var(--gold-from)_0%,var(--accent)_48%,var(--gold-to)_100%)] text-accent-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.6),inset_0_-2px_0_rgb(120_50_0/0.28),0_10px_24px_-12px_rgb(238_122_20/0.7)] hover:brightness-[1.06] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.7),inset_0_-2px_0_rgb(120_50_0/0.28),0_14px_30px_-12px_rgb(238_122_20/0.8)] motion-safe:hover:-translate-y-px disabled:hover:translate-y-0 disabled:hover:brightness-100",
   royal:
-    "border-[color-mix(in_srgb,var(--royal-dark)_80%,transparent)] bg-[linear-gradient(180deg,#4a70e3,#2c4fb8)] text-royal-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_1px_2px_rgb(0_0_0/0.3)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_var(--glow-royal)] motion-safe:hover:-translate-y-px disabled:hover:translate-y-0",
+    "border-[color-mix(in_srgb,var(--accent-edge)_70%,transparent)] bg-[linear-gradient(180deg,#4a74f0_0%,var(--royal)_45%,var(--royal-dark)_100%)] text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.3),inset_0_-2px_0_rgb(5_15_60/0.35),0_10px_24px_-12px_rgb(47_91_224/0.75)] hover:brightness-110 hover:border-accent-edge motion-safe:hover:-translate-y-px disabled:hover:translate-y-0",
   glass:
-    "bg-surface-2 text-text border-line-strong shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] hover:border-[color-mix(in_srgb,var(--accent)_55%,var(--line))] hover:bg-surface-3",
+    "bg-[color-mix(in_srgb,var(--surface-2)_80%,transparent)] text-text border-line-strong shadow-[inset_0_1px_0_var(--edge-light)] hover:border-[color-mix(in_srgb,var(--accent-edge)_70%,var(--line))] hover:bg-surface-3",
   secondary:
-    "bg-transparent text-text border-line-strong hover:border-text active:bg-surface-2",
+    "bg-[color-mix(in_srgb,var(--accent)_4%,transparent)] text-text border-[color-mix(in_srgb,var(--accent-edge)_45%,var(--line-strong))] shadow-[inset_0_1px_0_var(--edge-light)] hover:border-accent-edge hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-accent-text active:bg-surface-2",
   ghost: "bg-transparent text-text border-transparent hover:border-line-strong active:bg-surface-2",
   quiet: "bg-transparent font-semibold text-muted border-transparent underline-offset-4 hover:text-text hover:underline",
   danger:
     "bg-transparent text-danger border-danger hover:shadow-[0_0_0_1px_var(--danger)] active:bg-danger-surface",
-  sold: "border-transparent bg-[linear-gradient(180deg,#15803d,#0f6a32)] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(22_163_73/0.45)]",
+  sold: "border-transparent bg-[linear-gradient(180deg,#22a35a,#15803d_55%,#0f6a32)] text-sold-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.3),inset_0_-2px_0_rgb(0_40_15/0.3)] hover:brightness-110",
 };
 
 const sizes: Record<Size, string> = {
   sm: "h-9 rounded-[var(--radius-xs)] px-3 text-sm",
-  md: "h-11 px-4 text-sm",
-  lg: "h-12 px-5 text-base",
-  xl: "min-h-12 rounded-[var(--radius-sm)] px-6 text-base sm:px-7",
+  md: "h-11 rounded-full px-5 text-sm",
+  lg: "h-12 rounded-full px-6 text-base",
+  xl: "min-h-[3.25rem] rounded-full px-7 text-sm font-bold uppercase tracking-[0.12em] sm:px-8",
 };
 
 export function buttonClass(variant: Variant = "secondary", size: Size = "md", extra = "") {
