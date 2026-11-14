@@ -14,7 +14,7 @@
   /* CPL palette: deep navy, gold, royal blue, warm off-white text. */
   --bg: #08080a;
   --bg-sunken: #050506;
-  --bg-top: #0d0d12;
+  --bg-top: #0e1a44;
   --bg-bottom: #08080a;
   --surface: #101014;
   --surface-2: #16161c;
@@ -59,8 +59,10 @@
   --info-surface: #121c3a;
   --focus: #ffd966;
   --overlay: rgb(0 0 0 / 0.85);
-  --bg-glow: rgb(245 165 36 / 0.08);
-  --bg-glow-royal: rgb(47 91 224 / 0.1);
+  --bg-glow: rgb(245 140 30 / 0.2);
+  --bg-glow-royal: rgb(47 91 224 / 0.35);
+  --aurora-royal: rgb(47 91 224 / 0.55);
+  --aurora-orange: rgb(245 140 30 / 0.4);
   --edge-light: rgb(255 244 220 / 0.04);
 }
 
@@ -98,8 +100,10 @@
   --info-surface: #e6efff;
   --focus: #1d5fb8;
   --overlay: rgb(23 19 12 / 0.55);
-  --bg-glow: rgb(245 165 36 / 0.12);
-  --bg-glow-royal: rgb(35 70 184 / 0.08);
+  --bg-glow: rgb(245 165 36 / 0.16);
+  --bg-glow-royal: rgb(35 70 184 / 0.12);
+  --aurora-royal: rgb(35 70 184 / 0.22);
+  --aurora-orange: rgb(245 140 30 / 0.22);
   --edge-light: rgb(255 255 255 / 0.8);
   --bg-top: #fbfaf6;
   --bg-bottom: #f1eee6;
@@ -218,9 +222,9 @@
     background-color: var(--bg);
     /* Page background fade: a faint warm light from the top over deep warm black. */
     background-image:
-      radial-gradient(56rem 26rem at 85% -8rem, var(--bg-glow), transparent 70%),
-      radial-gradient(56rem 26rem at 10% -10rem, var(--bg-glow-royal), transparent 70%),
-      linear-gradient(180deg, var(--bg-top), var(--bg-bottom) 36rem);
+      radial-gradient(60rem 34rem at 90% -6rem, var(--bg-glow), transparent 70%),
+      radial-gradient(70rem 40rem at 5% -10rem, var(--bg-glow-royal), transparent 70%),
+      linear-gradient(180deg, var(--bg-top), var(--bg-bottom) 52rem);
     background-attachment: fixed;
     min-height: 100dvh;
     color: var(--text);
@@ -580,4 +584,242 @@
   --text-5xl: 3rem;
   --text-6xl: 3.75rem;
   --text-7xl: 4.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Home hero motion (owner request 2026-11-14). Entrance on page load only,
+   never on scroll; nothing follows the cursor. Everything here stops under
+   prefers-reduced-motion (see the global rule above).
+   ------------------------------------------------------------------------- */
+.rise {
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* Slow drifting light behind the hero, in royal blue and orange. */
+.hero-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+.hero-aurora::before,
+.hero-aurora::after {
+  content: "";
+  position: absolute;
+  width: 46rem;
+  height: 46rem;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+.hero-aurora::before {
+  left: -14rem;
+  top: -18rem;
+  background: radial-gradient(circle, var(--aurora-royal), transparent 65%);
+}
+.hero-aurora::after {
+  right: -16rem;
+  top: -10rem;
+  background: radial-gradient(circle, var(--aurora-orange), transparent 65%);
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+@keyframes aurora {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6rem, 3rem, 0) scale(1.15); }
+}
+
+/* Gradient headline text: gold to orange, slowly shifting. */
+.text-gold-live {
+  background-image: linear-gradient(100deg, var(--gold-from) 0%, var(--accent) 35%, var(--gold-to) 60%, var(--gold-from) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gold-flow 7s ease-in-out infinite alternate;
+}
+@keyframes gold-flow {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+:root[data-theme="light"] .text-gold-live {
+  background-image: linear-gradient(100deg, #b45309, #8a4600 50%, #c2410c);
+}
+@media (forced-colors: active) {
+  .text-gold-live { background-image: none; color: CanvasText; }
+}
+
+/* 3D medallion scene. */
+.hero-scene {
+  position: relative;
+  width: min(30rem, 86vw);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+.hero-scene * { transform-style: preserve-3d; }
+.hero-scene__halo {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(245 165 36 / 0.35), rgb(47 91 224 / 0.18) 45%, transparent 70%);
+  filter: blur(30px);
+  transform: translateZ(-120px);
+  animation: halo 6s ease-in-out infinite alternate;
+}
+@keyframes halo {
+  from { opacity: 0.7; transform: translateZ(-120px) scale(0.95); }
+  to { opacity: 1; transform: translateZ(-120px) scale(1.08); }
+}
+.hero-scene__bob {
+  position: absolute;
+  inset: 25%;
+  animation: bob 5s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(-6px); }
+  50% { transform: translateY(8px); }
+}
+.hero-scene__coin {
+  position: absolute;
+  inset: 0;
+  animation: coin-spin 10s linear infinite;
+}
+@keyframes coin-spin {
+  from { transform: rotateX(-14deg) rotateY(0deg); }
+  to { transform: rotateX(-14deg) rotateY(360deg); }
+}
+.hero-scene__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #7a3a05, #d9831c 30%, #ffd27a 50%, #d9831c 70%, #7a3a05);
+  transform: translateZ(var(--z));
+}
+.hero-scene__face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff1c2 0%, #ffcf66 22%, #f5a524 50%, #c8650f 88%, #8f4c08 100%);
+  box-shadow:
+    inset 0 0 0 0.55rem rgb(143 76 8 / 0.45),
+    inset 0 0 0 0.7rem rgb(255 230 160 / 0.7),
+    inset 0 -1.2rem 2.4rem rgb(90 40 0 / 0.35);
+  backface-visibility: hidden;
+}
+.hero-scene__face--front { transform: translateZ(7.5px); }
+.hero-scene__face--back { transform: rotateY(180deg) translateZ(7.5px); }
+.hero-scene__glyph {
+  width: 46%;
+  height: 46%;
+  color: #3a1d00;
+  filter: drop-shadow(0 1px 0 rgb(255 240 200 / 0.7));
+}
+.hero-scene__orbit {
+  position: absolute;
+  inset: 4%;
+}
+.hero-scene__orbit--gold { transform: rotateX(74deg) rotateY(-8deg); }
+.hero-scene__orbit--royal { inset: 0; transform: rotateX(64deg) rotateY(18deg); }
+.hero-scene__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: ring-spin 18s linear infinite;
+}
+.hero-scene__ring--gold { border: 1.5px solid rgb(245 165 36 / 0.55); }
+.hero-scene__ring--royal {
+  border: 1.5px dashed rgb(123 155 255 / 0.5);
+  animation-duration: 26s;
+  animation-direction: reverse;
+}
+@keyframes ring-spin {
+  to { transform: rotateZ(360deg); }
+}
+.hero-scene__dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: #7b9bff;
+  box-shadow: 0 0 12px #7b9bff;
+}
+.hero-scene__chip-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.hero-scene__chip {
+  position: absolute;
+  left: -1.6rem;
+  top: -1.6rem;
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: rgb(16 16 20 / 0.92);
+  border: 1px solid rgb(245 165 36 / 0.6);
+  box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  /* Undo the ring's spin and the orbit's tilt so each icon faces the viewer. */
+  animation: chip-face 18s linear infinite;
+}
+@keyframes chip-face {
+  from { transform: rotateZ(0deg) rotateY(8deg) rotateX(-74deg); }
+  to { transform: rotateZ(-360deg) rotateY(8deg) rotateX(-74deg); }
+}
+.hero-scene__floor {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 6%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(0 0 0 / 0.65), transparent 70%);
+  transform: translateZ(-40px);
+  animation: floor 5s ease-in-out infinite;
+}
+@keyframes floor {
+  0%, 100% { transform: translateZ(-40px) scale(1.05); opacity: 0.8; }
+  50% { transform: translateZ(-40px) scale(0.9); opacity: 0.55; }
+}
+
+/* Button shine: a light sweep on hover and focus, and a slow repeating gleam
+   on the big gold call to action. */
+.btn-shine {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.55) 48%, rgb(255 255 255 / 0.1) 56%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.btn-shine:hover::after,
+.btn-shine:focus-visible::after {
+  transform: translateX(120%);
+}
+.btn-gleam::after {
+  animation: gleam 4.5s ease-in-out 1.2s infinite;
+}
+@keyframes gleam {
+  0%, 62% { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
 }

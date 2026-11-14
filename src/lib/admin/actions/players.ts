@@ -28,6 +28,7 @@ const formSchema = z.object({
   auctionPlayerId: z.string().optional(),
   version: z.coerce.number().int().optional(),
   basePrice: z.string().trim().optional(),
+  lotNo: z.string().trim().optional(),
   setName: z.string().trim().min(1, "Enter a set name.").max(40),
   setOrder: z.coerce.number().int("Use a whole number.").min(0).max(999),
   removePhoto: z.string().optional(),
@@ -57,6 +58,17 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
   }
   const basePrice = f.basePrice ? Number(f.basePrice) : basePriceFor(p.data.category, ctx.categoryPrices, ctx.defaultBase);
   if (!Number.isInteger(basePrice) || basePrice < 0) return { ok: false, error: "Check the base price.", fieldErrors: { basePrice: "Use a whole number of zero or more." } };
+  // Player number: optional; empty means the next free number (new) or unchanged (edit).
+  const lotNo = f.lotNo ? Number(f.lotNo) : null;
+  if (lotNo !== null && (!Number.isInteger(lotNo) || lotNo < 1 || lotNo > 99999)) {
+    return { ok: false, error: "Check the player number.", fieldErrors: { lotNo: "Use a whole number from 1 to 99999." } };
+  }
+  if (lotNo !== null) {
+    const taken = (await db()<{ name: string }[]>`
+      select p.full_name as name from app.auction_players ap join app.players p on p.id = ap.player_id
+      where ap.auction_id = ${f.auctionId} and ap.lot_no = ${lotNo} and ap.id::text <> ${f.auctionPlayerId ?? ""} limit 1`)[0];
+    if (taken) return { ok: false, error: "That player number is taken.", fieldErrors: { lotNo: `Number ${lotNo} is already used by ${taken.name}.` } };
+  }
 
   let photoPath: string | undefined;
   const photo = formData.get("photo");
@@ -80,20 +92,20 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
           ${v.bioShort}, ${photoPath ?? null}, ${v.dateOfBirth}, ${v.guardianConsent}, ${v.guardianConsent ? new Date() : null})
         returning id`;
       const ap = await tx<{ id: string }[]>`
-        insert into app.auction_players(auction_id, player_id, base_price, set_name, set_order, queue_position)
+        insert into app.auction_players(auction_id, player_id, base_price, set_name, set_order, queue_position, lot_no)
         values (${f.auctionId}, ${pl[0]!.id}, ${basePrice}, ${f.setName}, ${f.setOrder},
-          (select coalesce(max(queue_position), 0) + 1 from app.auction_players where auction_id = ${f.auctionId}))
+          (select coalesce(max(queue_position), 0) + 1 from app.auction_players where auction_id = ${f.auctionId}), ${lotNo})
         returning id`;
       await tx`select app._audit(${f.auctionId}, 'admin', ${admin.actorId}, 'player.create', 'auction_player', ${ap[0]!.id}, null,
-        ${tx.json({ name: v.fullName, base_price: basePrice })}, null)`;
+        ${tx.json({ name: v.fullName, base_price: basePrice, lot_no: lotNo })}, null)`;
     });
     await bumpAndRefresh(f.auctionId);
     revalidate(f.auctionId);
     return { ok: true, message: `${v.fullName} added.` };
   }
 
-  const current = (await sql<{ playerId: string; status: string; version: number; photoPath: string | null; basePrice: number; name: string }[]>`
-    select p.id as "playerId", ap.status, p.version::int as version, p.photo_path as "photoPath", ap.base_price as "basePrice", p.full_name as name
+  const current = (await sql<{ playerId: string; status: string; version: number; photoPath: string | null; basePrice: number; name: string; lotNo: number }[]>`
+    select p.id as "playerId", ap.status, p.version::int as version, p.photo_path as "photoPath", ap.base_price as "basePrice", p.full_name as name, ap.lot_no as "lotNo"
     from app.auction_players ap join app.players p on p.id = ap.player_id
     where ap.id = ${f.auctionPlayerId} and ap.auction_id = ${f.auctionId}`)[0];
   if (!current) return { ok: false, error: "Player not found." };
@@ -115,13 +127,16 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
         version = version + 1
       where id = ${current.playerId} and version = ${current.version} returning id`;
     if (!rows[0]) return false;
+    if (lotNo !== null && lotNo !== current.lotNo) {
+      await tx`update app.auction_players set lot_no = ${lotNo}, version = version + 1 where id = ${f.auctionPlayerId!}`;
+    }
     if (current.status === "pool" || current.status === "unsold") {
       await tx`update app.auction_players set base_price = ${basePrice}, set_name = ${f.setName}, set_order = ${f.setOrder}, version = version + 1 where id = ${f.auctionPlayerId!}`;
     } else {
       await tx`update app.auction_players set set_name = ${f.setName}, set_order = ${f.setOrder}, version = version + 1 where id = ${f.auctionPlayerId!}`;
     }
     await tx`select app._audit(${f.auctionId}, 'admin', ${admin.actorId}, 'player.update', 'auction_player', ${f.auctionPlayerId!},
-      ${tx.json({ name: current.name, base_price: current.basePrice })}, ${tx.json({ name: v.fullName, base_price: basePrice })}, null)`;
+      ${tx.json({ name: current.name, base_price: current.basePrice, lot_no: current.lotNo })}, ${tx.json({ name: v.fullName, base_price: basePrice, lot_no: lotNo ?? current.lotNo })}, null)`;
     return true;
   });
   if (!ok) return { ok: false, code: "STALE", error: "This player was changed elsewhere. Reload to see it." };

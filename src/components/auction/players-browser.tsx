@@ -27,7 +27,7 @@ export type BrowserPlayer = {
 type Team = { id: string; name: string; shortName: string; logoPath: string | null; primaryColor: string };
 
 /**
- * Filterable player list grouped by the sport's roles. The filters come from
+ * Filterable player list in player-number order. The filters come from
  * the sport configuration, never from code.
  */
 export function PlayersBrowser({ players, config, teams }: { players: BrowserPlayer[]; config: SportConfig; teams: Team[] }) {
@@ -51,9 +51,12 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
     );
   }, [players, q, role, status, category]);
 
-  const groups = roles
-    .map((r, index) => ({ role: r, index, items: filtered.filter((p) => p.roleKey === r.key) }))
-    .filter((g) => g.items.length > 0);
+  // One list in player-number order (owner request); each card shows its role.
+  const ordered = [...filtered].sort((a, b) => a.lotNo - b.lotNo);
+  const roleOf = (key: string) => {
+    const index = config.roles.findIndex((r) => r.key === key);
+    return { role: config.roles[index], index: Math.max(index, 0) };
+  };
 
   return (
     <div>
@@ -125,30 +128,33 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
         </p>
       </div>
 
-      {groups.length === 0 ? (
+      {ordered.length === 0 ? (
         <p className="mt-6 rounded-[var(--radius-md)] border border-dashed border-line-strong p-8 text-center text-muted">{t("auction.noMatches")}</p>
       ) : (
-        <div className="mt-4 flex flex-col gap-8">
-          {groups.map((g) => (
-            <section key={g.role.key} aria-labelledby={`role-${g.role.key}`}>
-              <h3 id={`role-${g.role.key}`} className="mb-3 flex items-center gap-3 text-lg">
-                <RoleChip label={g.role.label} index={g.index} icon={g.role.icon} />
-                <span className="num text-sm text-muted">({g.items.length})</span>
-              </h3>
+        <div className="mt-4">
               <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {g.items.map((p) => {
+                {ordered.map((p) => {
+                  const r = roleOf(p.roleKey);
                   const team = p.soldToTeamId ? teamMap.get(p.soldToTeamId) : undefined;
                   const done = p.status === "sold" || p.status === "retained";
                   return (
-                    <li key={p.id} className={`card flex items-center gap-3 p-3 ${p.status === "on_floor" ? "!border-[color-mix(in_srgb,var(--accent)_50%,transparent)] glow-gold" : ""}`}>
-                      <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={72} className="rounded-[var(--radius-sm)]" />
+                    <li key={p.id} className={`card relative flex items-center gap-3 p-3 ${p.status === "on_floor" ? "!border-[color-mix(in_srgb,var(--accent)_50%,transparent)] glow-gold" : ""}`}>
+                      <div className="relative shrink-0">
+                        <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={72} className="rounded-[var(--radius-sm)]" />
+                        <span className="num absolute -left-2 -top-2 inline-flex min-w-7 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--gold-from)_60%,transparent)] bg-[linear-gradient(180deg,var(--gold-from),var(--gold-to))] px-1.5 py-0.5 text-xs font-bold text-accent-ink shadow-[0_4px_10px_-4px_rgb(0_0_0/0.8)]">
+                          <span className="sr-only">{t("auction.playerNo")} </span>
+                          {p.lotNo}
+                        </span>
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="flex items-center gap-2">
                           <Link href={`/players/${p.id}`} className="truncate font-bold hover:underline">
                             {p.fullName}
                           </Link>
-                          <span className="num shrink-0 rounded-[var(--radius-xs)] bg-[color-mix(in_srgb,var(--royal)_20%,transparent)] px-1.5 text-xs font-bold text-royal-light">#{p.lotNo}</span>
                         </p>
+                        <div className="mt-1">
+                          <RoleChip size="sm" label={r.role?.label ?? p.roleKey} index={r.index} icon={r.role?.icon} />
+                        </div>
                         <p className="truncate text-xs text-muted">
                           {[p.subRole, p.category, t(`nationality.${p.nationalityGroup}`), p.setName].filter(Boolean).join(", ")}
                         </p>
@@ -167,8 +173,6 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
                   );
                 })}
               </ul>
-            </section>
-          ))}
         </div>
       )}
     </div>

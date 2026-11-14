@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const fonts = [
-  { name: "Unbounded", use: "Headings", licence: "SIL Open Font License 1.1", file: "/licenses/unbounded-OFL.txt" },
+  { name: "Sora", use: "Headings", licence: "SIL Open Font License 1.1", file: "/licenses/sora-OFL.txt" },
   { name: "Plus Jakarta Sans", use: "Text, prices and timers", licence: "SIL Open Font License 1.1", file: "/licenses/plus-jakarta-sans-OFL.txt" },
   { name: "Noto Sans Devanagari", use: "Hindi text", licence: "SIL Open Font License 1.1", file: "/licenses/noto-sans-devanagari-OFL.txt" },
   { name: "Noto Sans Kannada", use: "Kannada text", licence: "SIL Open Font License 1.1", file: "/licenses/noto-sans-kannada-OFL.txt" },

@@ -51,9 +51,12 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
     if (set && p.setName !== set) return false;
     return true;
   });
-  const groups = roles
-    .map((r, index) => ({ role: r, index, items: filtered.filter((p) => p.roleKey === r.key) }))
-    .filter((g) => g.items.length > 0);
+  // One list in player-number order (owner request); each row shows its role.
+  const ordered = [...filtered].sort((a, b) => a.lotNo - b.lotNo);
+  const roleOf = (key: string) => {
+    const index = roles.findIndex((r) => r.key === key);
+    return { role: roles[index], index: Math.max(index, 0) };
+  };
   const toggle = (id: string) =>
     setSelected((s) => {
       const n = new Set(s);
@@ -66,7 +69,7 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
     <div className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted">
-          {players.length} players. Lists group by the sport&apos;s roles. Set and base price changes apply to players in the pool or unsold; delete works on any player.
+          {players.length} players, in player-number order. Set and base price changes apply to players in the pool or unsold; delete works on any player.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => setDialog("photos")} icon={<Camera className="size-4" aria-hidden="true" />}>
@@ -111,17 +114,13 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
       </div>
       <p className="mt-3 text-sm text-muted" aria-live="polite">Showing {filtered.length} of {players.length}</p>
 
-      {groups.length === 0 ? (
+      {ordered.length === 0 ? (
         <p className="mt-6 rounded-[var(--radius-md)] border border-line bg-surface p-5 text-muted">{players.length ? "No players match these filters." : "No players yet. Add them one by one, import a CSV, or open registration."}</p>
       ) : (
-        groups.map((g) => (
-          <section key={g.role.key} className="mt-6" aria-labelledby={`role-${g.role.key}`}>
-            <h2 id={`role-${g.role.key}`} className="flex items-center gap-2 text-lg">
-              <RoleChip label={g.role.label} index={g.index} icon={g.role.icon} />
-              <span className="num text-sm text-muted">({g.items.length})</span>
-            </h2>
-            <ul className="mt-2 divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface">
-              {g.items.map((p) => {
+        <section className="mt-6" aria-label="Players">
+            <ul className="divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface">
+              {ordered.map((p) => {
+                const r = roleOf(p.roleKey);
                 return (
                   <li key={p.auctionPlayerId} className="grid grid-cols-[auto_auto_1fr] items-center gap-3 p-3 md:grid-cols-[auto_auto_minmax(0,1fr)_8rem_7rem_9rem_auto]">
                     <input
@@ -134,9 +133,15 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
                     <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={44} className="rounded-[var(--radius-sm)]" />
                     <div className="min-w-0">
                       <p className="truncate font-semibold">
-                        <span className="num mr-2 text-xs text-info">#{String(p.lotNo).padStart(3, "0")}</span>
+                        <span className="num mr-2 inline-flex min-w-9 justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] px-2 py-0.5 text-xs font-bold text-accent-text" title="Player number">
+                          <span className="sr-only">Player number </span>
+                          {p.lotNo}
+                        </span>
                         {p.fullName}
                       </p>
+                      <div className="mt-1">
+                        <RoleChip size="sm" label={r.role?.label ?? p.roleKey} index={r.index} icon={r.role?.icon} />
+                      </div>
                       <p className="truncate text-xs text-muted">
                         {[p.subRole, p.category ? `Cat ${p.category}` : null, p.nationalityGroup === "overseas" ? "Overseas" : null, p.dateOfBirth && isUnder18(p.dateOfBirth) ? (p.guardianConsent ? "Under 18, consent recorded" : "Under 18, consent missing") : null].filter(Boolean).join(" / ") || "No details"}
                       </p>
@@ -171,7 +176,7 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
               })}
             </ul>
           </section>
-        ))
+
       )}
 
       {selected.size > 0 ? (
@@ -292,6 +297,9 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
             {fe.photo ? <p className="text-sm text-danger">{fe.photo}</p> : null}
           </div>
           <div className="flex flex-col gap-4">
+            <Field name="lotNo" label="Player number" optional hint="Lists are ordered by this number. Leave empty to use the next free number." error={fe.lotNo}>
+              <Input id="f-lotNo" name="lotNo" inputMode="numeric" pattern="[0-9]*" maxLength={5} className="num max-w-[8rem]" defaultValue={player ? String(player.lotNo) : ""} aria-invalid={fe.lotNo ? true : undefined} aria-describedby={describedBy("lotNo", true, Boolean(fe.lotNo))} />
+            </Field>
             <Field name="fullName" label="Full name" error={fe.fullName}>
               <Input id="f-fullName" name="fullName" defaultValue={player?.fullName} maxLength={80} required aria-invalid={fe.fullName ? true : undefined} aria-describedby={describedBy("fullName", false, Boolean(fe.fullName))} />
             </Field>

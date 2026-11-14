@@ -36,7 +36,15 @@ export default async function PlayerPage({ params }: Props) {
         <PlayerAvatar name={p.fullName} photoPath={p.photoPath} size={200} priority className="rounded-[var(--radius-md)] border border-line" />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-muted">{p.sportName}</p>
-          <h1 className="mt-1 text-3xl sm:text-4xl">{p.fullName}</h1>
+          <h1 className="mt-1 flex flex-wrap items-center gap-3 text-3xl sm:text-4xl">
+            {data.auctions[0] ? (
+              <span className="num inline-flex min-w-12 items-center justify-center rounded-full bg-[linear-gradient(180deg,var(--gold-from),var(--gold-to))] px-3 py-1 text-xl font-bold text-accent-ink">
+                <span className="sr-only">{t("auction.playerNo")} </span>
+                {data.auctions[0].lotNo}
+              </span>
+            ) : null}
+            <span>{p.fullName}</span>
+          </h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <RoleChip label={config.roles[ri]?.label ?? p.roleKey} index={ri} icon={config.roles[ri]?.icon} subRole={p.subRole} />
             {p.category ? <Badge>{t("live.category", { c: p.category })}</Badge> : null}

@@ -93,7 +93,16 @@ The owner asked for icons next to Batter, Bowler, All-rounder and Wicketkeeper. 
 ## Royal black, gold-orange and royal blue (premium look)
 The owner asked for a premium, luxurious look in "royal black and orange, royal blue and gold", and found the buttons and fonts too ordinary. Within the existing rules (flat panels, no glows, gradients only for the page fade and the gold, royal and sold buttons):
 - **Colours:** near-black surfaces with a faint cool tint, ivory text, a gold-to-orange accent (`#f5a524`, gradient `#ffdc85` to `#ee7a14`) and royal blue (`#2f5be0`). The page fade adds a faint orange light at the top right and a royal one at the top left.
-- **Fonts:** headings use Unbounded (SIL OFL, self-hosted), a wide modern display face; body text stays Plus Jakarta Sans for readability. Prices and timers keep tabular figures.
+- **Fonts:** headings use Sora (SIL OFL, self-hosted). Unbounded was tried first and the owner found it too wide and heavy in the hero. Body text stays Plus Jakarta Sans for readability. Prices and timers keep tabular figures.
 - **Buttons:** pill-shaped and polished: gold-to-orange with a top highlight and bottom shade, royal blue with a gold edge, and dark glass with a gold hairline. Large buttons use small spaced capitals.
 - **Detail:** thin gold rules under page titles (`.rule-gold`), a second inset gold hairline on featured panels (`.frame-gold`), a translucent header with a 1px gold edge.
 The light theme uses ivory and warm greys with a darker orange for text. All text colours were rechecked for WCAG AA by the axe tests.
+
+## Motion and the 3D hero
+The owner asked for animations, including 3D. Everything is CSS, with no animation library and no WebGL, so it costs no extra JavaScript and works on low-end phones:
+- **Hero:** text and buttons rise in on page load (staggered), the headline gold slowly shifts, two blurred lights (royal and orange) drift behind it, and the right side shows a 3D gold medallion (gavel on one face, trophy on the other, real edge thickness from stacked layers) spinning inside two tilted orbit rings, one carrying the role icons. When a public auction exists, that column shows the auction's live numbers instead.
+- **Buttons:** gold, royal and sold buttons get a light sweep on hover and keyboard focus; the large gold call to action repeats a slow gleam; icons tip like a gavel on hover.
+- **Limits kept:** nothing runs on scroll and nothing follows the pointer (both still banned). The global prefers-reduced-motion rule stops every animation and leaves the final state.
+
+## Player numbers
+The owner asked for a player number on each profile, with lists in that order. The existing per-auction lot number is that number: it is unique in an auction and assigned automatically (next free number). The admin can now set or change it in the player form; a duplicate is refused with the name of the player who has it, and changes are audited. The public Players list and the admin Players page show one list sorted by number, with each player's role on the card, instead of separate groups per role. The number appears as a gold badge on player cards and before the name on the player page.

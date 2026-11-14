@@ -1,6 +1,7 @@
-import { ArrowRight, BarChart3, Gavel, KeyRound, MonitorPlay, SlidersHorizontal, Trophy, Users, Wallet } from "lucide-react";
+import { ArrowRight, BarChart3, Gavel, KeyRound, MonitorPlay, SlidersHorizontal, Users, Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HeroScene } from "@/components/home/hero-scene";
 import { TeamStatsCard } from "@/components/home/team-stats-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badges";
@@ -38,17 +39,18 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="border-b border-line">
-        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-24 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <section className="relative isolate overflow-hidden border-b border-line">
+        <div className="hero-aurora" aria-hidden="true" />
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="text-center lg:text-left">
-            {sportNames.length ? <p className="eyebrow">{sportNames.join(" · ")}</p> : null}
-            <h1 className="mt-6 text-[clamp(1.875rem,5.4vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] [text-wrap:balance]">
-              <span className="text-text">{t("home.titleTop")}</span>{" "}
-              <span className="text-gold">{t("home.titleBottom")}</span>
+            {sportNames.length ? <p className="rise eyebrow">{sportNames.join(" · ")}</p> : null}
+            <h1 className="mt-5 text-[clamp(2.25rem,5.2vw,4rem)] font-bold leading-[1.04] tracking-[-0.04em]">
+              <span className="rise block text-text" style={{ ["--d" as string]: "80ms" }}>{t("home.titleTop")}</span>
+              <span className="rise block pb-1 text-gold-live" style={{ ["--d" as string]: "200ms" }}>{t("home.titleBottom")}</span>
             </h1>
-            <hr className="rule-gold mx-auto mt-7 w-16 lg:mx-0" />
-            <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted lg:mx-0">{t("home.lead")}</p>
-            <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <hr className="rise rule-gold mx-auto mt-6 w-16 lg:mx-0" style={{ ["--d" as string]: "320ms" }} />
+            <p className="rise mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted lg:mx-0" style={{ ["--d" as string]: "380ms" }}>{t("home.lead")}</p>
+            <div className="rise mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start" style={{ ["--d" as string]: "500ms" }}>
               <ButtonLink href="/auctions" variant="primary" size="xl" className="sm:min-w-[200px]" icon={<Gavel className="size-5" aria-hidden="true" />}>
                 {t("home.ctaWatch")}
               </ButtonLink>
@@ -56,7 +58,7 @@ export default async function HomePage() {
                 {t("home.ctaJoin")}
               </ButtonLink>
             </div>
-            <ol className="mt-10 flex flex-wrap justify-center gap-x-7 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
+            <ol style={{ ["--d" as string]: "620ms" }} className="rise mt-10 flex flex-wrap justify-center gap-x-7 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
               {steps.map((s, i) => (
                 <li key={s.title} className="inline-flex items-center gap-2">
                   <span className="num inline-flex size-6 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--accent-edge)_55%,transparent)] text-[0.7rem] text-accent-text">{i + 1}</span>
@@ -66,9 +68,8 @@ export default async function HomePage() {
             </ol>
           </div>
 
-          <div className="card-gold frame-gold overflow-hidden">
-            {snapshot ? (
-              <>
+          {snapshot ? (
+            <div className="rise card-gold frame-gold overflow-hidden" style={{ ["--d" as string]: "300ms" }}>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-wider text-muted">{snapshot.auction.sportName}</p>
@@ -125,18 +126,12 @@ export default async function HomePage() {
                     {t("live.tab.stats")}
                   </ButtonLink>
                 </div>
-              </>
-            ) : (
-              <div className="px-8 py-14 text-center sm:px-12 sm:py-16">
-                <span className="mx-auto grid size-20 place-items-center rounded-full border border-[color-mix(in_srgb,var(--accent-edge)_50%,transparent)] bg-surface-2">
-                  <Trophy className="size-9 text-accent-text" strokeWidth={1.5} aria-hidden="true" />
-                </span>
-                <p className="mt-6 text-xl font-bold tracking-[-0.01em]">{t("home.noAuctionTitle")}</p>
-                <hr className="rule-gold mx-auto mt-4 w-10" />
-                <p className="mx-auto mt-4 max-w-sm text-muted">{t("home.noAuctionBody")}</p>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="rise" style={{ ["--d" as string]: "250ms" }}>
+              <HeroScene />
+            </div>
+          )}
         </div>
       </section>
 

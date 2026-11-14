@@ -87,9 +87,9 @@ export async function getPublicPlayer(playerId: string) {
   const player = rows[0];
   if (!player) return null;
   const auctions = await db()<
-    { slug: string; name: string; status: string; basePrice: number; playerStatus: string; soldPrice: number | null; teamId: string | null; teamName: string | null; teamShort: string | null; teamColor: string | null; teamLogo: string | null; pointsUnitLabel: string }[]
+    { slug: string; name: string; status: string; lotNo: number; basePrice: number; playerStatus: string; soldPrice: number | null; teamId: string | null; teamName: string | null; teamShort: string | null; teamColor: string | null; teamLogo: string | null; pointsUnitLabel: string }[]
   >`
-    select a.slug, a.name, a.status, ap.base_price as "basePrice", ap.status as "playerStatus", ap.sold_price as "soldPrice",
+    select a.slug, a.name, a.status, ap.lot_no as "lotNo", ap.base_price as "basePrice", ap.status as "playerStatus", ap.sold_price as "soldPrice",
       t.id as "teamId", t.name as "teamName", t.short_name as "teamShort", t.primary_color as "teamColor", t.logo_path as "teamLogo",
       a.points_unit_label as "pointsUnitLabel"
     from app.auction_players ap join app.auctions a on a.id = ap.auction_id
