@@ -596,8 +596,8 @@
   animation-delay: var(--d, 0ms);
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to { opacity: 1; transform: none; }
 }
 
 /* Slow drifting light behind the hero, in royal blue and orange. */
@@ -615,8 +615,9 @@
   width: 46rem;
   height: 46rem;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(64px);
   opacity: 0.55;
+  will-change: transform;
   animation: aurora 22s ease-in-out infinite alternate;
 }
 .hero-aurora::before {
@@ -691,6 +692,7 @@
 .hero-scene__coin {
   position: absolute;
   inset: 0;
+  will-change: transform;
   animation: coin-spin 10s linear infinite;
 }
 @keyframes coin-spin {

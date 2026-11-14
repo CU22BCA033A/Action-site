@@ -12,6 +12,7 @@ export type PoolEntry = {
   subRole: string | null;
   category: string | null;
   nationalityGroup: "domestic" | "overseas";
+  playerType: string | null;
   setName: string;
   setOrder: number;
   basePrice: number;
@@ -36,7 +37,7 @@ export async function getConsoleSnapshot(auctionId: string): Promise<ConsoleSnap
   const [pool, presence, audit] = await Promise.all([
     sql<PoolEntry[]>`
       select ap.id as "auctionPlayerId", ap.lot_no as "lotNo", p.full_name as "fullName", p.photo_path as "photoPath", p.role_key as "roleKey",
-        p.sub_role as "subRole", p.category, p.nationality_group as "nationalityGroup", ap.set_name as "setName", ap.set_order as "setOrder",
+        p.sub_role as "subRole", p.category, p.nationality_group as "nationalityGroup", p.player_type as "playerType", ap.set_name as "setName", ap.set_order as "setOrder",
         ap.base_price as "basePrice", ap.status, ap.previous_team_id as "previousTeamId",
         not app.player_is_public(p.date_of_birth, p.guardian_consent) as "consentMissing"
       from app.auction_players ap join app.players p on p.id = ap.player_id

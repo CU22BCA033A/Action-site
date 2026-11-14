@@ -6,14 +6,14 @@ How to prepare and run a live auction with AuctionX, and what to do when somethi
 1. **Open the site.** A free Supabase project that gets no traffic for about a week is paused. If `/api/health` says the database cannot be reached, open the Supabase dashboard and press Restore. Open the site again a day before the auction.
 2. **Create the auction** in Admin > Auctions > New auction. Pick the sport and a preset, then set the rules in the auction's **Rules** tab: bid slabs, squad size, role minimums and maximums, overseas limit, base prices, timer, reserve rule and RTM.
 3. **Add teams** in **Teams**: name, short name (up to 6 characters), colours, logo and each team's own purse.
-4. **Add players** in **Players**: one by one, from a CSV file (download the template there), or by opening registration and approving entries in **Registrations**.
+4. **Add players** in **Players**: one by one, from a CSV file (download the template there), or through registration. In **Registrations**, switch registration on, set the opening and closing date and time if you want them, add player types (for example Student, Faculty) if your league uses them, then copy the link and share it. Approve entries there. Each player gets a player number; you can change it in the player form, and lists are shown in number order.
 5. **Generate the team codes** in **Teams**. Each code is shown once: copy it or use the share link and send it privately to that team's owner. If a code leaks, press **Regenerate code**: the old code and every device signed in with it stop working at once.
 
 ## Practice run (strongly recommended)
 1. Create a second auction, leave **List on the public auctions page** unticked, and add two or three teams and a handful of players (your own names are fine).
 2. Give the owners their codes for this test auction and run five or six players end to end: owners bid from their phones, you sell, unsell and undo from the console.
 3. Open the projector screen (`/auctions/<slug>/screen`) on the hall computer and check the sound, if you want the gavel. Sound stays off until someone presses the sound button, because browsers block sound before a tap.
-4. Delete the test auction afterwards (Overview > **Delete auction**, then type its name to confirm).
+4. Erase the test auction afterwards (Overview > **Erase permanently**, then type its name to confirm). This removes all its data and photos for good.
 
 ## On the day
 1. In the auction's header press **Go live**.

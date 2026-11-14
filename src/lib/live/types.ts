@@ -66,6 +66,7 @@ export type PublicPlayer = {
   category: string | null;
   tags: string[];
   nationalityGroup: "domestic" | "overseas";
+  playerType?: string | null;
   stats: Record<string, number>;
   bioShort: string;
   ageGroup: string | null;

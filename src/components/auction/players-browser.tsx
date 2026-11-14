@@ -17,6 +17,7 @@ export type BrowserPlayer = {
   subRole: string | null;
   category: string | null;
   nationalityGroup: "domestic" | "overseas";
+  playerType?: string | null;
   status: string;
   basePrice: number;
   soldPrice: number | null;
@@ -156,7 +157,7 @@ export function PlayersBrowser({ players, config, teams }: { players: BrowserPla
                           <RoleChip size="sm" label={r.role?.label ?? p.roleKey} index={r.index} icon={r.role?.icon} />
                         </div>
                         <p className="truncate text-xs text-muted">
-                          {[p.subRole, p.category, t(`nationality.${p.nationalityGroup}`), p.setName].filter(Boolean).join(", ")}
+                          {[p.subRole, p.playerType, p.category, p.nationalityGroup === "overseas" ? t("nationality.overseas") : null, p.setName].filter(Boolean).join(", ")}
                         </p>
                         <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold">
                           {team ? <TeamMark team={team} size={18} className="rounded-[2px]" /> : null}

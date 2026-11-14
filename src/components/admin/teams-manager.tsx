@@ -1,6 +1,7 @@
 "use client";
 
 import { KeyRound, Pencil, Plus, Share2, ShieldOff, Trash2, X } from "lucide-react";
+import { shrinkFileInput } from "@/lib/client/shrink-image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TeamMark } from "@/components/auction/identity";
@@ -287,7 +288,7 @@ function TeamDialog({ team, ctx, onClose }: { team: AdminTeam | null; ctx: Ctx; 
           </Field>
         </div>
         {lowContrast ? <p className="text-sm text-muted">This main colour is mid-tone. Short names on it are drawn in whichever of black or white reads better.</p> : null}
-        <Field name="logo" label="Logo" optional hint="JPEG, PNG or WebP, up to 3 MB. Stored as a small WebP." error={fe.logo}>
+        <Field name="logo" label="Logo" optional hint="Any image works; it is made smaller before upload and stored as a small WebP." error={fe.logo}>
           <div className="flex flex-wrap items-center gap-3">
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -301,10 +302,11 @@ function TeamDialog({ team, ctx, onClose }: { team: AdminTeam | null; ctx: Ctx; 
               type="file"
               accept="image/jpeg,image/png,image/webp"
               aria-describedby={describedBy("logo", true, Boolean(fe.logo))}
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                setPreview(f ? URL.createObjectURL(f) : null);
+              onChange={async (e) => {
+                const input = e.currentTarget;
                 setRemoveLogo(false);
+                const f = await shrinkFileInput(input, 800);
+                setPreview(f ? URL.createObjectURL(f) : null);
               }}
               className="text-sm file:mr-3 file:h-10 file:rounded-[var(--radius-sm)] file:border file:border-line-strong file:bg-surface-2 file:px-3 file:font-semibold file:text-text"
             />

@@ -68,7 +68,7 @@ export type PlayerRow = PublicPlayer & {
 export async function listAuctionPlayers(auctionId: string): Promise<PlayerRow[]> {
   return db()<PlayerRow[]>`
     select p.id, p.full_name as "fullName", p.photo_path as "photoPath", p.role_key as "roleKey", p.sub_role as "subRole",
-      p.category, p.tags, p.nationality_group as "nationalityGroup", p.stats, p.bio_short as "bioShort",
+      p.category, p.tags, p.nationality_group as "nationalityGroup", p.player_type as "playerType", p.stats, p.bio_short as "bioShort",
       app.age_group(p.date_of_birth) as "ageGroup",
       ap.id as "auctionPlayerId", ap.lot_no as "lotNo", ap.status, ap.base_price as "basePrice", ap.set_name as "setName", ap.set_order as "setOrder",
       ap.queue_position as "queuePosition", ap.sold_to_team_id as "soldToTeamId", ap.sold_price as "soldPrice"
@@ -80,7 +80,7 @@ export async function listAuctionPlayers(auctionId: string): Promise<PlayerRow[]
 export async function getPublicPlayer(playerId: string) {
   const rows = await db()<(PublicPlayer & { sportKey: string; sportName: string; sportConfig: SportConfig })[]>`
     select p.id, p.full_name as "fullName", p.photo_path as "photoPath", p.role_key as "roleKey", p.sub_role as "subRole",
-      p.category, p.tags, p.nationality_group as "nationalityGroup", p.stats, p.bio_short as "bioShort",
+      p.category, p.tags, p.nationality_group as "nationalityGroup", p.player_type as "playerType", p.stats, p.bio_short as "bioShort",
       app.age_group(p.date_of_birth) as "ageGroup", s.key as "sportKey", s.name as "sportName", s.config as "sportConfig"
     from app.players p join app.sports s on s.id = p.sport_id
     where p.id = ${playerId} and p.deleted_at is null and app.player_is_public(p.date_of_birth, p.guardian_consent)`;

@@ -110,9 +110,11 @@ export function RoomStage({ snapshot, timerLeft }: { snapshot: Snapshot; timerLe
               {role.label}
               {p.subRole ? ` · ${p.subRole}` : ""}
             </li>
-            <li className="rounded-full border border-[#a855f7]/40 bg-[#a855f7]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#c084fc]">
-              {t(`nationality.${p.nationalityGroup}`)}
-            </li>
+            {p.playerType || p.nationalityGroup === "overseas" ? (
+              <li className="rounded-full border border-[#a855f7]/40 bg-[#a855f7]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#c084fc]">
+                {p.playerType ?? t("nationality.overseas")}
+              </li>
+            ) : null}
             {p.category ? <li className="rounded-full border border-line-strong px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-muted">{p.category}</li> : null}
             <li className="rounded-full border border-[#ffbf00]/35 bg-[#ffbf00]/10 px-3 py-1.5 text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-[#ffd34d]">
               {t("live.basePrice")} {formatPoints(p.basePrice)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Camera, Send } from "lucide-react";
+import { shrinkFileInput } from "@/lib/client/shrink-image";
 import Link from "next/link";
 import { startTransition, useActionState, useState } from "react";
 import { useT } from "@/components/i18n/i18n-provider";
@@ -11,7 +12,19 @@ import { isUnder18 } from "@/lib/admin/player-input";
 import { registerPlayerAction, type RegisterState } from "@/lib/public/register-action";
 import type { SportConfig } from "@/lib/sports/config";
 
-export function RegisterForm({ slug, config, formToken }: { slug: string; config: SportConfig; formToken: string }) {
+export function RegisterForm({
+  slug,
+  config,
+  formToken,
+  playerTypes = [],
+  useNationality = false,
+}: {
+  slug: string;
+  config: SportConfig;
+  formToken: string;
+  playerTypes?: string[];
+  useNationality?: boolean;
+}) {
   const t = useT();
   const [state, action, pending] = useActionState<RegisterState, FormData>(registerPlayerAction.bind(null, slug), { status: "idle" });
   const roles = config.roles.filter((r) => !r.hidden);
@@ -102,17 +115,34 @@ export function RegisterForm({ slug, config, formToken }: { slug: string; config
         ) : null}
       </div>
 
-      <fieldset>
-        <legend className="mb-1.5 text-sm font-semibold">{t("register.nationality")}</legend>
-        <div className="flex flex-wrap gap-5">
-          {(["domestic", "overseas"] as const).map((n) => (
-            <label key={n} className="flex min-h-11 cursor-pointer items-center gap-2">
-              <input type="radio" name="nationalityGroup" value={n} defaultChecked={n === "domestic"} className="size-5 accent-[var(--accent)]" />
-              {t(`nationality.${n}`)}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      {playerTypes.length ? (
+        <Field name="playerType" label={t("register.playerType")} optional>
+          <SelectWrap>
+            <Select id="f-playerType" name="playerType" defaultValue="">
+              <option value="">{t("register.playerTypeNone")}</option>
+              {playerTypes.map((pt) => (
+                <option key={pt} value={pt}>
+                  {pt}
+                </option>
+              ))}
+            </Select>
+          </SelectWrap>
+        </Field>
+      ) : null}
+
+      {useNationality ? (
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-semibold">{t("register.nationality")}</legend>
+          <div className="flex flex-wrap gap-5">
+            {(["domestic", "overseas"] as const).map((n) => (
+              <label key={n} className="flex min-h-11 cursor-pointer items-center gap-2">
+                <input type="radio" name="nationalityGroup" value={n} defaultChecked={n === "domestic"} className="size-5 accent-[var(--accent)]" />
+                {t(`nationality.${n}`)}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
       <Field name="photo" label={t("register.photo")} hint={t("register.photoHint")} error={err("photo")}>
         <div className="flex flex-wrap items-center gap-4">
@@ -132,12 +162,14 @@ export function RegisterForm({ slug, config, formToken }: { slug: string; config
               name="photo"
               type="file"
               required
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*"
               className="sr-only"
               aria-invalid={fe.photo ? true : undefined}
               aria-describedby={describedBy("photo", true, Boolean(fe.photo))}
-              onChange={(e) => {
-                const f = e.target.files?.[0];
+              onChange={async (e) => {
+                const input = e.currentTarget;
+                setPreview(input.files?.[0] ? URL.createObjectURL(input.files[0]) : null);
+                const f = await shrinkFileInput(input);
                 setPreview(f ? URL.createObjectURL(f) : null);
               }}
             />

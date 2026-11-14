@@ -9,11 +9,23 @@ export function siteUrl(): string {
   if (siteConfig.useCustomDomain && siteConfig.productionDomain) {
     return `https://${siteConfig.productionDomain.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
   }
-  const explicit = process.env.SITE_URL?.replace(/\/$/, "");
+  const explicit = normaliseOrigin(process.env.SITE_URL);
   if (explicit) return explicit;
   const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
   if (vercel) return `https://${vercel}`;
   return "http://localhost:3000";
+}
+
+/** Accepts "example.com", "https://example.com/" or "https://example.com/x" and returns "https://example.com". */
+export function normaliseOrigin(raw: string | undefined): string | null {
+  const v = raw?.trim();
+  if (!v) return null;
+  try {
+    const u = new URL(/^https?:\/\//i.test(v) ? v : `https://${v}`);
+    return u.origin;
+  } catch {
+    return null;
+  }
 }
 
 export function absoluteUrl(path: string): string {

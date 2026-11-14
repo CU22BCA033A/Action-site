@@ -48,7 +48,8 @@ export default async function PlayerPage({ params }: Props) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <RoleChip label={config.roles[ri]?.label ?? p.roleKey} index={ri} icon={config.roles[ri]?.icon} subRole={p.subRole} />
             {p.category ? <Badge>{t("live.category", { c: p.category })}</Badge> : null}
-            <Badge>{t(`nationality.${p.nationalityGroup}`)}</Badge>
+            {p.playerType ? <Badge>{p.playerType}</Badge> : null}
+            {p.nationalityGroup === "overseas" ? <Badge>{t("nationality.overseas")}</Badge> : null}
             {p.ageGroup ? <Badge>{t(`ageGroup.${p.ageGroup as "18_23"}`)}</Badge> : null}
             {p.tags.map((tag) => (
               <Badge key={tag}>{tag}</Badge>

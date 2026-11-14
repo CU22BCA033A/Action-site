@@ -7,21 +7,21 @@ import { PlayerAvatar } from "@/components/auction/identity";
 import { Badge, statusTone } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { CopyButton } from "@/components/ui/copy-button";
 import { Dialog } from "@/components/ui/dialog";
 import { Checkbox, Field, FormErrorSummary, FormStatus, Input, Select, SelectWrap, Textarea } from "@/components/ui/field";
-import { approveRegistrationAction, deleteRegistrationAction, rejectRegistrationAction, setRegistrationOpenAction } from "@/lib/admin/actions/registrations";
+import { approveRegistrationAction, deleteRegistrationAction, rejectRegistrationAction } from "@/lib/admin/actions/registrations";
 import { isUnder18 } from "@/lib/admin/player-input";
 import type { AdminRegistration } from "@/lib/admin/queries";
 import { formatDateTime, formatPoints } from "@/lib/format";
 import type { SportConfig } from "@/lib/sports/config";
+import { PlayerTypeFields } from "./player-type-fields";
+import { RegistrationSettings, type RegistrationSettingsValue } from "./registration-settings";
 import { useAdminAction } from "./use-admin-action";
 
-type Ctx = { auctionId: string; open: boolean; link: string; config: SportConfig; sets: string[]; categoryPrices: Record<string, number>; defaultBasePrice: number; unit: string };
+type Ctx = { auctionId: string; open: boolean; link: string; registration: RegistrationSettingsValue; playerTypes: string[]; useNationality: boolean; config: SportConfig; sets: string[]; categoryPrices: Record<string, number>; defaultBasePrice: number; unit: string };
 
 export function RegistrationsManager({ regs, ctx }: { regs: AdminRegistration[]; ctx: Ctx }) {
   const router = useRouter();
-  const toggle = useAdminAction(setRegistrationOpenAction);
   const [reviewing, setReviewing] = useState<AdminRegistration | null>(null);
   const [rejecting, setRejecting] = useState<AdminRegistration | null>(null);
   const [deleting, setDeleting] = useState<AdminRegistration | null>(null);
@@ -32,20 +32,7 @@ export function RegistrationsManager({ regs, ctx }: { regs: AdminRegistration[];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-      <div className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 font-semibold">
-            Public registration <Badge tone={ctx.open ? "sold" : "neutral"}>{ctx.open ? "Open" : "Closed"}</Badge>
-          </p>
-          <p className="mt-1 break-all text-sm text-muted">{ctx.link}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <CopyButton value={ctx.link} label="Copy registration link" />
-          <Button size="sm" variant={ctx.open ? "secondary" : "primary"} loading={toggle.pending} onClick={() => toggle.run({ auctionId: ctx.auctionId, open: !ctx.open }, () => router.refresh())}>
-            {ctx.open ? "Close registration" : "Open registration"}
-          </Button>
-        </div>
-      </div>
+      <RegistrationSettings value={ctx.registration} />
 
       <h2 className="mt-6 text-2xl">
         Waiting for review <span className="num text-muted">({pending.length})</span>
@@ -65,7 +52,7 @@ export function RegistrationsManager({ regs, ctx }: { regs: AdminRegistration[];
                 <p className="truncate text-lg font-semibold">{r.fullName}</p>
                 <p className="text-sm text-muted">
                   {roleLabel(r.roleKey)}
-                  {r.subRole ? ` / ${r.subRole}` : ""} / {r.nationalityGroup === "overseas" ? "Overseas" : "Domestic"}
+                  {r.subRole ? ` / ${r.subRole}` : ""}{r.playerType ? ` / ${r.playerType}` : ""}{r.nationalityGroup === "overseas" ? " / Overseas" : ""}
                   {r.dateOfBirth ? ` / born ${r.dateOfBirth}${isUnder18(r.dateOfBirth) ? (r.guardianConsent ? ", under 18 with guardian consent" : ", under 18 without consent") : ""}` : ""}
                 </p>
                 {r.bioShort ? <p className="text-sm">{r.bioShort}</p> : null}
@@ -133,6 +120,7 @@ function ReviewDialog({ reg, ctx, onClose }: { reg: AdminRegistration; ctx: Ctx;
   const [subRole, setSubRole] = useState(reg.subRole ?? "");
   const [category, setCategory] = useState("");
   const [nat, setNat] = useState(reg.nationalityGroup);
+  const [playerType, setPlayerType] = useState(reg.playerType ?? "");
   const [bio, setBio] = useState(reg.bioShort);
   const [consent, setConsent] = useState(Boolean(reg.guardianConsent));
   const [setName, setSetName] = useState(ctx.sets[ctx.sets.length - 1] ?? "Main");
@@ -154,7 +142,7 @@ function ReviewDialog({ reg, ctx, onClose }: { reg: AdminRegistration; ctx: Ctx;
               auctionId: ctx.auctionId,
               registrationId: reg.id,
               version: reg.version,
-              player: { fullName, roleKey, subRole: subRole || undefined, category: category || undefined, tags: [], nationalityGroup: nat, stats: reg.stats, bioShort: bio, dateOfBirth: reg.dateOfBirth ?? undefined, guardianConsent: under18 ? consent : reg.guardianConsent },
+              player: { fullName, roleKey, subRole: subRole || undefined, category: category || undefined, tags: [], nationalityGroup: nat, playerType: playerType || null, stats: reg.stats, bioShort: bio, dateOfBirth: reg.dateOfBirth ?? undefined, guardianConsent: under18 ? consent : reg.guardianConsent },
               setName,
               setOrder: Number(setOrder),
               basePrice: price === "" ? null : Number(price),
@@ -204,17 +192,15 @@ function ReviewDialog({ reg, ctx, onClose }: { reg: AdminRegistration; ctx: Ctx;
               </SelectWrap>
             </Field>
           ) : null}
-          <fieldset>
-            <legend className="mb-1.5 text-sm font-semibold">Nationality</legend>
-            <div className="flex gap-4">
-              {(["domestic", "overseas"] as const).map((n) => (
-                <label key={n} className="flex min-h-11 items-center gap-2">
-                  <input type="radio" name="rv-nat" checked={nat === n} onChange={() => setNat(n)} className="size-5 accent-[var(--accent)]" />
-                  {n === "domestic" ? "Domestic" : "Overseas"}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <PlayerTypeFields
+            idPrefix="rv"
+            types={ctx.playerTypes}
+            useNationality={ctx.useNationality}
+            playerType={playerType}
+            onPlayerType={setPlayerType}
+            nationality={nat}
+            onNationality={setNat}
+          />
         </div>
         {Object.keys(reg.stats).length ? (
           <p className="text-sm text-muted">

@@ -8,7 +8,9 @@ export const playerInputSchema = z.object({
   subRole: z.string().trim().max(40).optional().transform((v) => (v ? v : null)),
   category: z.string().trim().max(24).optional().transform((v) => (v ? v : null)),
   tags: z.array(z.string().trim().min(1).max(24)).max(10).default([]),
-  nationalityGroup: z.enum(["domestic", "overseas"], { error: "Choose domestic or overseas." }),
+  nationalityGroup: z.enum(["domestic", "overseas"], { error: "Choose domestic or overseas." }).default("domestic"),
+  /** Optional label from the auction's own list, for example Student or Faculty. */
+  playerType: z.string().trim().max(40, "Keep the type under 40 characters.").optional().nullable().transform((v) => (v ? v : null)),
   stats: z.record(z.string(), z.number().finite().min(0, "Stats cannot be negative.").max(1_000_000)).default({}),
   bioShort: z.string().trim().max(160, "Keep the bio under 160 characters.").default(""),
   dateOfBirth: z
@@ -45,17 +47,26 @@ export function sportProblems(config: SportConfig, p: PlayerInput): Record<strin
   return errors;
 }
 
+/** The player type must be one of the auction's types (when it has any). */
+export function playerTypeProblem(types: string[], value: string | null): string | null {
+  if (!value) return null;
+  if (!types.length) return "This auction has no player types. Add them in Settings first.";
+  return types.some((t) => t.toLowerCase() === value.toLowerCase()) ? null : `Use one of: ${types.join(", ")}.`;
+}
+
 /** Map a CSV header cell to a field: accepts spaces, dashes and case. */
 export function normaliseHeader(h: string) {
   return h.trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
 
 export const CSV_BASE_COLUMNS = [
+  "player_number",
   "full_name",
   "role",
   "sub_role",
   "category",
   "nationality",
+  "player_type",
   "tags",
   "base_price",
   "set_name",
@@ -73,11 +84,13 @@ export function csvTemplateHeader(config: SportConfig): string[] {
 export function csvTemplateExample(config: SportConfig): string[] {
   const role = config.roles.find((r) => !r.hidden) ?? config.roles[0]!;
   return [
+    "1",
     "Example Player",
     role.key,
     role.subRoles[0] ?? "",
     config.categories[0] ?? "",
     "domestic",
+    "",
     "",
     "",
     "Main",
@@ -93,7 +106,7 @@ export type CsvRowResult = {
   line: number;
   ok: boolean;
   errors: string[];
-  value?: PlayerInput & { basePrice: number | null; setName: string; setOrder: number };
+  value?: PlayerInput & { basePrice: number | null; setName: string; setOrder: number; lotNo: number | null };
 };
 
 const yes = new Set(["yes", "y", "true", "1"]);
@@ -104,6 +117,7 @@ const COLUMN_NAME: Record<string, string> = {
   roleKey: "role",
   subRole: "sub_role",
   nationalityGroup: "nationality",
+  playerType: "player_type",
   bioShort: "bio",
   dateOfBirth: "date_of_birth",
   guardianConsent: "guardian_consent",
@@ -111,11 +125,11 @@ const COLUMN_NAME: Record<string, string> = {
 const columnOf = (path: string) => COLUMN_NAME[path.split(".")[0] ?? ""] ?? path;
 
 /** Validates parsed CSV rows. Line numbers count the header as line 1. */
-export function validateCsvRows(rows: string[][], config: SportConfig): { header: string[]; results: CsvRowResult[]; headerErrors: string[] } {
+export function validateCsvRows(rows: string[][], config: SportConfig, playerTypes: string[] = []): { header: string[]; results: CsvRowResult[]; headerErrors: string[] } {
   const [rawHeader, ...body] = rows;
   const header = (rawHeader ?? []).map(normaliseHeader);
   const headerErrors: string[] = [];
-  for (const required of ["full_name", "role", "nationality"]) if (!header.includes(required)) headerErrors.push(`Missing column "${required}".`);
+  for (const required of ["full_name", "role"]) if (!header.includes(required)) headerErrors.push(`Missing column "${required}".`);
   const allowed = new Set<string>([...CSV_BASE_COLUMNS, ...config.statFields.map((s) => s.key)]);
   for (const h of header) if (h && !allowed.has(h)) headerErrors.push(`Unknown column "${h}".`);
   if (body.length > 1000) headerErrors.push("Import at most 1,000 players at a time.");
@@ -126,6 +140,7 @@ export function validateCsvRows(rows: string[][], config: SportConfig): { header
     return i >= 0 ? (row[i] ?? "").trim() : "";
   };
 
+  const seenNumbers = new Map<number, number>();
   const results = body.map((row, idx): CsvRowResult => {
     const line = idx + 2;
     const errors: string[] = [];
@@ -147,6 +162,10 @@ export function validateCsvRows(rows: string[][], config: SportConfig): { header
       category: col(row, "category").toUpperCase() || undefined,
       tags: col(row, "tags") ? col(row, "tags").split(/[;|]/).map((t) => t.trim()).filter(Boolean) : [],
       nationalityGroup: nat === "overseas" || nat === "foreign" ? "overseas" : nat === "domestic" || nat === "local" || nat === "" ? "domestic" : nat,
+      playerType: (() => {
+        const raw = col(row, "player_type");
+        return raw ? (playerTypes.find((t) => t.toLowerCase() === raw.toLowerCase()) ?? raw) : null;
+      })(),
       stats,
       bioShort: col(row, "bio"),
       dateOfBirth: col(row, "date_of_birth") || undefined,
@@ -159,16 +178,26 @@ export function validateCsvRows(rows: string[][], config: SportConfig): { header
     const setOrderRaw = col(row, "set_order");
     const setOrder = setOrderRaw === "" ? 1 : Number(setOrderRaw);
     if (!Number.isInteger(setOrder) || setOrder < 0) errors.push("set_order must be a whole number.");
+    const lotRaw = col(row, "player_number").replace(/^#/, "");
+    const lotNo = lotRaw === "" ? null : Number(lotRaw);
+    if (lotNo !== null && (!Number.isInteger(lotNo) || lotNo < 1 || lotNo > 99999)) errors.push("player_number must be a whole number from 1 to 99999.");
+    else if (lotNo !== null) {
+      const first = seenNumbers.get(lotNo);
+      if (first) errors.push(`player_number ${lotNo} is also used on line ${first}.`);
+      else seenNumbers.set(lotNo, line);
+    }
     const setName = col(row, "set_name") || "Main";
     if (setName.length > 40) errors.push("set_name is longer than 40 characters.");
     if (parsed.success) {
       const sp = sportProblems(config, parsed.data);
       for (const [k, m] of Object.entries(sp)) errors.push(`${columnOf(k)}: ${m}`);
+      const tp = playerTypeProblem(playerTypes, parsed.data.playerType);
+      if (tp) errors.push(`player_type: ${tp}`);
       if (isUnder18(parsed.data.dateOfBirth) && !parsed.data.guardianConsent) errors.push("Under 18: set guardian_consent to yes once a guardian has agreed.");
     }
     return errors.length || !parsed.success
       ? { line, ok: false, errors }
-      : { line, ok: true, errors: [], value: { ...parsed.data, basePrice, setName, setOrder } };
+      : { line, ok: true, errors: [], value: { ...parsed.data, basePrice, setName, setOrder, lotNo } };
   });
   return { header, results, headerErrors };
 }

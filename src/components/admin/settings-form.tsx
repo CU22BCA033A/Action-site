@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalInput } from "@/lib/client/datetime";
 import { RotateCcw, Save, Undo2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -46,12 +47,6 @@ type Draft = {
 const s = (n: number | null | undefined) => (n === null || n === undefined ? "" : String(n));
 const mapS = (m: Record<string, number>) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, String(v)]));
 
-function toLocalInput(iso: string | null) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 function rulesToDraft(r: AuctionDefaults): Omit<Draft, "name" | "slug" | "startsAt" | "isPublic" | "registrationOpen"> {
   return {
@@ -126,7 +121,8 @@ export function SettingsForm({ auction, current, sportDefaults }: { auction: Adm
       slug: d.slug,
       startsAt: d.startsAt ? new Date(d.startsAt).toISOString() : "",
       isPublic: d.isPublic,
-      registrationOpen: d.registrationOpen,
+      // Set on the Registrations tab; send the stored value so saving here never changes it.
+      registrationOpen: auction.registrationOpen,
       rules: {
         pointsUnitLabel: d.pointsUnitLabel,
         purse: toInt(d.purse),
@@ -216,7 +212,10 @@ export function SettingsForm({ auction, current, sportDefaults }: { auction: Adm
         </div>
         <div className="mt-4 flex flex-col gap-3">
           <Checkbox id="f-isPublic" name="isPublic" checked={d.isPublic} onChange={(e) => upd("isPublic", e.target.checked)} label="List on the public auctions page" disabled={auction.rehearsal} hint={auction.rehearsal ? "Rehearsals are never listed." : undefined} />
-          <Checkbox id="f-registrationOpen" name="registrationOpen" checked={d.registrationOpen} onChange={(e) => upd("registrationOpen", e.target.checked)} label="Player registration is open" hint="Lets players submit themselves for your review at /auctions/your-link/register." />
+          <p className="text-sm text-muted">
+            Player registration, its opening and closing times, player types and domestic or overseas are set on the{" "}
+            <a href={`/admin/auctions/${auction.id}/registrations`} className="link">Registrations</a> tab.
+          </p>
         </div>
       </AdminSection>
 
@@ -252,9 +251,11 @@ export function SettingsForm({ auction, current, sportDefaults }: { auction: Adm
           <Field name="squadMax" label="Squad maximum" error={err("squadMax")}>
             <Input id="f-squadMax" inputMode="numeric" className="num" value={d.squadMax} onChange={(e) => upd("squadMax", num(e.target.value))} />
           </Field>
-          <Field name="maxOverseas" label="Overseas maximum" error={err("maxOverseas")}>
-            <Input id="f-maxOverseas" inputMode="numeric" className="num" value={d.maxOverseas} onChange={(e) => upd("maxOverseas", num(e.target.value))} />
-          </Field>
+          {auction.useNationality ? (
+            <Field name="maxOverseas" label="Overseas maximum" error={err("maxOverseas")}>
+              <Input id="f-maxOverseas" inputMode="numeric" className="num" value={d.maxOverseas} onChange={(e) => upd("maxOverseas", num(e.target.value))} />
+            </Field>
+          ) : null}
         </div>
         <div className="mt-5 overflow-x-auto scrollbar-thin">
           <table className="w-full min-w-[26rem] text-sm">

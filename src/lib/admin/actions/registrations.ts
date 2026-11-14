@@ -46,9 +46,9 @@ export async function approveRegistrationAction(input: z.input<typeof approveSch
     if (reg.status !== "pending") return "done" as const;
     const p = v.player;
     const pl = await tx<{ id: string }[]>`
-      insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, stats, bio_short, photo_path,
+      insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, player_type, stats, bio_short, photo_path,
         date_of_birth, guardian_consent, guardian_consent_at, source_registration_id)
-      values (${ctx.sportId}, ${p.fullName}, ${p.roleKey}, ${p.subRole}, ${p.category}, ${p.tags}, ${p.nationalityGroup}, ${tx.json(p.stats)},
+      values (${ctx.sportId}, ${p.fullName}, ${p.roleKey}, ${p.subRole}, ${p.category}, ${p.tags}, ${p.nationalityGroup}, ${p.playerType}, ${tx.json(p.stats)},
         ${p.bioShort}, ${reg.photoPath}, ${p.dateOfBirth}, ${p.guardianConsent}, ${p.guardianConsent ? new Date() : null}, ${v.registrationId})
       returning id`;
     await tx`insert into app.auction_players(auction_id, player_id, base_price, set_name, set_order, queue_position)
@@ -100,4 +100,56 @@ export async function setRegistrationOpenAction(input: { auctionId: string; open
   await sql`select app._audit(${input.auctionId}, 'admin', ${admin.actorId}, 'registration.toggle', 'auction', ${input.auctionId}, null, ${sql.json({ open: input.open })}, null)`;
   revalidatePath(`/admin/auctions/${input.auctionId}`, "layout");
   return { ok: true, message: input.open ? "Registration is open." : "Registration is closed." };
+}
+
+const registrationSettingsSchema = z
+  .object({
+    auctionId: z.uuid(),
+    open: z.boolean(),
+    /** ISO timestamps from the admin's browser, or empty for no limit. */
+    opensAt: z.string().trim().default(""),
+    closesAt: z.string().trim().default(""),
+    playerTypes: z.array(z.string().trim().min(1, "A type cannot be empty.").max(40, "Keep each type under 40 characters.")).max(20, "Use at most 20 types.").default([]),
+    useNationality: z.boolean(),
+  })
+  .superRefine((v, ctx) => {
+    const lower = v.playerTypes.map((t) => t.toLowerCase());
+    if (new Set(lower).size !== lower.length) ctx.addIssue({ code: "custom", path: ["playerTypes"], message: "Each type can appear only once." });
+    for (const k of ["opensAt", "closesAt"] as const) {
+      if (v[k] && Number.isNaN(Date.parse(v[k]))) ctx.addIssue({ code: "custom", path: [k], message: "Enter a valid date and time." });
+    }
+    if (v.opensAt && v.closesAt && Date.parse(v.closesAt) <= Date.parse(v.opensAt)) {
+      ctx.addIssue({ code: "custom", path: ["closesAt"], message: "The closing time must be after the opening time." });
+    }
+  });
+
+/**
+ * Registration switch, opening and closing date and time, the auction's player
+ * types and whether domestic/overseas is used. Editable at any time; audited.
+ */
+export async function updateRegistrationSettingsAction(input: z.input<typeof registrationSettingsSchema>): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  const parsed = registrationSettingsSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const v = parsed.data;
+  const sql = db();
+  const before = (await sql<{ open: boolean; opensAt: string | null; closesAt: string | null; playerTypes: string[]; useNationality: boolean }[]>`
+    select registration_open as open, registration_opens_at as "opensAt", registration_closes_at as "closesAt",
+      player_types as "playerTypes", use_nationality as "useNationality"
+    from app.auctions where id = ${v.auctionId} and deleted_at is null`)[0];
+  if (!before) return { ok: false, error: "Auction not found." };
+  const opensAt = v.opensAt ? new Date(v.opensAt).toISOString() : null;
+  const closesAt = v.closesAt ? new Date(v.closesAt).toISOString() : null;
+  await sql.begin(async (tx) => {
+    await tx`
+      update app.auctions set registration_open = ${v.open}, registration_opens_at = ${opensAt}, registration_closes_at = ${closesAt},
+        player_types = ${v.playerTypes}, use_nationality = ${v.useNationality}, settings_version = settings_version + 1
+      where id = ${v.auctionId}`;
+    await tx`select app._audit(${v.auctionId}, 'admin', ${admin.actorId}, 'registration.settings', 'auction', ${v.auctionId},
+      ${tx.json(before)}, ${tx.json({ open: v.open, opensAt, closesAt, playerTypes: v.playerTypes, useNationality: v.useNationality })}, null)`;
+  });
+  await bumpAndRefresh(v.auctionId);
+  revalidatePath(`/admin/auctions/${v.auctionId}`, "layout");
+  revalidatePath("/auctions", "layout");
+  return { ok: true, message: "Registration settings saved." };
 }

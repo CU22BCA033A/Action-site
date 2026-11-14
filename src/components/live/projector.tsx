@@ -95,7 +95,7 @@ export function ProjectorScreen() {
                 <div className="mt-4 flex flex-wrap items-center gap-3 text-lg">
                   <RoleChip label={roleInfo(snapshot, p.roleKey).label} index={roleInfo(snapshot, p.roleKey).index} icon={roleInfo(snapshot, p.roleKey).icon} subRole={p.subRole} />
                   {p.category ? <span className="font-semibold">{t("live.category", { c: p.category })}</span> : null}
-                  <span className="text-muted">{t(`nationality.${p.nationalityGroup}`)}</span>
+                  {p.playerType || p.nationalityGroup === "overseas" ? <span className="text-muted">{p.playerType ?? t("nationality.overseas")}</span> : null}
                 </div>
                 <dl className="mt-6 flex flex-wrap gap-3">
                   {a.sportConfig.statFields

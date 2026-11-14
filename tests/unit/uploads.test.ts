@@ -14,8 +14,8 @@ describe("uploads", () => {
     await expect(processImage(await file(Buffer.from("GIF89a....")), "player")).rejects.toBeInstanceOf(UploadError);
   });
 
-  it("rejects files over 3 MB before decoding", async () => {
-    await expect(processImage(await file(Buffer.alloc(3 * 1024 * 1024 + 1, 0xff)), "player")).rejects.toThrow(/3 MB/);
+  it("rejects files over 3.5 MB before decoding", async () => {
+    await expect(processImage(await file(Buffer.alloc(Math.floor(3.5 * 1024 * 1024) + 1, 0xff)), "player")).rejects.toThrow(/3.5 MB/);
   });
 
   it("re-encodes to WebP within the size budget and strips metadata", async () => {

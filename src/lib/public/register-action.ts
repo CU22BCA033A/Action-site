@@ -24,8 +24,9 @@ export async function registerPlayerAction(slug: string, _prev: RegisterState, f
   if (token === "too_fast" || token === "invalid") return { status: "error", fields: {}, form: "tooFast" };
 
   const sql = db();
-  const auction = (await sql<{ id: string; open: boolean; config: unknown }[]>`
-    select a.id, a.registration_open as open, s.config from app.auctions a join app.sports s on s.id = a.sport_id
+  const auction = (await sql<{ id: string; open: boolean; config: unknown; playerTypes: string[]; useNationality: boolean }[]>`
+    select a.id, app.registration_is_open(a) as open, s.config, a.player_types as "playerTypes", a.use_nationality as "useNationality"
+    from app.auctions a join app.sports s on s.id = a.sport_id
     where a.slug = ${slug} and a.deleted_at is null`)[0];
   if (!auction || !auction.open) return { status: "error", fields: {}, form: "closed" };
 
@@ -42,7 +43,9 @@ export async function registerPlayerAction(slug: string, _prev: RegisterState, f
     fullName: String(formData.get("fullName") ?? ""),
     roleKey: String(formData.get("roleKey") ?? ""),
     subRole: String(formData.get("subRole") ?? "") || undefined,
-    nationalityGroup: formData.get("nationalityGroup") === "overseas" ? "overseas" : "domestic",
+    nationalityGroup: auction.useNationality && formData.get("nationalityGroup") === "overseas" ? "overseas" : "domestic",
+    // Only a type from the organiser's list is kept; anything else is ignored.
+    playerType: auction.playerTypes.find((pt) => pt === String(formData.get("playerType") ?? "")) ?? null,
     stats: statsRaw,
     bioShort: String(formData.get("bioShort") ?? "").slice(0, 160),
     dateOfBirth: String(formData.get("dateOfBirth") ?? "") || undefined,
@@ -78,9 +81,9 @@ export async function registerPlayerAction(slug: string, _prev: RegisterState, f
   const reference = referenceId("REG");
   try {
     await sql`
-      insert into app.player_registrations(auction_id, reference_id, full_name, role_key, sub_role, nationality_group, photo_path, stats,
+      insert into app.player_registrations(auction_id, reference_id, full_name, role_key, sub_role, nationality_group, player_type, photo_path, stats,
         bio_short, date_of_birth, guardian_consent, consent_given, ip_hash)
-      values (${auction.id}, ${reference}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.nationalityGroup}, ${photoPath}, ${sql.json(v.stats)},
+      values (${auction.id}, ${reference}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.nationalityGroup}, ${v.playerType}, ${photoPath}, ${sql.json(v.stats)},
         ${v.bioShort}, ${v.dateOfBirth}, ${v.guardianConsent}, true, ${ipHash})`;
   } catch {
     await deleteImage(photoPath);

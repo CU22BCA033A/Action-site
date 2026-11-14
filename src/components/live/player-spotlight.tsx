@@ -84,7 +84,7 @@ export function PlayerSpotlight({
         <div>
           <h2 id="spotlight-name" className={`${wide ? "text-3xl sm:text-4xl xl:text-[2.25rem]" : `truncate ${lg ? "text-3xl xl:text-4xl" : "text-2xl"}`}`}>{p.fullName}</h2>
           <p className="mt-1 text-sm text-muted">
-            {[p.category, t(`nationality.${p.nationalityGroup}`)].filter(Boolean).join(" / ")}
+            {[p.category, p.playerType, p.nationalityGroup === "overseas" ? t("nationality.overseas") : null].filter(Boolean).join(" / ")}
           </p>
         </div>
 

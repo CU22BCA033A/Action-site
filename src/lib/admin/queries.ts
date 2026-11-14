@@ -65,6 +65,12 @@ export type AdminAuction = {
   maxRetentions: number;
   isPublic: boolean;
   registrationOpen: boolean;
+  registrationOpensAt: string | null;
+  registrationClosesAt: string | null;
+  /** Whether registration is open right now (switch on and inside the window). */
+  registrationOpenNow: boolean;
+  playerTypes: string[];
+  useNationality: boolean;
   rehearsal: boolean;
   settingsVersion: number;
   rulesChangedAt: string | null;
@@ -85,6 +91,8 @@ export async function getAdminAuction(id: string): Promise<AdminAuction> {
       a.rtm_allow_final_raise as "rtmAllowFinalRaise", a.rtm_cards_per_team as "rtmCardsPerTeam",
       a.retentions_enabled as "retentionsEnabled", a.max_retentions as "maxRetentions",
       a.public as "isPublic", a.registration_open as "registrationOpen", a.rehearsal,
+      a.registration_opens_at as "registrationOpensAt", a.registration_closes_at as "registrationClosesAt",
+      app.registration_is_open(a) as "registrationOpenNow", a.player_types as "playerTypes", a.use_nationality as "useNationality",
       a.settings_version::int as "settingsVersion", a.rules_changed_at as "rulesChangedAt", a.current_round as "currentRound"
     from app.auctions a join app.sports s on s.id = a.sport_id
     where a.id = ${id} and a.deleted_at is null`;
@@ -171,6 +179,7 @@ export type AdminPlayer = {
   category: string | null;
   tags: string[];
   nationalityGroup: "domestic" | "overseas";
+  playerType: string | null;
   stats: Record<string, number>;
   bioShort: string;
   dateOfBirth: string | null;
@@ -190,7 +199,7 @@ export type AdminPlayer = {
 export async function listAdminPlayers(auctionId: string): Promise<AdminPlayer[]> {
   return db()<AdminPlayer[]>`
     select ap.id as "auctionPlayerId", p.id as "playerId", ap.lot_no as "lotNo", p.full_name as "fullName", p.photo_path as "photoPath",
-      p.role_key as "roleKey", p.sub_role as "subRole", p.category, p.tags, p.nationality_group as "nationalityGroup", p.stats,
+      p.role_key as "roleKey", p.sub_role as "subRole", p.category, p.tags, p.nationality_group as "nationalityGroup", p.player_type as "playerType", p.stats,
       p.bio_short as "bioShort", to_char(p.date_of_birth, 'YYYY-MM-DD') as "dateOfBirth", p.guardian_consent as "guardianConsent",
       ap.set_name as "setName", ap.set_order as "setOrder", ap.queue_position as "queuePosition", ap.base_price as "basePrice",
       ap.status, ap.sold_to_team_id as "soldToTeamId", ap.sold_price as "soldPrice", ap.previous_team_id as "previousTeamId",
@@ -207,6 +216,7 @@ export type AdminRegistration = {
   roleKey: string;
   subRole: string | null;
   nationalityGroup: "domestic" | "overseas";
+  playerType: string | null;
   photoPath: string | null;
   stats: Record<string, number>;
   bioShort: string;
@@ -221,7 +231,7 @@ export type AdminRegistration = {
 export async function listRegistrations(auctionId: string): Promise<AdminRegistration[]> {
   return db()<AdminRegistration[]>`
     select id, reference_id as "referenceId", full_name as "fullName", role_key as "roleKey", sub_role as "subRole",
-      nationality_group as "nationalityGroup", photo_path as "photoPath", stats, bio_short as "bioShort",
+      nationality_group as "nationalityGroup", player_type as "playerType", photo_path as "photoPath", stats, bio_short as "bioShort",
       to_char(date_of_birth, 'YYYY-MM-DD') as "dateOfBirth", guardian_consent as "guardianConsent", status,
       rejection_reason as "rejectionReason", created_at as "createdAt", version::int as version
     from app.player_registrations where auction_id = ${auctionId}

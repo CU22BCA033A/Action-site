@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, Gavel, KeyRound, MonitorPlay, SlidersHorizontal, Users, Wallet } from "lucide-react";
+import { ArrowRight, BarChart3, Gavel, KeyRound, MonitorPlay, SlidersHorizontal, Users, } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroScene } from "@/components/home/hero-scene";
@@ -32,9 +32,9 @@ export default async function HomePage() {
   const teamById = new Map(snapshot?.teams.map((tm) => [tm.id, tm]) ?? []);
   const signings = (snapshot?.recentSales ?? []).filter((s) => s.status === "sold").slice(0, 6);
   const steps = [
-    { icon: SlidersHorizontal, title: t("home.step1Title"), body: t("home.step1Body") },
-    { icon: KeyRound, title: t("home.step2Title"), body: t("home.step2Body") },
-    { icon: MonitorPlay, title: t("home.step3Title"), body: t("home.step3Body") },
+    { icon: SlidersHorizontal, title: t("home.step1Title"), body: t("home.step1Body"), href: "/how-it-works", cta: t("home.howLink") },
+    { icon: KeyRound, title: t("home.step2Title"), body: t("home.step2Body"), href: "/join", cta: t("home.ctaJoin") },
+    { icon: MonitorPlay, title: t("home.step3Title"), body: t("home.step3Body"), href: "/auctions", cta: t("home.ctaWatch") },
   ];
 
   return (
@@ -58,14 +58,6 @@ export default async function HomePage() {
                 {t("home.ctaJoin")}
               </ButtonLink>
             </div>
-            <ol style={{ ["--d" as string]: "620ms" }} className="rise mt-10 flex flex-wrap justify-center gap-x-7 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted lg:justify-start" aria-label={t("home.stepsTitle")}>
-              {steps.map((s, i) => (
-                <li key={s.title} className="inline-flex items-center gap-2">
-                  <span className="num inline-flex size-6 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--accent-edge)_55%,transparent)] text-[0.7rem] text-accent-text">{i + 1}</span>
-                  {t(`home.stepShort${i + 1}` as "home.stepShort1")}
-                </li>
-              ))}
-            </ol>
           </div>
 
           {snapshot ? (
@@ -143,41 +135,26 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <div>
-          <p className="eyebrow">{t("nav.howItWorks")}</p>
-          <h2 className="mt-3 text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
-          <p className="mt-4">
-            <Link href="/how-it-works" className="link inline-flex items-center gap-2 font-semibold text-accent-text">
-              {t("home.howLink")}
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </p>
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="who-title">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 id="who-title" className="text-3xl sm:text-4xl">{t("home.stepsTitle")}</h2>
+          <Link href="/how-it-works" className="link inline-flex items-center gap-2 font-semibold text-accent-text">
+            {t("home.howLink")}
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
         </div>
-        <ol className="divide-y divide-line border-y border-line">
-          {steps.map((s, i) => (
-            <li key={s.title} className="flex gap-4 py-6">
-              <span className="num w-10 shrink-0 text-3xl font-bold text-accent-text">{i + 1}</span>
-              <div className="min-w-0">
-                <h3 className="flex items-center gap-2 text-lg">
-                  <s.icon className="size-5 shrink-0 text-accent-text" aria-hidden="true" />
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-muted">{s.body}</p>
-              </div>
-            </li>
+        <div className="mt-10 grid gap-x-10 gap-y-12 md:grid-cols-3">
+          {steps.map((s) => (
+            <article key={s.title} className="border-t-2 border-[color-mix(in_srgb,var(--accent-edge)_70%,transparent)] pt-6">
+              <s.icon className="size-6 text-accent-text" strokeWidth={1.75} aria-hidden="true" />
+              <h3 className="mt-4 text-xl">{s.title}</h3>
+              <p className="mt-3 leading-relaxed text-muted">{s.body}</p>
+              <Link href={s.href} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-text underline decoration-line-strong underline-offset-4 hover:decoration-accent-edge">
+                {s.cta}
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </article>
           ))}
-        </ol>
-      </section>
-
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <div className="card-gold flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
-          <Wallet className="size-10 shrink-0 text-accent-text" strokeWidth={1.5} aria-hidden="true" />
-          <div>
-            <h2 className="text-2xl">{t("home.freeTitle")}</h2>
-            <p className="mt-2 max-w-3xl text-muted">{t("home.freeBody")}</p>
-          </div>
         </div>
       </section>
     </>

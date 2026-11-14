@@ -1,6 +1,7 @@
 "use client";
 
 import { Camera, FileUp, Lock, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { shrinkFileInput, shrinkImage } from "@/lib/client/shrink-image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PlayerAvatar, RoleChip } from "@/components/auction/identity";
@@ -15,6 +16,7 @@ import type { AdminPlayer, AdminTeam } from "@/lib/admin/queries";
 import { formatPoints } from "@/lib/format";
 import type { SportConfig } from "@/lib/sports/config";
 import { slugify } from "./new-auction-form";
+import { PlayerTypeFields } from "./player-type-fields";
 import { useAdminAction } from "./use-admin-action";
 
 type Ctx = {
@@ -25,6 +27,8 @@ type Ctx = {
   categoryPrices: Record<string, number>;
   defaultBasePrice: number;
   retentionsEnabled: boolean;
+  playerTypes: string[];
+  useNationality: boolean;
   teams: Pick<AdminTeam, "id" | "name" | "shortName">[];
 };
 
@@ -86,9 +90,9 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
 
       <div className="mt-5 grid gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
         <div className="relative">
-          <label htmlFor="p-search" className="sr-only">Search by name or lot number</label>
+          <label htmlFor="p-search" className="sr-only">Search by name or player number</label>
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
-          <Input id="p-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" placeholder="Name or lot number" />
+          <Input id="p-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" placeholder="Name or player number" />
         </div>
         <SelectWrap>
           <label htmlFor="p-role" className="sr-only">Role</label>
@@ -143,7 +147,7 @@ export function PlayersManager({ players, ctx }: { players: AdminPlayer[]; ctx: 
                         <RoleChip size="sm" label={r.role?.label ?? p.roleKey} index={r.index} icon={r.role?.icon} />
                       </div>
                       <p className="truncate text-xs text-muted">
-                        {[p.subRole, p.category ? `Cat ${p.category}` : null, p.nationalityGroup === "overseas" ? "Overseas" : null, p.dateOfBirth && isUnder18(p.dateOfBirth) ? (p.guardianConsent ? "Under 18, consent recorded" : "Under 18, consent missing") : null].filter(Boolean).join(" / ") || "No details"}
+                        {[p.subRole, p.category ? `Cat ${p.category}` : null, p.playerType, p.nationalityGroup === "overseas" ? "Overseas" : null, p.dateOfBirth && isUnder18(p.dateOfBirth) ? (p.guardianConsent ? "Under 18, consent recorded" : "Under 18, consent missing") : null].filter(Boolean).join(" / ") || "No details"}
                       </p>
                     </div>
                     <p className="col-span-3 text-sm md:col-span-1">
@@ -212,6 +216,7 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
   const [category, setCategory] = useState(player?.category ?? "");
   const [tags, setTags] = useState<string[]>(player?.tags ?? []);
   const [nat, setNat] = useState<"domestic" | "overseas">(player?.nationalityGroup ?? "domestic");
+  const [playerType, setPlayerType] = useState(player?.playerType ?? "");
   const [stats, setStats] = useState<Record<string, string>>(Object.fromEntries(Object.entries(player?.stats ?? {}).map(([k, v]) => [k, String(v)])));
   const [bio, setBio] = useState(player?.bioShort ?? "");
   const [dob, setDob] = useState(player?.dateOfBirth ?? "");
@@ -221,7 +226,8 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
   const role = cfg.roles.find((r) => r.key === roleKey);
   const fe = save.fieldErrors;
   const under18 = isUnder18(dob || null);
-  const editable = !player || player.status === "pool" || player.status === "unsold";
+  // Everything stays editable; only the base price of the player on the floor is locked.
+  const editable = !player || player.status !== "on_floor";
   const defaultPrice = category && ctx.categoryPrices[category] !== undefined ? ctx.categoryPrices[category]! : ctx.defaultBasePrice;
 
   return (
@@ -249,6 +255,7 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
               category: category || undefined,
               tags,
               nationalityGroup: nat,
+              playerType: playerType || null,
               stats: statsNum,
               bioShort: bio,
               dateOfBirth: dob || undefined,
@@ -283,10 +290,11 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="sr-only"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                setPreview(f ? URL.createObjectURL(f) : null);
+              onChange={async (e) => {
+                const input = e.currentTarget;
                 setRemovePhoto(false);
+                const f = await shrinkFileInput(input);
+                setPreview(f ? URL.createObjectURL(f) : null);
               }}
             />
             {player?.photoPath && !preview ? (
@@ -335,17 +343,16 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
               </SelectWrap>
             </Field>
           ) : null}
-          <fieldset>
-            <legend className="mb-1.5 text-sm font-semibold">Nationality</legend>
-            <div className="flex gap-4">
-              {(["domestic", "overseas"] as const).map((n) => (
-                <label key={n} className="flex min-h-11 cursor-pointer items-center gap-2">
-                  <input type="radio" name="nat" checked={nat === n} onChange={() => setNat(n)} className="size-5 accent-[var(--accent)]" />
-                  {n === "domestic" ? "Domestic" : "Overseas"}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <PlayerTypeFields
+            idPrefix="pl"
+            types={ctx.playerTypes}
+            useNationality={ctx.useNationality}
+            playerType={playerType}
+            onPlayerType={setPlayerType}
+            nationality={nat}
+            onNationality={setNat}
+            error={fe.playerType}
+          />
         </div>
         {cfg.tags.length ? (
           <fieldset>
@@ -393,7 +400,7 @@ function PlayerDialog({ player, ctx, sets, onClose }: { player: AdminPlayer | nu
           <Field name="setOrder" label="Set order" hint="Lower sets come first." error={fe.setOrder}>
             <Input id="f-setOrder" name="setOrder" type="number" min={0} max={999} defaultValue={player?.setOrder ?? 1} className="num" aria-describedby={describedBy("setOrder", true, false)} />
           </Field>
-          <Field name="basePrice" label={`Base price (${ctx.unit})`} hint={editable ? `Empty uses ${formatPoints(defaultPrice)}.` : "Locked after the sale."} error={fe.basePrice}>
+          <Field name="basePrice" label={`Base price (${ctx.unit})`} hint={editable ? `Empty uses ${formatPoints(defaultPrice)}.` : "Locked while this player is on the floor."} error={fe.basePrice}>
             <Input id="f-basePrice" name="basePrice" inputMode="numeric" className="num" defaultValue={player ? String(player.basePrice) : ""} disabled={!editable} aria-describedby={describedBy("basePrice", true, Boolean(fe.basePrice))} />
           </Field>
         </div>
@@ -421,9 +428,9 @@ function ImportDialog({ ctx, onClose }: { ctx: Ctx; onClose: () => void }) {
           <a className="link font-semibold text-accent-text" href={`/admin/auctions/${ctx.auctionId}/players/template`}>CSV template</a>{" "}
           for this sport. It has the role keys, categories and stat columns already set.
         </li>
-        <li>Fill one player per row. Role can be the key or the label. Separate tags with a semicolon.</li>
+        <li>Fill one player per row. Only full_name and role are required. Role can be the key or the label. player_number is optional (empty gives the next free number); player_type must match one of the auction&apos;s player types; nationality is domestic or overseas and can be left empty. Separate tags with a semicolon.</li>
         <li>Check the file, fix any rows listed, then import the valid rows.</li>
-        <li>Add photos afterwards with Upload photos, matched by lot number or name.</li>
+        <li>Add photos afterwards with Upload photos, matched by player number or name.</li>
       </ol>
       <div className="flex flex-wrap items-center gap-3">
         <label htmlFor="csv-file" className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] border border-line-strong px-4 font-semibold hover:border-text">
@@ -514,7 +521,7 @@ function PhotosDialog({ ctx, players, onClose }: { ctx: Ctx; players: AdminPlaye
       const fd = new FormData();
       fd.set("auctionId", ctx.auctionId);
       fd.set("auctionPlayerId", m.player!.auctionPlayerId);
-      fd.set("photo", m.file);
+      fd.set("photo", await shrinkImage(m.file));
       try {
         const r = await setPlayerPhotoAction(fd);
         setProgress((p) => ({ ...p, [m.file.name]: r.ok ? "done" : r.error }));
@@ -529,7 +536,7 @@ function PhotosDialog({ ctx, players, onClose }: { ctx: Ctx; players: AdminPlaye
   return (
     <Dialog open onClose={running ? () => {} : onClose} title="Upload player photos" size="lg">
       <p className="text-sm text-muted">
-        Name each file after the player&apos;s lot number (for example <code className="num">12.jpg</code> or <code className="num">lot-012.png</code>) or full name (<code>arvan-kelovel.jpg</code>). JPEG, PNG or WebP, up to 3 MB each. Each photo is cropped square and compressed.
+        Name each file after the player&apos;s player number (for example <code className="num">12.jpg</code> or <code className="num">lot-012.png</code>) or full name (<code>arvan-kelovel.jpg</code>). Any size from a phone or camera works: each photo is made smaller before upload, cropped square and compressed.
       </p>
       <div>
         <label htmlFor="photo-files" className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] border border-line-strong px-4 font-semibold hover:border-text">

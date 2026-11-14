@@ -9,6 +9,7 @@ import { insertAuction } from "@/lib/domain/auctions";
 import { bumpAndRefresh, callEngine, getFloor } from "@/lib/live/engine";
 import { validateSlabs } from "@/lib/rules/slabs";
 import { auctionDefaultsSchema, sportConfigSchema } from "@/lib/sports/config";
+import { deleteImage } from "@/lib/storage";
 import { invalid, type ActionResult } from "../result";
 
 const slugSchema = z
@@ -139,5 +140,52 @@ export async function deleteAuctionAction(input: { auctionId: string; confirmNam
     await tx`update app.team_sessions s set revoked_at = now() from app.teams t where t.id = s.team_id and t.auction_id = ${id.data} and s.revoked_at is null`;
     await tx`select app._audit(${id.data}, 'admin', ${admin.actorId}, 'auction.delete', 'auction', ${id.data}, ${tx.json({ name: a.name })}, null, null)`;
   });
+  redirect("/admin");
+}
+
+/**
+ * Erases an auction for good: teams, access codes and sessions, players that
+ * belong only to this auction, bids, registrations, shortlists, and every
+ * photo and logo in storage. Cannot be undone. The audit log is append-only by
+ * design, so earlier audit entries stay, with one final "auction.erase" entry.
+ */
+export async function eraseAuctionAction(input: { auctionId: string; confirmName: string }): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  const id = z.uuid().safeParse(input.auctionId);
+  if (!id.success) return { ok: false, error: "Auction not found." };
+  const sql = db();
+  const a = (await sql<{ name: string }[]>`select name from app.auctions where id = ${id.data}`)[0];
+  if (!a) return { ok: false, error: "Auction not found." };
+  if (input.confirmName.trim() !== a.name) return { ok: false, error: "Type the auction name exactly to confirm.", fieldErrors: { confirmName: "The name does not match." } };
+
+  const files = await sql.begin(async (tx) => {
+    await tx`select app._lock_floor(${id.data})`;
+    const playerIds = (await tx<{ id: string }[]>`select player_id as id from app.auction_players where auction_id = ${id.data}`).map((r) => r.id);
+    const paths = await tx<{ path: string | null }[]>`
+      select p.photo_path as path from app.players p
+      where p.id = any(${playerIds}::uuid[])
+        and not exists (select 1 from app.auction_players o where o.player_id = p.id and o.auction_id <> ${id.data})
+      union all
+      select r.photo_path from app.player_registrations r where r.auction_id = ${id.data}
+      union all
+      select t.logo_path from app.teams t where t.auction_id = ${id.data}`;
+    const counts = (await tx<{ teams: number; players: number; bids: number; registrations: number }[]>`
+      select (select count(*)::int from app.teams where auction_id = ${id.data}) as teams,
+        (select count(*)::int from app.auction_players where auction_id = ${id.data}) as players,
+        (select count(*)::int from app.bids where auction_id = ${id.data}) as bids,
+        (select count(*)::int from app.player_registrations where auction_id = ${id.data}) as registrations`)[0]!;
+    // One statement: the auction row and everything that cascades from it.
+    await tx`delete from app.auctions where id = ${id.data}`;
+    await tx`
+      delete from app.players p where p.id = any(${playerIds}::uuid[])
+        and not exists (select 1 from app.auction_players o where o.player_id = p.id)
+        and not exists (select 1 from app.player_registrations r where r.player_id = p.id)`;
+    await tx`select app._audit(${id.data}, 'admin', ${admin.actorId}, 'auction.erase', 'auction', ${id.data}, ${tx.json({ name: a.name, ...counts })}, null, null)`;
+    return paths.map((p) => p.path).filter((p): p is string => Boolean(p));
+  });
+  await Promise.all([...new Set(files)].map((f) => deleteImage(f)));
+  revalidatePath("/admin");
+  revalidatePath("/auctions");
+  revalidatePath("/");
   redirect("/admin");
 }

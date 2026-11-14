@@ -1,3 +1,4 @@
+import { shareUrl } from "@/lib/request-origin";
 import { Check, Circle, ExternalLink, MonitorPlay, Projector } from "lucide-react";
 import Link from "next/link";
 import { AdminSection } from "@/components/admin/admin-shell";
@@ -5,7 +6,6 @@ import { DeleteAuction } from "@/components/admin/delete-auction";
 import { CopyButton } from "@/components/ui/copy-button";
 import { getAdminAuction, listAdminPlayers, listAdminTeams, listRegistrations } from "@/lib/admin/queries";
 import { validateSlabs } from "@/lib/rules/slabs";
-import { absoluteUrl } from "@/lib/site";
 
 export const metadata = { title: "Auction overview | Admin" };
 
@@ -24,9 +24,9 @@ export default async function AuctionOverview({ params }: { params: Promise<{ id
     { done: players.length > 0, title: "Player sets (optional)", detail: `${new Set(players.map((p) => p.setName)).size} sets`, href: `${base}/queue` },
     { done: a.status !== "draft", title: "Publish or go live", detail: `Status: ${a.status}`, href: base },
   ];
-  const publicUrl = absoluteUrl(`/auctions/${a.slug}`);
-  const joinUrl = absoluteUrl("/join");
-  const registerUrl = absoluteUrl(`/auctions/${a.slug}/register`);
+  const publicUrl = await shareUrl(`/auctions/${a.slug}`);
+  const joinUrl = await shareUrl("/join");
+  const registerUrl = await shareUrl(`/auctions/${a.slug}/register`);
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[1.4fr_1fr]">
@@ -97,8 +97,11 @@ export default async function AuctionOverview({ params }: { params: Promise<{ id
           </ul>
           {a.status === "draft" ? <p className="mt-3 text-sm text-muted">Public screens open once the auction is published.</p> : null}
         </AdminSection>
-        <AdminSection title="Delete this auction" description="Removes the auction with its teams, players and results. Works at any time, even while live.">
-          <DeleteAuction auctionId={a.id} name={a.name} />
+        <AdminSection title="Delete or erase this auction" description="Delete hides the auction everywhere and stops it at once, even while live. Erase permanently also wipes all of its data and photos from the database and storage.">
+          <div className="flex flex-wrap gap-3">
+            <DeleteAuction auctionId={a.id} name={a.name} />
+            <DeleteAuction auctionId={a.id} name={a.name} mode="erase" />
+          </div>
         </AdminSection>
       </div>
     </div>

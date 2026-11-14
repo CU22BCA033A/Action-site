@@ -6,7 +6,7 @@ import sharp, { type Sharp } from "sharp";
 import { getEnv } from "@/lib/env";
 import { MEDIA_BUCKET } from "@/lib/media";
 
-export const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = Math.floor(3.5 * 1024 * 1024);
 
 export type ImageKind = "player" | "logo";
 
@@ -38,7 +38,7 @@ export function sniffImage(buf: Uint8Array): "jpeg" | "png" | "webp" | null {
  */
 export async function processImage(file: File, kind: ImageKind): Promise<Buffer> {
   if (file.size === 0) throw new UploadError("The file is empty.");
-  if (file.size > MAX_UPLOAD_BYTES) throw new UploadError("The file is larger than 3 MB. Choose a smaller photo.");
+  if (file.size > MAX_UPLOAD_BYTES) throw new UploadError("The file is larger than 3.5 MB. Choose a smaller photo.");
   const input = new Uint8Array(await file.arrayBuffer());
   if (!sniffImage(input)) throw new UploadError("Use a JPEG, PNG or WebP image.");
   const spec = SPEC[kind];

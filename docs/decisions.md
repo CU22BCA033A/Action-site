@@ -106,3 +106,18 @@ The owner asked for animations, including 3D. Everything is CSS, with no animati
 
 ## Player numbers
 The owner asked for a player number on each profile, with lists in that order. The existing per-auction lot number is that number: it is unique in an auction and assigned automatically (next free number). The admin can now set or change it in the player form; a duplicate is refused with the name of the player who has it, and changes are audited. The public Players list and the admin Players page show one list sorted by number, with each player's role on the card, instead of separate groups per role. The number appears as a gold badge on player cards and before the name on the player page.
+
+## Registration link, window and photos
+The owner reported that the player registration link did not work. Two likely causes were fixed:
+- **Big phone photos.** The server refuses images over 3.5 MB and Vercel refuses requests over 4.5 MB, but phone cameras produce 5 to 12 MB pictures. Every photo and logo picker now shrinks the image in the browser first (longest side 1600 px, JPEG), so a 10 MB photo uploads as a few hundred KB. The server still checks and re-encodes every file. A test uploads a 10 MB photo through the public form.
+- **Wrong site address in shared links.** Links the admin copies (registration, join, live room) were built from `SITE_URL`, so a missing `https://`, a typo or a preview address broke them. They are now built from the address the admin is actually using; `SITE_URL` is also normalised.
+Registration now has an opening and closing date and time, editable at any time on the Registrations tab (with the switch, player types and the domestic/overseas option). The check runs in the database (`app.registration_is_open`) on page load and again on submit, so a form left open past the closing time is refused. Times are entered in the admin's own time zone and shown in Indian time.
+
+## Player types instead of domestic/overseas
+Most leagues using the site are local (colleges, offices, clubs), where domestic/overseas means nothing but groups such as Student, Teacher or Faculty do. Each auction now has its own optional list of player types; the player picks one when registering and it shows on cards in place of "Domestic". Domestic/overseas is off by default for new auctions and only asked when the admin turns it on (needed for an overseas limit). Existing auctions keep it on so their overseas rule keeps working.
+
+## Erasing an auction
+Delete (hide, revoke codes, stop bidding) stays as it was. Erase permanently also removes the auction's rows and every photo and logo from storage, after the admin types the auction name. Players who also appear in another auction are kept. The audit log is append-only by design, so its earlier entries for the auction remain and one final "auction.erase" entry records the counts.
+
+## Home page without template sections
+To look less like a generated template, the home page dropped the duplicated 1-2-3 strip under the hero buttons and the "Costs nothing to run" panel (it spoke to the organiser, not to visitors). The three steps became one plain row: organisers, team owners and viewers, each with a link to what they would do next.

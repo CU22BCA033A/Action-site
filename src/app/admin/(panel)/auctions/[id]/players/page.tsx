@@ -17,6 +17,8 @@ export default async function PlayersPage({ params }: { params: Promise<{ id: st
         categoryPrices: a.categoryBasePrices,
         defaultBasePrice: a.defaultBasePrice,
         retentionsEnabled: a.retentionsEnabled,
+        playerTypes: a.playerTypes,
+        useNationality: a.useNationality,
         teams: teams.map((t) => ({ id: t.id, name: t.name, shortName: t.shortName })),
       }}
     />

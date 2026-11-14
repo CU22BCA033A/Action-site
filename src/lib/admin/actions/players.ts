@@ -9,12 +9,13 @@ import { basePriceFor } from "@/lib/domain/auctions";
 import { bumpAndRefresh, callEngine, runAndBroadcast } from "@/lib/live/engine";
 import { sportConfigSchema, type SportConfig } from "@/lib/sports/config";
 import { deleteImage, storeImage, UploadError } from "@/lib/storage";
-import { isUnder18, playerInputSchema, sportProblems, validateCsvRows, type CsvRowResult } from "../player-input";
+import { isUnder18, playerInputSchema, playerTypeProblem, sportProblems, validateCsvRows, type CsvRowResult } from "../player-input";
 import { invalid, type ActionResult } from "../result";
 
 async function auctionContext(auctionId: string) {
-  const rows = await db()<{ id: string; status: string; sportId: string; config: unknown; categoryPrices: Record<string, number>; defaultBase: number }[]>`
-    select a.id, a.status, a.sport_id as "sportId", s.config, a.category_base_prices as "categoryPrices", a.default_base_price as "defaultBase"
+  const rows = await db()<{ id: string; status: string; sportId: string; config: unknown; categoryPrices: Record<string, number>; defaultBase: number; playerTypes: string[] }[]>`
+    select a.id, a.status, a.sport_id as "sportId", s.config, a.category_base_prices as "categoryPrices", a.default_base_price as "defaultBase",
+      a.player_types as "playerTypes"
     from app.auctions a join app.sports s on s.id = a.sport_id where a.id = ${auctionId} and a.deleted_at is null`;
   const a = rows[0];
   if (!a) return null;
@@ -52,6 +53,8 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
   const ctx = await auctionContext(f.auctionId);
   if (!ctx) return { ok: false, error: "Auction not found." };
   const problems = sportProblems(ctx.config, p.data);
+  const typeProblem = playerTypeProblem(ctx.playerTypes, p.data.playerType);
+  if (typeProblem) problems.playerType = typeProblem;
   if (Object.keys(problems).length) return { ok: false, error: "Fix the highlighted fields.", fieldErrors: problems };
   if (isUnder18(p.data.dateOfBirth) && !p.data.guardianConsent) {
     return { ok: false, error: "This player is under 18. Confirm guardian consent before saving.", fieldErrors: { guardianConsent: "Required for players under 18." } };
@@ -86,9 +89,9 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
   if (!f.auctionPlayerId) {
     await sql.begin(async (tx) => {
       const pl = await tx<{ id: string }[]>`
-        insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, stats, bio_short, photo_path,
+        insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, player_type, stats, bio_short, photo_path,
           date_of_birth, guardian_consent, guardian_consent_at)
-        values (${ctx.sportId}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.category}, ${v.tags}, ${v.nationalityGroup}, ${tx.json(v.stats)},
+        values (${ctx.sportId}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.category}, ${v.tags}, ${v.nationalityGroup}, ${v.playerType}, ${tx.json(v.stats)},
           ${v.bioShort}, ${photoPath ?? null}, ${v.dateOfBirth}, ${v.guardianConsent}, ${v.guardianConsent ? new Date() : null})
         returning id`;
       const ap = await tx<{ id: string }[]>`
@@ -113,7 +116,9 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
     if (photoPath) await deleteImage(photoPath);
     return { ok: false, code: "STALE", error: "This player was changed elsewhere. Reload to see it." };
   }
-  if (current.status === "on_floor" && basePrice !== current.basePrice) {
+  // An empty base price on edit keeps the current one.
+  const newBase = f.basePrice ? basePrice : current.basePrice;
+  if (current.status === "on_floor" && newBase !== current.basePrice) {
     if (photoPath) await deleteImage(photoPath);
     return { ok: false, error: "This player is on the floor. Change the base price after they leave the floor.", fieldErrors: { basePrice: "Locked while on the floor." } };
   }
@@ -121,7 +126,7 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
   const ok = await sql.begin(async (tx) => {
     const rows = await tx`
       update app.players set full_name = ${v.fullName}, role_key = ${v.roleKey}, sub_role = ${v.subRole}, category = ${v.category}, tags = ${v.tags},
-        nationality_group = ${v.nationalityGroup}, stats = ${tx.json(v.stats)}, bio_short = ${v.bioShort}, photo_path = ${newPhoto},
+        nationality_group = ${v.nationalityGroup}, player_type = ${v.playerType}, stats = ${tx.json(v.stats)}, bio_short = ${v.bioShort}, photo_path = ${newPhoto},
         date_of_birth = ${v.dateOfBirth}, guardian_consent = ${v.guardianConsent},
         guardian_consent_at = case when ${v.guardianConsent ?? false} then coalesce(guardian_consent_at, now()) else null end,
         version = version + 1
@@ -130,13 +135,13 @@ export async function savePlayerAction(formData: FormData): Promise<ActionResult
     if (lotNo !== null && lotNo !== current.lotNo) {
       await tx`update app.auction_players set lot_no = ${lotNo}, version = version + 1 where id = ${f.auctionPlayerId!}`;
     }
-    if (current.status === "pool" || current.status === "unsold") {
-      await tx`update app.auction_players set base_price = ${basePrice}, set_name = ${f.setName}, set_order = ${f.setOrder}, version = version + 1 where id = ${f.auctionPlayerId!}`;
+    if (current.status !== "on_floor") {
+      await tx`update app.auction_players set base_price = ${newBase}, set_name = ${f.setName}, set_order = ${f.setOrder}, version = version + 1 where id = ${f.auctionPlayerId!}`;
     } else {
       await tx`update app.auction_players set set_name = ${f.setName}, set_order = ${f.setOrder}, version = version + 1 where id = ${f.auctionPlayerId!}`;
     }
     await tx`select app._audit(${f.auctionId}, 'admin', ${admin.actorId}, 'player.update', 'auction_player', ${f.auctionPlayerId!},
-      ${tx.json({ name: current.name, base_price: current.basePrice, lot_no: current.lotNo })}, ${tx.json({ name: v.fullName, base_price: basePrice, lot_no: lotNo ?? current.lotNo })}, null)`;
+      ${tx.json({ name: current.name, base_price: current.basePrice, lot_no: current.lotNo })}, ${tx.json({ name: v.fullName, base_price: newBase, lot_no: lotNo ?? current.lotNo })}, null)`;
     return true;
   });
   if (!ok) return { ok: false, code: "STALE", error: "This player was changed elsewhere. Reload to see it." };
@@ -231,7 +236,20 @@ export async function importPlayersCsvAction(input: { auctionId: string; csv: st
   if (input.csv.length > 2_000_000) return { ok: false, error: "That file is too large. Split it into files of up to 1,000 players." };
   const ctx = await auctionContext(input.auctionId);
   if (!ctx) return { ok: false, error: "Auction not found." };
-  const { results, headerErrors } = validateCsvRows(parseCsv(input.csv), ctx.config);
+  const { results, headerErrors } = validateCsvRows(parseCsv(input.csv), ctx.config, ctx.playerTypes);
+  // Player numbers already used in this auction.
+  const usedNumbers = new Map(
+    (await db()<{ lotNo: number; name: string }[]>`
+      select ap.lot_no as "lotNo", p.full_name as name from app.auction_players ap join app.players p on p.id = ap.player_id
+      where ap.auction_id = ${input.auctionId}`).map((r) => [r.lotNo, r.name]),
+  );
+  for (const r of results) {
+    const n = r.value?.lotNo;
+    if (r.ok && n != null && usedNumbers.has(n)) {
+      r.ok = false;
+      r.errors.push(`player_number ${n} is already used by ${usedNumbers.get(n)}.`);
+    }
+  }
   const report: ImportReport = {
     valid: results.filter((r) => r.ok).length,
     invalid: results.filter((r) => !r.ok).length,
@@ -248,14 +266,14 @@ export async function importPlayersCsvAction(input: { auctionId: string; csv: st
       if (!r.ok || !r.value) continue;
       const v = r.value;
       const pl = await tx<{ id: string }[]>`
-        insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, stats, bio_short,
+        insert into app.players(sport_id, full_name, role_key, sub_role, category, tags, nationality_group, player_type, stats, bio_short,
           date_of_birth, guardian_consent, guardian_consent_at)
-        values (${ctx.sportId}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.category}, ${v.tags}, ${v.nationalityGroup}, ${tx.json(v.stats)},
+        values (${ctx.sportId}, ${v.fullName}, ${v.roleKey}, ${v.subRole}, ${v.category}, ${v.tags}, ${v.nationalityGroup}, ${v.playerType}, ${tx.json(v.stats)},
           ${v.bioShort}, ${v.dateOfBirth}, ${v.guardianConsent}, ${v.guardianConsent ? new Date() : null})
         returning id`;
       const ap = await tx<{ id: string; lotNo: number }[]>`
-        insert into app.auction_players(auction_id, player_id, base_price, set_name, set_order, queue_position)
-        values (${input.auctionId}, ${pl[0]!.id}, ${v.basePrice ?? basePriceFor(v.category, ctx.categoryPrices, ctx.defaultBase)}, ${v.setName}, ${v.setOrder}, ${++pos})
+        insert into app.auction_players(auction_id, player_id, base_price, set_name, set_order, queue_position, lot_no)
+        values (${input.auctionId}, ${pl[0]!.id}, ${v.basePrice ?? basePriceFor(v.category, ctx.categoryPrices, ctx.defaultBase)}, ${v.setName}, ${v.setOrder}, ${++pos}, ${v.lotNo})
         returning id, lot_no as "lotNo"`;
       out.push({ id: ap[0]!.id, name: v.fullName, lotNo: ap[0]!.lotNo });
     }
