@@ -9,11 +9,25 @@ export function siteUrl(): string {
   if (siteConfig.useCustomDomain && siteConfig.productionDomain) {
     return `https://${siteConfig.productionDomain.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
   }
+  // On Vercel this is set automatically to the project's real production
+  // address (its custom domain when there is one), so it is always right.
+  // It wins over SITE_URL, which is typed by hand and can be wrong.
+  const production = normaliseOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  if (production) return production;
   const explicit = normaliseOrigin(process.env.SITE_URL);
   if (explicit) return explicit;
-  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
-  if (vercel) return `https://${vercel}`;
+  const vercel = normaliseOrigin(process.env.VERCEL_URL);
+  if (vercel) return vercel;
   return "http://localhost:3000";
+}
+
+/** SITE_URL when it is set but points somewhere other than the real production address. */
+export function siteUrlMismatch(): { configured: string; actual: string } | null {
+  const configured = normaliseOrigin(process.env.SITE_URL);
+  const actual = normaliseOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  if (!configured || !actual || configured === actual) return null;
+  if (siteConfig.useCustomDomain && siteConfig.productionDomain) return null;
+  return { configured, actual };
 }
 
 /** Accepts "example.com", "https://example.com/" or "https://example.com/x" and returns "https://example.com". */

@@ -121,3 +121,6 @@ Delete (hide, revoke codes, stop bidding) stays as it was. Erase permanently als
 
 ## Home page without template sections
 To look less like a generated template, the home page dropped the duplicated 1-2-3 strip under the hero buttons and the "Costs nothing to run" panel (it spoke to the organiser, not to visitors). The three steps became one plain row: organisers, team owners and viewers, each with a link to what they would do next.
+
+## The site's own address comes from Vercel
+A registration link opened with Vercel's "404 DEPLOYMENT_NOT_FOUND": the link's host was not one of the project's deployments. Shared links had been built from `SITE_URL`, a value typed by hand (and the setup guide's example address could be copied as is). On Vercel the site now uses `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel sets itself to the project's production address (its custom domain when there is one), for share links, canonical URLs and the sitemap. `SITE_URL` is only a fallback off Vercel. The admin dashboard warns when `SITE_URL` is set to a different address.

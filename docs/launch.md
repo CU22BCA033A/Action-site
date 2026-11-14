@@ -25,7 +25,7 @@ The site runs on Vercel (web app) with Supabase (database, photo storage and liv
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key (Legacy API keys tab) |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (Legacy API keys tab; keep it secret) |
-| `SITE_URL` | your site address, for example `https://action-site-seven.vercel.app` |
+| `SITE_URL` | optional on Vercel: the site finds its own address. If you set it, copy the exact address from your Vercel project page (Domains), for example `https://your-project.vercel.app` |
 
 4. Deployments > the newest one > Redeploy. During the build the database tables, the photo bucket and the four sports are created automatically, so nothing has to run on your computer.
 5. Open `/admin/login` and sign in. `/setup` now shows "not found", which is expected.

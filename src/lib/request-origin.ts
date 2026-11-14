@@ -3,12 +3,15 @@ import { headers } from "next/headers";
 import { siteUrl } from "@/lib/site";
 
 /**
- * The origin the current visitor is using, for links an admin copies and
- * shares (registration, join, live room). Using the request's own host means
- * the link works even when SITE_URL is missing, mistyped or points at a preview
- * deployment. Falls back to the configured site URL.
+ * The origin for links an admin copies and shares (registration, join, live
+ * room). On Vercel: the project's production address, which Vercel sets
+ * itself. Elsewhere: the address the admin is using. A mistyped SITE_URL can
+ * never break these links.
  */
 export async function requestOrigin(): Promise<string> {
+  // On Vercel, always share the stable production address, never a
+  // one-off deployment address (those can be deleted or protected).
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return siteUrl();
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
   if (host && /^[a-z0-9.-]+(:\d+)?$/i.test(host)) {

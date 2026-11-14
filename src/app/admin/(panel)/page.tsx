@@ -5,11 +5,13 @@ import { Badge, statusTone } from "@/components/ui/badges";
 import { ButtonLink } from "@/components/ui/button";
 import { listAdminAuctions } from "@/lib/admin/queries";
 import { formatDateTime } from "@/lib/format";
+import { siteUrlMismatch } from "@/lib/site";
 
 export const metadata = { title: "Auctions | Admin" };
 
 export default async function AdminDashboard() {
   const auctions = await listAdminAuctions();
+  const mismatch = siteUrlMismatch();
   return (
     <>
       <AdminPageHeader
@@ -22,6 +24,16 @@ export default async function AdminDashboard() {
         }
       />
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        {mismatch ? (
+          <div role="alert" className="mb-6 rounded-[var(--radius-md)] border border-warning bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] p-4 text-sm">
+            <p className="font-semibold">The SITE_URL setting in Vercel does not match this site.</p>
+            <p className="mt-1 text-muted">
+              It is set to <span className="font-mono text-text">{mismatch.configured}</span>, but this site is{" "}
+              <span className="font-mono text-text">{mismatch.actual}</span>. Shared links already use the right address. To tidy up, open Vercel,
+              Settings, Environment Variables, and change SITE_URL to <span className="font-mono text-text">{mismatch.actual}</span> or delete it, then redeploy.
+            </p>
+          </div>
+        ) : null}
         {auctions.length === 0 ? (
           <div className="rounded-[var(--radius-md)] border border-line bg-surface p-6">
             <h2 className="text-2xl">No auctions yet</h2>

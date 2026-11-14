@@ -73,7 +73,7 @@ export default function SetupPage() {
           <li><b className="text-text">DATABASE_URL</b>: Supabase, Connect, Transaction pooler. Port 6543. Put your database password in place of [YOUR-PASSWORD].</li>
           <li><b className="text-text">NEXT_PUBLIC_SUPABASE_URL</b>: Project Settings, Data API, Project URL.</li>
           <li><b className="text-text">NEXT_PUBLIC_SUPABASE_ANON_KEY</b> and <b className="text-text">SUPABASE_SERVICE_ROLE_KEY</b>: Project Settings, API Keys, the &quot;Legacy API keys&quot; tab (anon and service_role). Both are long values starting with eyJ.</li>
-          <li><b className="text-text">SITE_URL</b>: this site&apos;s address, for example https://action-site-seven.vercel.app</li>
+          <li><b className="text-text">SITE_URL</b> (optional on Vercel, the site finds its own address): if you set it, copy the exact address from your Vercel project page, for example https://your-project.vercel.app</li>
         </ul>
       </section>
 
